@@ -1,12 +1,15 @@
 ﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using Microsoft.EntityFrameworkCore;
 
 // *** Namespace trỏ đến function_Login ***
-namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login
+{
 
     /// Lớp DTO (Đối tượng truyền dữ liệu)
     /// Dùng để trả về thông tin tài khoản cho Form Login
 
-    public class ThongTinTaiKhoan {
+    public class ThongTinTaiKhoan
+    {
         public string TenDangNhap { get; set; }
         public string MatKhau { get; set; }
         public bool? TrangThai { get; set; }
@@ -20,15 +23,19 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login {
     /// cho chức năng Đăng nhập.
     /// (ĐÃ VIẾT LẠI BẰNG FOREACH, KHÔNG LINQ)
 
-    public class KhoTruyVanDangNhap {
+    public class KhoTruyVanDangNhap
+    {
 
         /// Lấy thông tin tài khoản, nhân viên, và vai trò
         /// dựa trên Tên đăng nhập.
         /// Trả về null nếu không tìm thấy.
 
-        public ThongTinTaiKhoan XacThuc(string username) {
-            try {
-                using (DataSqlContext db = new DataSqlContext()) {
+        public ThongTinTaiKhoan XacThuc(string username)
+        {
+            try
+            {
+                using (DataSqlContext db = new DataSqlContext())
+                {
                     // 1. Lấy tất cả dữ liệu thô để join thủ công
                     var allTaiKhoan = db.TaiKhoans.ToList();
                     var allNhanVien = db.NhanViens.ToList();
@@ -36,22 +43,27 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login {
 
                     // 2. Tìm tài khoản theo TenDangNhap
                     TaiKhoan taiKhoanTimThay = null;
-                    foreach (var tk in allTaiKhoan) {
-                        if (tk.TenDangNhap == username) {
+                    foreach (var tk in allTaiKhoan)
+                    {
+                        if (tk.TenDangNhap.Trim() == username)
+                        {
                             taiKhoanTimThay = tk;
                             break;
                         }
                     }
 
                     // 3. Nếu không tìm thấy -> trả null cho caller (Loginform xử lý)
-                    if (taiKhoanTimThay == null) {
+                    if (taiKhoanTimThay == null)
+                    {
                         return null;
                     }
 
                     // 4. Tìm tên nhân viên tương ứng (join thủ công)
                     string tenNV = "(Không tìm thấy NV)";
-                    foreach (var nv in allNhanVien) {
-                        if (nv.MaNv == taiKhoanTimThay.MaNv) {
+                    foreach (var nv in allNhanVien)
+                    {
+                        if (nv.MaNv == taiKhoanTimThay.MaNv)
+                        {
                             tenNV = nv.TenNv;
                             break;
                         }
@@ -59,15 +71,18 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login {
 
                     // 5. Tìm tên vai trò tương ứng (join thủ công)
                     string tenVaiTro = "(Không tìm thấy VT)";
-                    foreach (var vt in allVaiTro) {
-                        if (vt.MaVaiTro == taiKhoanTimThay.MaVaiTro) {
+                    foreach (var vt in allVaiTro)
+                    {
+                        if (vt.MaVaiTro == taiKhoanTimThay.MaVaiTro)
+                        {
                             tenVaiTro = vt.TenVaiTro;
                             break;
                         }
                     }
 
                     // 6. Gói kết quả vào DTO và trả về
-                    var thongTin = new ThongTinTaiKhoan {
+                    var thongTin = new ThongTinTaiKhoan
+                    {
                         TenDangNhap = taiKhoanTimThay.TenDangNhap,
                         MatKhau = taiKhoanTimThay.MatKhau,
                         TrangThai = taiKhoanTimThay.TrangThai,
@@ -79,11 +94,27 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login {
                     return thongTin;
                 }
             }
-            catch (Exception ex) {
-                // Ghi log lên console để dev trace lỗi kết nối/EF
+            //catch (Exception ex) {
+            //    // Ghi log lên console để dev trace lỗi kết nối/EF
+            //    Console.WriteLine("Lỗi khi xác thực đăng nhập: " + ex.Message);
+            //    return null; // Trả về null nếu có lỗi CSDL
+
+            catch (Exception ex)
+            {
+                // Thêm dòng này (cần using System.Windows.Forms;)
+                System.Windows.Forms.MessageBox.Show("Lỗi kết nối: " + ex.Message);
+
                 Console.WriteLine("Lỗi khi xác thực đăng nhập: " + ex.Message);
-                return null; // Trả về null nếu có lỗi CSDL
+                return null;
+            }
+        }
+        public string GetDatabaseName()
+        {
+            using (var db = new DataSqlContext())
+            {
+                return db.Database.GetDbConnection().Database;
             }
         }
     }
+
 }

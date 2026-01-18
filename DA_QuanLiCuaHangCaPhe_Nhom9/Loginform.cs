@@ -46,6 +46,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
             string username = txtUser.Text.Trim();
             string password = txtPass.Text;
 
+
+
             if (string.IsNullOrWhiteSpace(username)) {
                 MessageBox.Show("Vui lòng nhập tên đăng nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUser.Focus(); return;
@@ -56,16 +58,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
             }
 
             try {
+                //MessageBox.Show(_khoDangNhap.GetDatabaseName());
                 // *** THAY ĐỔI: Gọi KhoTruyVan ***
                 var account = _khoDangNhap.XacThuc(username);
 
                 if (account == null) {
-                    MessageBox.Show("Tên đăng nhập hoặc mật khẩu không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Tên đăng nhập không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtPass.Clear(); txtUser.Focus(); return;
                 }
 
-                if (account.MatKhau != password) {
-                    MessageBox.Show("Tên đăng nhập hoặc mật khẩu không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (account.MatKhau.Trim() != password) {
+                    MessageBox.Show("Mật khẩu không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtPass.Clear(); txtUser.Focus(); return;
                 }
 
