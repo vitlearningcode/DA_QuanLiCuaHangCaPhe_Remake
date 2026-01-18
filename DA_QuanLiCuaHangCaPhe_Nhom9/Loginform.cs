@@ -83,9 +83,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
 
                 // Điều hướng (Giữ nguyên)
                 if (account.TenVaiTro == "Chủ cửa hàng") {
-                    Admin adminForm = new Admin();
-                    adminForm.FormClosed += (s, args) => { this.Show(); txtUser.Focus(); UpdateLoginButtonState(); };
-                    adminForm.Show();
+                    //Admin adminForm = new Admin();
+                    //adminForm.FormClosed += (s, args) => { this.Show(); txtUser.Focus(); UpdateLoginButtonState(); };
+                    //adminForm.Show();
                 }
                 else if (account.TenVaiTro == "Quản lý") {
                     QuanLi ql = new QuanLi(account.MaNv);
