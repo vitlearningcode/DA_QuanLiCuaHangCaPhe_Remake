@@ -32,12 +32,14 @@
             btnKho = new Button();
             btnSanPham = new Button();
             pnlContent = new Panel();
+            btnNhanVien = new Button();
             pnlMenu.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMenu
             // 
             pnlMenu.BackColor = SystemColors.ActiveCaptionText;
+            pnlMenu.Controls.Add(btnNhanVien);
             pnlMenu.Controls.Add(btnKho);
             pnlMenu.Controls.Add(btnSanPham);
             pnlMenu.Dock = DockStyle.Left;
@@ -81,6 +83,19 @@
             pnlContent.Size = new Size(826, 949);
             pnlContent.TabIndex = 1;
             // 
+            // btnNhanVien
+            // 
+            btnNhanVien.Dock = DockStyle.Top;
+            btnNhanVien.FlatStyle = FlatStyle.Flat;
+            btnNhanVien.ForeColor = Color.White;
+            btnNhanVien.Location = new Point(0, 120);
+            btnNhanVien.Name = "btnNhanVien";
+            btnNhanVien.Size = new Size(450, 60);
+            btnNhanVien.TabIndex = 2;
+            btnNhanVien.Text = "Quản lý Nhân Viên";
+            btnNhanVien.UseVisualStyleBackColor = true;
+            btnNhanVien.Click += btnNhanVien_Click;
+            // 
             // Admin
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
@@ -101,5 +116,6 @@
         private Panel pnlContent;
         private Button btnSanPham;
         private Button btnKho;
+        private Button btnNhanVien;
     }
 }

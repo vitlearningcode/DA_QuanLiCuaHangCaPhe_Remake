@@ -42,5 +42,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         {
             OpenChildControl(new UC_Kho());
         }
+
+        private void btnNhanVien_Click(object sender, EventArgs e)
+        {           
+            OpenChildControl(new UC_NhanVien());
+        }
     }
 }

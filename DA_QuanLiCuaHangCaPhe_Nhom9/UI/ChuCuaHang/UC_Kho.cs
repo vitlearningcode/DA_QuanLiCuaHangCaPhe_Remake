@@ -8,7 +8,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     public partial class UC_Kho : UserControl
     {
+        #region Setup
         private readonly KhoService _service = new KhoService();
+        private List<ChiTietPhieuKho> _listChiTietTam = new List<ChiTietPhieuKho>();
         private int _maNLDangChon = -1; // Biến lưu ID nguyên liệu đang chọn để sửa/xóa
 
         public UC_Kho()
@@ -21,6 +23,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         {
             TaiDanhSachKho();
         }
+        #endregion
+
+        #region LoadData
 
         private void TaiDanhSachKho()
         {
@@ -36,11 +41,23 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             if (dgvNguyenLieu.Columns["TenNl"] != null) dgvNguyenLieu.Columns["TenNl"].HeaderText = "Tên Nguyên Liệu";
             if (dgvNguyenLieu.Columns["SoLuongTon"] != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText = "Tồn Kho";
             if (dgvNguyenLieu.Columns["DonViTinh"] != null) dgvNguyenLieu.Columns["DonViTinh"].HeaderText = "Đơn Vị";
-           
+
+            cboChonNL_Tab2.DataSource = listNL;
+            cboChonNL_Tab2.DisplayMember = "TenNl"; // Hiện tên
+            cboChonNL_Tab2.ValueMember = "MaNl";
+
+            // Load Nhà Cung Cấp
+            cboNhaCungCap.DataSource = _service.LayDanhSachNhaCungCap();
+            cboNhaCungCap.DisplayMember = "TenNcc";
+            cboNhaCungCap.ValueMember = "MaNcc";
         }
 
+
+        #endregion
+
+        #region TinhNang
         // --- TÍNH NĂNG 1: TÔ MÀU CẢNH BÁO SẮP HẾT HÀNG ---
-        // (Bạn nhớ chọn dgvNguyenLieu -> Events -> CellFormatting để gắn hàm này)
+        // (nhớ chọn dgvNguyenLieu -> Events -> CellFormatting để gắn hàm này)
         private void dgvNguyenLieu_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             // Kiểm tra cột "SoLuongTon"
@@ -78,12 +95,30 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             }
         }
 
-        // Nút LÀM MỚI (Để hủy chọn và nhập mới)
-        private void btnLamMoi_Click(object sender, EventArgs e)
+        // --- TÍNH NĂNG 3: Hiển thị list tạ
+        private void HienThiListTam()
         {
-            ResetInput();
+            using (var db = new DataSqlContext())
+            {
+                // Join để lấy tên hiển thị
+                var hienThi = from ct in _listChiTietTam
+                              join nl in db.NguyenLieus on ct.MaNl equals nl.MaNl
+                              select new
+                              {
+                                  TenNL = nl.TenNl,
+                                  SoLuong = ct.SoLuong,
+                                  GiaNhap = ct.GiaNhap, // <--- ĐÃ SỬA
+                                  ThanhTien = ct.SoLuong * ct.GiaNhap // <--- ĐÃ SỬA
+                              };
+                dgvChiTietNhap.DataSource = hienThi.ToList();
+
+                // Định dạng lại cột hiển thị tiền tệ cho đẹp (nếu cần)
+                dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
+                dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
+            }
         }
 
+        //reset
         private void ResetInput()
         {
             txtTenNL.Clear();
@@ -95,14 +130,22 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             TaiDanhSachKho();
         }
 
-        // --- CÁC NÚT THAO TÁC (CRUD) ---
+        #endregion
 
+        #region Event
+        // Nút LÀM MỚI (Để hủy chọn và nhập mới)
+        private void btnLamMoi_Click(object sender, EventArgs e)
+        {
+            ResetInput();
+        }
+
+        // --- CÁC NÚT THAO TÁC (CRUD) ---
         private void btnThemNL_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTenNL.Text)) return;
 
-            decimal giaNhap = 0;
-            decimal.TryParse(txtDonGia.Text, out giaNhap);
+            //decimal giaNhap = 0;
+            //decimal.TryParse(txtDonGia.Text, out giaNhap);
 
             if (_service.ThemNguyenLieu(txtTenNL.Text, txtDonVi.Text))
             {
@@ -118,7 +161,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         private void btnSuaNL_Click(object sender, EventArgs e)
         {
             if (_maNLDangChon == -1) return;
-                      
+
             _service.SuaNguyenLieu(_maNLDangChon, txtTenNL.Text, txtDonVi.Text);
             MessageBox.Show("Cập nhật thành công!");
             ResetInput();
@@ -134,6 +177,80 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 MessageBox.Show("Đã xóa!");
                 ResetInput();
             }
+        }
+
+        private void btnThemVaoPhieu_Click(object sender, EventArgs e)
+        {
+            if (cboChonNL_Tab2.SelectedValue == null) return;
+
+            decimal soLuong, giaNhap;
+            // Validate dữ liệu nhập
+            if (!decimal.TryParse(txtSoLuongNhap.Text, out soLuong) || soLuong <= 0)
+            {
+                MessageBox.Show("Số lượng phải lớn hơn 0"); return;
+            }
+            // Ở Tab nhập hàng, ô nhập giá bạn đặt tên là txtGiaNhap (hoặc txtDonGia tùy giao diện)
+            // Nhưng quan trọng là gán vào thuộc tính GiaNhap của object
+            if (!decimal.TryParse(txtDonGia.Text, out giaNhap) || giaNhap < 0)
+            { // Giả sử ô nhập tên là txtDonGia
+                MessageBox.Show("Giá nhập không hợp lệ"); return;
+            }
+
+            var item = new ChiTietPhieuKho
+            {
+                MaNl = (int)cboChonNL_Tab2.SelectedValue, // SQL dùng MaNL
+                SoLuong = soLuong,
+                GiaNhap = giaNhap // <--- ĐÃ SỬA: Dùng GiaNhap thay vì DonGia
+            };
+
+            _listChiTietTam.Add(item);
+            HienThiListTam();
+
+            // Reset ô nhập
+            txtSoLuongNhap.Clear();
+            txtDonGia.Clear();
+        }
+
+        private void btnLuuPhieu_Click(object sender, EventArgs e)
+        {
+            if (_listChiTietTam.Count == 0) return;
+
+            // Tính tổng tiền phiếu (Dùng GiaNhap)
+            // Lưu ý ép kiểu (decimal) nếu cột trong DB cho phép null
+            decimal tongTien = _listChiTietTam.Sum(x => x.SoLuong * (x.GiaNhap ?? 0));
+
+            PhieuKho phieu = new PhieuKho
+            {
+                NgayLap = dtpNgayNhap.Value,      // <--- ĐÃ SỬA: Dùng NgayLap
+                MaNcc = (int)cboNhaCungCap.SelectedValue,
+                LoaiPhieu = "Nhap",               // <--- ĐÃ SỬA: Gán chuỗi "Nhap"
+                MaNv = 1, // Gán tạm mã nhân viên đang đăng nhập (sau này lấy từ session)
+                          // Trong SQL không có cột TongTien trong bảng PhieuKho? 
+                          // Nếu file SQL bạn gửi thiếu update thì bỏ dòng này, 
+                          // còn nếu có thì giữ nguyên:
+                          // TongTien = tongTien 
+            };
+
+            if (_service.NhapKhoChinhThuc(phieu, _listChiTietTam))
+            {
+                MessageBox.Show("Nhập kho thành công!");
+                _listChiTietTam.Clear();
+                dgvChiTietNhap.DataSource = null;
+                TaiDanhSachKho(); // Refresh lại danh sách để thấy tồn kho tăng
+            }
+            else
+            {
+                MessageBox.Show("Lỗi khi lưu phiếu! Vui lòng thử lại.");
+            }
+        }
+        #endregion
+
+
+
+
+        private void dgvNguyenLieu_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
