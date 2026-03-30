@@ -14,7 +14,6 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // Khởi tạo Service
         private readonly SanPhamService _service = new SanPhamService();
 
-        // --- FIX CHÍNH Ở ĐÂY: SỬA DinhLuong THÀNH CongThucHienThi ---
         private List<CongThucHienThi> _listCongThucTam = new List<CongThucHienThi>();
 
         public UC_SanPham()
@@ -59,7 +58,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             _listCongThucTam.Clear();
             HienThiLuoiCongThuc();
 
-            btnLuu.Text = "THÊM VÀO MENU"; // Đổi chức năng nút Lưu thành Thêm Mới
+            cboTrangThai_SP.Text = "Còn bán";
+
+            btnLuu.Text = "THÊM VÀO MENU";
             btnLuu.BackColor = Color.LightSeaGreen;
             btnLuu.Tag = null; // Tag = null nghĩa là đang ở chế độ Thêm Mới
 
@@ -144,6 +145,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             txtGiaBan.Text = monChon.DonGia.ToString("N0");
             cboLoai.Text = monChon.LoaiSp;
             cboDonVi.Text = monChon.DonVi;
+            cboTrangThai_SP.Text = monChon.TrangThai ?? "Còn bán";
 
             // 2. Nạp công thức từ DB vào list tạm
             _listCongThucTam.Clear();
@@ -174,8 +176,12 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 return;
             }
 
+            // Lấy toàn bộ Nguyên Liệu đang được chọn trên ComboBox
+            NguyenLieu nlChon = (NguyenLieu)cboNguyenLieu.SelectedItem;
+
             int maNLChon = (int)cboNguyenLieu.SelectedValue;
-            string tenNLChon = cboNguyenLieu.Text; // Lấy tên nguyên liệu để hiển thị
+            string tenNLChon = cboNguyenLieu.Text;
+            string donViChon = nlChon.DonViTinh;
 
             // Kiểm tra xem nguyên liệu này đã có trong lưới chưa
             var monDaCo = _listCongThucTam.FirstOrDefault(x => x.MaNL == maNLChon);
@@ -192,7 +198,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     MaNL = maNLChon,
                     TenNL = tenNLChon,
                     SoLuong = soLuong,
-                    DonViTinh = "---" // Đơn vị sẽ được cập nhật khi tải lại từ DB
+                    DonViTinh = donViChon // Đơn vị sẽ được cập nhật khi tải lại từ DB
                 });
             }
 
@@ -212,14 +218,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             decimal giaBan;
             if (!decimal.TryParse(txtGiaBan.Text.Replace(",", ""), out giaBan)) { MessageBox.Show("Giá bán không hợp lệ!"); return; }
 
-            // --- BƯỚC 2: XỬ LÝ LOGIC "NGỪNG BÁN" (Như bạn yêu cầu) ---
-            string trangThaiMon = "Còn bán";
-            if (_listCongThucTam.Count == 0)
-            {
-                var tl = MessageBox.Show("Món này đang không có nguyên liệu nào!\nĐể tránh lỗi khi bán hàng, hệ thống sẽ tự động đổi trạng thái món thành 'Ngừng Bán'.\nBạn có muốn tiếp tục lưu?", "Cảnh báo định lượng", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (tl == DialogResult.No) return; // Hủy lưu để người dùng nhập thêm NL
+            // --- BƯỚC 2: XỬ LÝ LOGIC "NGỪNG BÁN" 
 
-                trangThaiMon = "Ngừng bán"; // Gán trạng thái
+            string trangThaiMon = cboTrangThai_SP.Text;
+
+            if (_listCongThucTam.Count == 0 && trangThaiMon == "Còn bán")
+            {
+                var tl = MessageBox.Show("Món này đang không có nguyên liệu nào!\nĐể tránh lỗi khi bán hàng, hệ thống sẽ tự động đổi thành 'Ngừng bán'.\nBạn có muốn tiếp tục lưu?", "Cảnh báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (tl == DialogResult.No) return;
+
+                trangThaiMon = "Ngừng bán";
+                cboTrangThai_SP.Text = "Ngừng bán"; // Ép giao diện về ngừng bán luôn
             }
 
             // --- BƯỚC 3: THỰC THI THÊM HOẶC SỬA ---
@@ -240,7 +249,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 isSuccess = _service.ThemSanPhamMoi(spMoi, _listCongThucTam);
 
                 if (isSuccess) MessageBox.Show("Đã thêm món mới vào Menu thành công!");
-                else MessageBox.Show("Lỗi khi thêm món mới vào cơ sở dữ liệu!");
+                else MessageBox.Show("Lỗi khi thêm món mới  vào cơ sở dữ liệu!");
             }
             else
             {
@@ -279,7 +288,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         }
 
         // Nếu có chọn ít nhất 1 dòng thì sáng nút Xóa lên
-        private void dgvCongThuc_SelectionChanged(object sender, EventArgs e) => btnXoaNL.Enabled = dgvCongThuc.SelectedRows.Count > 0;
+        private void dgvCongThuc_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvCongThuc.SelectedRows.Count > 0)
+            {
+                btnXoaNL.Enabled = true;
+                btnXoaNL.BackColor = Color.Red;
+                btnXoaNL.ForeColor = Color.White;
+            }
+        }
+
 
         private void btnXoaNL_Click(object sender, EventArgs e)
         {
