@@ -29,93 +29,143 @@
         private void InitializeComponent()
         {
             pnlMenu = new Panel();
+            lblLogo = new Label();
+            pnlMenuItems = new Panel();
             btnKho = new Button();
             btnSanPham = new Button();
             pnlContent = new Panel();
             btnNhanVien = new Button();
             pnlMenu.SuspendLayout();
+            pnlMenuItems.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMenu
             // 
-            pnlMenu.BackColor = SystemColors.ActiveCaptionText;
-            pnlMenu.Controls.Add(btnNhanVien);
-            pnlMenu.Controls.Add(btnKho);
-            pnlMenu.Controls.Add(btnSanPham);
+            pnlMenu.BackColor = Color.FromArgb(34, 40, 49);
+            pnlMenu.Controls.Add(pnlMenuItems);
+            pnlMenu.Controls.Add(lblLogo);
             pnlMenu.Dock = DockStyle.Left;
             pnlMenu.Location = new Point(0, 0);
             pnlMenu.Name = "pnlMenu";
-            pnlMenu.Size = new Size(450, 949);
+            pnlMenu.Size = new Size(220, 949);
             pnlMenu.TabIndex = 0;
+            pnlMenu.Padding = new Padding(12);
             // 
-            // btnKho
+            // lblLogo
             // 
-            btnKho.Dock = DockStyle.Top;
-            btnKho.FlatStyle = FlatStyle.Flat;
-            btnKho.ForeColor = Color.White;
-            btnKho.Location = new Point(0, 60);
-            btnKho.Name = "btnKho";
-            btnKho.Size = new Size(450, 60);
-            btnKho.TabIndex = 1;
-            btnKho.Text = "Quản lý Kho";
-            btnKho.UseVisualStyleBackColor = true;
-            btnKho.Click += btnKho_Click;
+            lblLogo.Dock = DockStyle.Top;
+            lblLogo.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblLogo.ForeColor = Color.White;
+            lblLogo.Height = 64;
+            lblLogo.Text = "Cửa Hàng";
+            lblLogo.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pnlMenuItems
+            // 
+            pnlMenuItems.Dock = DockStyle.Fill;
+            pnlMenuItems.Location = new Point(12, 76);
+            pnlMenuItems.Name = "pnlMenuItems";
+            pnlMenuItems.Size = new Size(196, 861);
+            pnlMenuItems.TabIndex = 1;
+            pnlMenuItems.Padding = new Padding(0, 8, 0, 0);
             // 
             // btnSanPham
             // 
             btnSanPham.Dock = DockStyle.Top;
             btnSanPham.FlatStyle = FlatStyle.Flat;
+            btnSanPham.FlatAppearance.BorderSize = 0;
+            btnSanPham.FlatAppearance.MouseOverBackColor = Color.FromArgb(63, 81, 181);
+            btnSanPham.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
             btnSanPham.ForeColor = Color.White;
             btnSanPham.Location = new Point(0, 0);
+            btnSanPham.Margin = new Padding(0, 6, 0, 6);
             btnSanPham.Name = "btnSanPham";
-            btnSanPham.Size = new Size(450, 60);
+            btnSanPham.Padding = new Padding(8, 0, 0, 0);
+            btnSanPham.Size = new Size(196, 50);
             btnSanPham.TabIndex = 0;
             btnSanPham.Text = "Quản lý sản phẩm";
+            btnSanPham.TextAlign = ContentAlignment.MiddleLeft;
             btnSanPham.UseVisualStyleBackColor = true;
+            btnSanPham.Cursor = Cursors.Hand;
             btnSanPham.Click += btnSanPham_Click;
             // 
-            // pnlContent
+            // btnKho
             // 
-            pnlContent.BackColor = Color.WhiteSmoke;
-            pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Location = new Point(450, 0);
-            pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(826, 949);
-            pnlContent.TabIndex = 1;
+            btnKho.Dock = DockStyle.Top;
+            btnKho.FlatStyle = FlatStyle.Flat;
+            btnKho.FlatAppearance.BorderSize = 0;
+            btnKho.FlatAppearance.MouseOverBackColor = Color.FromArgb(63, 81, 181);
+            btnKho.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            btnKho.ForeColor = Color.White;
+            btnKho.Location = new Point(0, 56);
+            btnKho.Margin = new Padding(0, 6, 0, 6);
+            btnKho.Name = "btnKho";
+            btnKho.Padding = new Padding(8, 0, 0, 0);
+            btnKho.Size = new Size(196, 50);
+            btnKho.TabIndex = 1;
+            btnKho.Text = "Quản lý Kho";
+            btnKho.TextAlign = ContentAlignment.MiddleLeft;
+            btnKho.UseVisualStyleBackColor = true;
+            btnKho.Cursor = Cursors.Hand;
+            btnKho.Click += btnKho_Click;
             // 
             // btnNhanVien
             // 
             btnNhanVien.Dock = DockStyle.Top;
             btnNhanVien.FlatStyle = FlatStyle.Flat;
+            btnNhanVien.FlatAppearance.BorderSize = 0;
+            btnNhanVien.FlatAppearance.MouseOverBackColor = Color.FromArgb(63, 81, 181);
+            btnNhanVien.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
             btnNhanVien.ForeColor = Color.White;
-            btnNhanVien.Location = new Point(0, 120);
+            btnNhanVien.Location = new Point(0, 112);
+            btnNhanVien.Margin = new Padding(0, 6, 0, 6);
             btnNhanVien.Name = "btnNhanVien";
-            btnNhanVien.Size = new Size(450, 60);
+            btnNhanVien.Padding = new Padding(8, 0, 0, 0);
+            btnNhanVien.Size = new Size(196, 50);
             btnNhanVien.TabIndex = 2;
             btnNhanVien.Text = "Quản lý Nhân Viên";
+            btnNhanVien.TextAlign = ContentAlignment.MiddleLeft;
             btnNhanVien.UseVisualStyleBackColor = true;
+            btnNhanVien.Cursor = Cursors.Hand;
             btnNhanVien.Click += btnNhanVien_Click;
+            // add buttons into menu items panel in order
+            pnlMenuItems.Controls.Add(btnNhanVien);
+            pnlMenuItems.Controls.Add(btnKho);
+            pnlMenuItems.Controls.Add(btnSanPham);
+            // 
+            // pnlContent
+            // 
+            pnlContent.BackColor = Color.FromArgb(250, 250, 252);
+            pnlContent.Dock = DockStyle.Fill;
+            pnlContent.Location = new Point(220, 0);
+            pnlContent.Name = "pnlContent";
+            pnlContent.Size = new Size(1056, 949);
+            pnlContent.TabIndex = 2;
+            pnlContent.Padding = new Padding(16);
             // 
             // Admin
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1276, 949);
             Controls.Add(pnlContent);
             Controls.Add(pnlMenu);
             Name = "Admin";
-            Text = "Admin";
+            Text = "Quản lý Cửa Hàng - Admin";
             Load += Admin_Load;
             pnlMenu.ResumeLayout(false);
+            pnlMenuItems.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
         private Panel pnlMenu;
+        private Panel pnlMenuItems;
         private Panel pnlContent;
         private Button btnSanPham;
         private Button btnKho;
         private Button btnNhanVien;
+        private Label lblLogo;
     }
 }

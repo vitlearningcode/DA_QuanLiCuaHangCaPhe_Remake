@@ -75,7 +75,7 @@
             splitContainer1.Panel2.Controls.Add(groupBox2);
             splitContainer1.Panel2.Controls.Add(groupBox1);
             splitContainer1.Size = new Size(908, 340);
-            splitContainer1.SplitterDistance = 301;
+            splitContainer1.SplitterDistance = 300;
             splitContainer1.SplitterWidth = 2;
             splitContainer1.TabIndex = 0;
             // 
@@ -83,20 +83,25 @@
             // 
             flpDanhSachMon.AutoScroll = true;
             flpDanhSachMon.Dock = DockStyle.Fill;
-            flpDanhSachMon.Location = new Point(0, 23);
-            flpDanhSachMon.Margin = new Padding(1);
+            flpDanhSachMon.Location = new Point(0, 36);
+            flpDanhSachMon.Margin = new Padding(8);
             flpDanhSachMon.Name = "flpDanhSachMon";
-            flpDanhSachMon.Size = new Size(301, 317);
+            flpDanhSachMon.Size = new Size(300, 304);
             flpDanhSachMon.TabIndex = 2;
+            flpDanhSachMon.Padding = new Padding(8);
             // 
-            // textBox1
+            // textBox1 (search)
             // 
             textBox1.Dock = DockStyle.Top;
             textBox1.Location = new Point(0, 0);
             textBox1.Margin = new Padding(1);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(301, 23);
+            textBox1.Size = new Size(300, 30);
+            textBox1.Font = new Font("Segoe UI", 9F);
             textBox1.TabIndex = 1;
+            textBox1.PlaceholderText = "Tìm kiếm món...";
+            textBox1.BorderStyle = BorderStyle.FixedSingle;
+            textBox1.Padding = new Padding(6);
             // 
             // groupBox2
             // 
@@ -111,88 +116,101 @@
             groupBox2.Location = new Point(0, 72);
             groupBox2.Margin = new Padding(1);
             groupBox2.Name = "groupBox2";
-            groupBox2.Padding = new Padding(1);
-            groupBox2.Size = new Size(605, 268);
+            groupBox2.Padding = new Padding(8);
+            groupBox2.Size = new Size(606, 268);
             groupBox2.TabIndex = 0;
             groupBox2.TabStop = false;
             groupBox2.Text = "CÔNG THỨC PHA CHẾ";
+            groupBox2.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             // 
             // btnTaoMonMoi
             // 
-            btnTaoMonMoi.Location = new Point(330, 4);
+            btnTaoMonMoi.Location = new Point(320, 8);
             btnTaoMonMoi.Name = "btnTaoMonMoi";
-            btnTaoMonMoi.Size = new Size(75, 23);
+            btnTaoMonMoi.Size = new Size(110, 30);
             btnTaoMonMoi.TabIndex = 6;
             btnTaoMonMoi.Text = "Tạo Món Mới";
             btnTaoMonMoi.UseVisualStyleBackColor = true;
+            btnTaoMonMoi.FlatStyle = FlatStyle.Flat;
+            btnTaoMonMoi.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             btnTaoMonMoi.Click += btnTaoMonMoi_Click;
             // 
             // btnXoaNL
             // 
             btnXoaNL.Enabled = false;
-            btnXoaNL.Location = new Point(330, 29);
+            btnXoaNL.Location = new Point(320, 44);
             btnXoaNL.Name = "btnXoaNL";
-            btnXoaNL.Size = new Size(75, 23);
+            btnXoaNL.Size = new Size(110, 30);
             btnXoaNL.TabIndex = 5;
             btnXoaNL.Text = "Xóa";
             btnXoaNL.UseVisualStyleBackColor = true;
+            btnXoaNL.FlatStyle = FlatStyle.Flat;
             btnXoaNL.Click += btnXoaNL_Click;
             // 
             // btnLuu
             // 
             btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnLuu.BackColor = Color.YellowGreen;
-            btnLuu.FlatAppearance.BorderColor = Color.Black;
-            btnLuu.Location = new Point(512, 241);
+            btnLuu.BackColor = Color.FromArgb(76, 175, 80);
+            btnLuu.FlatAppearance.BorderColor = Color.FromArgb(56, 142, 60);
+            btnLuu.FlatStyle = FlatStyle.Flat;
+            btnLuu.Location = new Point(520, 230);
             btnLuu.Margin = new Padding(1);
             btnLuu.Name = "btnLuu";
-            btnLuu.Size = new Size(77, 21);
+            btnLuu.Size = new Size(77, 28);
             btnLuu.TabIndex = 4;
             btnLuu.Text = "Lưu";
             btnLuu.UseVisualStyleBackColor = false;
+            btnLuu.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             btnLuu.Click += btnLuu_Click;
             // 
             // dgvCongThuc
             // 
             dgvCongThuc.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvCongThuc.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvCongThuc.Location = new Point(12, 62);
+            dgvCongThuc.Location = new Point(12, 88);
             dgvCongThuc.Margin = new Padding(1);
             dgvCongThuc.Name = "dgvCongThuc";
             dgvCongThuc.RowHeadersWidth = 102;
-            dgvCongThuc.Size = new Size(578, 167);
+            dgvCongThuc.Size = new Size(584, 132);
             dgvCongThuc.TabIndex = 3;
             dgvCongThuc.CellDoubleClick += dgvCongThuc_CellDoubleClick;
             dgvCongThuc.SelectionChanged += dgvCongThuc_SelectionChanged;
+            dgvCongThuc.BackgroundColor = Color.White;
+            dgvCongThuc.Font = new Font("Segoe UI", 9F);
+            dgvCongThuc.BorderStyle = BorderStyle.None;
+            dgvCongThuc.EnableHeadersVisualStyles = false;
             // 
             // btnThemNL
             // 
-            btnThemNL.Location = new Point(409, 31);
+            btnThemNL.Location = new Point(420, 44);
             btnThemNL.Margin = new Padding(1);
             btnThemNL.Name = "btnThemNL";
-            btnThemNL.Size = new Size(77, 21);
+            btnThemNL.Size = new Size(80, 30);
             btnThemNL.TabIndex = 2;
             btnThemNL.Text = "Thêm";
             btnThemNL.UseVisualStyleBackColor = true;
+            btnThemNL.FlatStyle = FlatStyle.Flat;
             btnThemNL.Click += btnThemNL_Click;
             // 
             // txtSoLuongNL
             // 
-            txtSoLuongNL.Location = new Point(159, 31);
+            txtSoLuongNL.Location = new Point(159, 44);
             txtSoLuongNL.Margin = new Padding(1);
             txtSoLuongNL.Name = "txtSoLuongNL";
             txtSoLuongNL.Size = new Size(105, 23);
             txtSoLuongNL.TabIndex = 1;
+            txtSoLuongNL.Font = new Font("Segoe UI", 9F);
             // 
             // cboNguyenLieu
             // 
             cboNguyenLieu.DropDownStyle = ComboBoxStyle.DropDownList;
             cboNguyenLieu.FormattingEnabled = true;
-            cboNguyenLieu.Location = new Point(12, 31);
+            cboNguyenLieu.Location = new Point(12, 44);
             cboNguyenLieu.Margin = new Padding(1);
             cboNguyenLieu.Name = "cboNguyenLieu";
             cboNguyenLieu.Size = new Size(127, 23);
             cboNguyenLieu.TabIndex = 0;
+            cboNguyenLieu.Font = new Font("Segoe UI", 9F);
             // 
             // groupBox1
             // 
@@ -209,11 +227,12 @@
             groupBox1.Location = new Point(0, 0);
             groupBox1.Margin = new Padding(1);
             groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new Padding(1);
-            groupBox1.Size = new Size(605, 72);
+            groupBox1.Padding = new Padding(8);
+            groupBox1.Size = new Size(606, 72);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "THÔNG TIN SẢN PHẨM";
+            groupBox1.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
             // 
             // cboDonVi
             // 
@@ -223,6 +242,7 @@
             cboDonVi.Name = "cboDonVi";
             cboDonVi.Size = new Size(105, 23);
             cboDonVi.TabIndex = 2;
+            cboDonVi.Font = new Font("Segoe UI", 9F);
             // 
             // cboLoai
             // 
@@ -232,6 +252,7 @@
             cboLoai.Name = "cboLoai";
             cboLoai.Size = new Size(105, 23);
             cboLoai.TabIndex = 2;
+            cboLoai.Font = new Font("Segoe UI", 9F);
             // 
             // txtGiaBan
             // 
@@ -240,14 +261,16 @@
             txtGiaBan.Name = "txtGiaBan";
             txtGiaBan.Size = new Size(105, 23);
             txtGiaBan.TabIndex = 1;
+            txtGiaBan.Font = new Font("Segoe UI", 9F);
             // 
             // txtTenMon
             // 
             txtTenMon.Location = new Point(92, 20);
             txtTenMon.Margin = new Padding(1);
             txtTenMon.Name = "txtTenMon";
-            txtTenMon.Size = new Size(105, 23);
+            txtTenMon.Size = new Size(200, 23);
             txtTenMon.TabIndex = 1;
+            txtTenMon.Font = new Font("Segoe UI", 9F);
             // 
             // lbl_DonVi
             // 
@@ -258,6 +281,7 @@
             lbl_DonVi.Size = new Size(41, 15);
             lbl_DonVi.TabIndex = 0;
             lbl_DonVi.Text = "Đơn vị";
+            lbl_DonVi.Font = new Font("Segoe UI", 9F);
             // 
             // lbl_LoaiMon
             // 
@@ -268,6 +292,7 @@
             lbl_LoaiMon.Size = new Size(60, 15);
             lbl_LoaiMon.TabIndex = 0;
             lbl_LoaiMon.Text = "Loại món:";
+            lbl_LoaiMon.Font = new Font("Segoe UI", 9F);
             // 
             // lbl_DonGia
             // 
@@ -278,6 +303,7 @@
             lbl_DonGia.Size = new Size(51, 15);
             lbl_DonGia.TabIndex = 0;
             lbl_DonGia.Text = "Đơn giá:";
+            lbl_DonGia.Font = new Font("Segoe UI", 9F);
             // 
             // lbl_TenMon
             // 
@@ -288,6 +314,7 @@
             lbl_TenMon.Size = new Size(57, 15);
             lbl_TenMon.TabIndex = 0;
             lbl_TenMon.Text = "Tên món:";
+            lbl_TenMon.Font = new Font("Segoe UI", 9F);
             // 
             // cboTrangThai_SP
             // 
@@ -298,6 +325,7 @@
             cboTrangThai_SP.Name = "cboTrangThai_SP";
             cboTrangThai_SP.Size = new Size(121, 23);
             cboTrangThai_SP.TabIndex = 3;
+            cboTrangThai_SP.Font = new Font("Segoe UI", 9F);
             // 
             // UC_SanPham
             // 
