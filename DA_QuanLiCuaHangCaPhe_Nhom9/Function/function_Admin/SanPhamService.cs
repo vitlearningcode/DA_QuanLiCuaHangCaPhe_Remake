@@ -11,7 +11,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
         {
             using (var db = new DataSqlContext())
             {
-                return db.SanPhams.Where(s => s.TrangThai == "Còn bán").ToList();
+                return db.SanPhams.ToList(); // Không WHERE gì hết, lấy hết lên!
             }
         }
 
@@ -87,6 +87,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                             spDb.DonGia = sp.DonGia;
                             spDb.LoaiSp = sp.LoaiSp;
                             spDb.DonVi = sp.DonVi;
+                            spDb.TrangThai = sp.TrangThai;
                         }
 
                         // 2. Xóa toàn bộ công thức cũ của món này

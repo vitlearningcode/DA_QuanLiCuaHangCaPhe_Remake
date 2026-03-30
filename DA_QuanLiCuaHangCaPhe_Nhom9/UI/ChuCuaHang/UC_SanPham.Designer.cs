@@ -48,6 +48,7 @@
             lbl_LoaiMon = new Label();
             lbl_DonGia = new Label();
             lbl_TenMon = new Label();
+            cboTrangThai_SP = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -73,8 +74,8 @@
             // 
             splitContainer1.Panel2.Controls.Add(groupBox2);
             splitContainer1.Panel2.Controls.Add(groupBox1);
-            splitContainer1.Size = new Size(755, 325);
-            splitContainer1.SplitterDistance = 251;
+            splitContainer1.Size = new Size(908, 340);
+            splitContainer1.SplitterDistance = 301;
             splitContainer1.SplitterWidth = 2;
             splitContainer1.TabIndex = 0;
             // 
@@ -85,7 +86,7 @@
             flpDanhSachMon.Location = new Point(0, 23);
             flpDanhSachMon.Margin = new Padding(1);
             flpDanhSachMon.Name = "flpDanhSachMon";
-            flpDanhSachMon.Size = new Size(251, 302);
+            flpDanhSachMon.Size = new Size(301, 317);
             flpDanhSachMon.TabIndex = 2;
             // 
             // textBox1
@@ -94,7 +95,7 @@
             textBox1.Location = new Point(0, 0);
             textBox1.Margin = new Padding(1);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(251, 23);
+            textBox1.Size = new Size(301, 23);
             textBox1.TabIndex = 1;
             // 
             // groupBox2
@@ -111,7 +112,7 @@
             groupBox2.Margin = new Padding(1);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(1);
-            groupBox2.Size = new Size(502, 253);
+            groupBox2.Size = new Size(605, 268);
             groupBox2.TabIndex = 0;
             groupBox2.TabStop = false;
             groupBox2.Text = "CÔNG THỨC PHA CHẾ";
@@ -142,7 +143,7 @@
             btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnLuu.BackColor = Color.YellowGreen;
             btnLuu.FlatAppearance.BorderColor = Color.Black;
-            btnLuu.Location = new Point(409, 226);
+            btnLuu.Location = new Point(512, 241);
             btnLuu.Margin = new Padding(1);
             btnLuu.Name = "btnLuu";
             btnLuu.Size = new Size(77, 21);
@@ -159,7 +160,7 @@
             dgvCongThuc.Margin = new Padding(1);
             dgvCongThuc.Name = "dgvCongThuc";
             dgvCongThuc.RowHeadersWidth = 102;
-            dgvCongThuc.Size = new Size(475, 152);
+            dgvCongThuc.Size = new Size(578, 167);
             dgvCongThuc.TabIndex = 3;
             dgvCongThuc.CellDoubleClick += dgvCongThuc_CellDoubleClick;
             dgvCongThuc.SelectionChanged += dgvCongThuc_SelectionChanged;
@@ -177,7 +178,7 @@
             // 
             // txtSoLuongNL
             // 
-            txtSoLuongNL.Location = new Point(171, 32);
+            txtSoLuongNL.Location = new Point(159, 31);
             txtSoLuongNL.Margin = new Padding(1);
             txtSoLuongNL.Name = "txtSoLuongNL";
             txtSoLuongNL.Size = new Size(105, 23);
@@ -195,6 +196,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(cboTrangThai_SP);
             groupBox1.Controls.Add(cboDonVi);
             groupBox1.Controls.Add(cboLoai);
             groupBox1.Controls.Add(txtGiaBan);
@@ -208,7 +210,7 @@
             groupBox1.Margin = new Padding(1);
             groupBox1.Name = "groupBox1";
             groupBox1.Padding = new Padding(1);
-            groupBox1.Size = new Size(502, 72);
+            groupBox1.Size = new Size(605, 72);
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "THÔNG TIN SẢN PHẨM";
@@ -216,7 +218,7 @@
             // cboDonVi
             // 
             cboDonVi.FormattingEnabled = true;
-            cboDonVi.Location = new Point(384, 46);
+            cboDonVi.Location = new Point(330, 46);
             cboDonVi.Margin = new Padding(1);
             cboDonVi.Name = "cboDonVi";
             cboDonVi.Size = new Size(105, 23);
@@ -225,7 +227,7 @@
             // cboLoai
             // 
             cboLoai.FormattingEnabled = true;
-            cboLoai.Location = new Point(384, 22);
+            cboLoai.Location = new Point(330, 22);
             cboLoai.Margin = new Padding(1);
             cboLoai.Name = "cboLoai";
             cboLoai.Size = new Size(105, 23);
@@ -250,7 +252,7 @@
             // lbl_DonVi
             // 
             lbl_DonVi.AutoSize = true;
-            lbl_DonVi.Location = new Point(303, 48);
+            lbl_DonVi.Location = new Point(249, 48);
             lbl_DonVi.Margin = new Padding(1, 0, 1, 0);
             lbl_DonVi.Name = "lbl_DonVi";
             lbl_DonVi.Size = new Size(41, 15);
@@ -260,7 +262,7 @@
             // lbl_LoaiMon
             // 
             lbl_LoaiMon.AutoSize = true;
-            lbl_LoaiMon.Location = new Point(303, 23);
+            lbl_LoaiMon.Location = new Point(249, 23);
             lbl_LoaiMon.Margin = new Padding(1, 0, 1, 0);
             lbl_LoaiMon.Name = "lbl_LoaiMon";
             lbl_LoaiMon.Size = new Size(60, 15);
@@ -287,6 +289,16 @@
             lbl_TenMon.TabIndex = 0;
             lbl_TenMon.Text = "Tên món:";
             // 
+            // cboTrangThai_SP
+            // 
+            cboTrangThai_SP.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboTrangThai_SP.FormattingEnabled = true;
+            cboTrangThai_SP.Items.AddRange(new object[] { "Ngừng bán", "Còn bán" });
+            cboTrangThai_SP.Location = new Point(468, 23);
+            cboTrangThai_SP.Name = "cboTrangThai_SP";
+            cboTrangThai_SP.Size = new Size(121, 23);
+            cboTrangThai_SP.TabIndex = 3;
+            // 
             // UC_SanPham
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -294,7 +306,7 @@
             Controls.Add(splitContainer1);
             Margin = new Padding(1);
             Name = "UC_SanPham";
-            Size = new Size(755, 325);
+            Size = new Size(908, 340);
             Load += UC_SanPham_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
@@ -331,5 +343,6 @@
         private FlowLayoutPanel flpDanhSachMon;
         private Button btnTaoMonMoi;
         private Button btnXoaNL;
+        private ComboBox cboTrangThai_SP;
     }
 }
