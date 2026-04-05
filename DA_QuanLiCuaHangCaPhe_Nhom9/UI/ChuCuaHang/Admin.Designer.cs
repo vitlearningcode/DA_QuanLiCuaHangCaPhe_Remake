@@ -29,24 +29,52 @@
         private void InitializeComponent()
         {
             pnlMenu = new Panel();
+            btnKhuyenMai = new Button();
+            btnNhanVien = new Button();
             btnKho = new Button();
             btnSanPham = new Button();
             pnlContent = new Panel();
-            btnNhanVien = new Button();
             pnlMenu.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMenu
             // 
             pnlMenu.BackColor = SystemColors.ActiveCaptionText;
+            pnlMenu.Controls.Add(btnKhuyenMai);
             pnlMenu.Controls.Add(btnNhanVien);
             pnlMenu.Controls.Add(btnKho);
             pnlMenu.Controls.Add(btnSanPham);
             pnlMenu.Dock = DockStyle.Left;
             pnlMenu.Location = new Point(0, 0);
             pnlMenu.Name = "pnlMenu";
-            pnlMenu.Size = new Size(450, 949);
+            pnlMenu.Size = new Size(450, 992);
             pnlMenu.TabIndex = 0;
+            // 
+            // btnKhuyenMai
+            // 
+            btnKhuyenMai.Dock = DockStyle.Top;
+            btnKhuyenMai.FlatStyle = FlatStyle.Flat;
+            btnKhuyenMai.ForeColor = Color.White;
+            btnKhuyenMai.Location = new Point(0, 180);
+            btnKhuyenMai.Name = "btnKhuyenMai";
+            btnKhuyenMai.Size = new Size(450, 60);
+            btnKhuyenMai.TabIndex = 3;
+            btnKhuyenMai.Text = "Quản lý Khuyến Mãi";
+            btnKhuyenMai.UseVisualStyleBackColor = true;
+            btnKhuyenMai.Click += btnKhuyenMai_Click;
+            // 
+            // btnNhanVien
+            // 
+            btnNhanVien.Dock = DockStyle.Top;
+            btnNhanVien.FlatStyle = FlatStyle.Flat;
+            btnNhanVien.ForeColor = Color.White;
+            btnNhanVien.Location = new Point(0, 120);
+            btnNhanVien.Name = "btnNhanVien";
+            btnNhanVien.Size = new Size(450, 60);
+            btnNhanVien.TabIndex = 2;
+            btnNhanVien.Text = "Quản lý Nhân Viên";
+            btnNhanVien.UseVisualStyleBackColor = true;
+            btnNhanVien.Click += btnNhanVien_Click;
             // 
             // btnKho
             // 
@@ -80,27 +108,14 @@
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Location = new Point(450, 0);
             pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(826, 949);
+            pnlContent.Size = new Size(1438, 992);
             pnlContent.TabIndex = 1;
-            // 
-            // btnNhanVien
-            // 
-            btnNhanVien.Dock = DockStyle.Top;
-            btnNhanVien.FlatStyle = FlatStyle.Flat;
-            btnNhanVien.ForeColor = Color.White;
-            btnNhanVien.Location = new Point(0, 120);
-            btnNhanVien.Name = "btnNhanVien";
-            btnNhanVien.Size = new Size(450, 60);
-            btnNhanVien.TabIndex = 2;
-            btnNhanVien.Text = "Quản lý Nhân Viên";
-            btnNhanVien.UseVisualStyleBackColor = true;
-            btnNhanVien.Click += btnNhanVien_Click;
             // 
             // Admin
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1276, 949);
+            ClientSize = new Size(1888, 992);
             Controls.Add(pnlContent);
             Controls.Add(pnlMenu);
             Name = "Admin";
@@ -117,5 +132,6 @@
         private Button btnSanPham;
         private Button btnKho;
         private Button btnNhanVien;
+        private Button btnKhuyenMai;
     }
 }
