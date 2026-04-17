@@ -21,6 +21,7 @@
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             pnlTop = new Panel();
+            cboLoaiBieuDo = new ComboBox();
             btnLoc = new Button();
             dtpDenNgay = new DateTimePicker();
             label2 = new Label();
@@ -56,6 +57,7 @@
             // pnlTop
             // 
             pnlTop.BackColor = Color.White;
+            pnlTop.Controls.Add(cboLoaiBieuDo);
             pnlTop.Controls.Add(btnLoc);
             pnlTop.Controls.Add(dtpDenNgay);
             pnlTop.Controls.Add(label2);
@@ -66,6 +68,16 @@
             pnlTop.Name = "pnlTop";
             pnlTop.Size = new Size(900, 60);
             pnlTop.TabIndex = 0;
+            // 
+            // cboLoaiBieuDo
+            // 
+            cboLoaiBieuDo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboLoaiBieuDo.Items.AddRange(new object[] { "Biểu đồ Cột", "Biểu đồ Đường", "Biểu đồ Miền" });
+            cboLoaiBieuDo.Location = new Point(759, 18);
+            cboLoaiBieuDo.Name = "cboLoaiBieuDo";
+            cboLoaiBieuDo.Size = new Size(121, 23);
+            cboLoaiBieuDo.TabIndex = 0;
+            cboLoaiBieuDo.SelectedIndexChanged += cboLoaiBieuDo_SelectedIndexChanged;
             // 
             // btnLoc
             // 
@@ -373,5 +385,6 @@
         private System.Windows.Forms.Label lblLoiNhuan;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartDoanhThu;
+        private System.Windows.Forms.ComboBox cboLoaiBieuDo;
     }
 }

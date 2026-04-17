@@ -82,5 +82,40 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                 return dict;
             }
         }
+
+        // Hàm gom nhóm doanh thu theo từng KHUNG GIỜ (Ví dụ: 6:00, 7:00...)
+        public Dictionary<string, decimal> LayDoanhThuTheoGio(DateTime tuNgay, DateTime denNgay)
+        {
+            using (var db = new DataSqlContext())
+            {
+                var start = tuNgay.Date;
+                var end = denNgay.Date.AddDays(1).AddTicks(-1);
+
+                // Lấy các đơn hàng trong khoảng thời gian
+                var listDonHang = db.DonHangs
+                                    .Where(h => h.NgayLap >= start && h.NgayLap <= end)
+                                    .Select(h => new { h.NgayLap, h.TongTien })
+                                    .ToList();
+
+                // Gom nhóm theo Giờ (Hour)
+                var groupedByHour = listDonHang
+                            .Where(h => h.NgayLap.HasValue)
+                            .GroupBy(h => h.NgayLap.Value.Hour)
+                            .ToDictionary(g => g.Key, g => g.Sum(h => (decimal?)h.TongTien) ?? 0);
+
+                var dict = new Dictionary<string, decimal>();
+
+                // Quán cà phê thường hoạt động từ 6h sáng đến 22h đêm (Bro có thể chỉnh lại số 6 và 22 theo ý muốn)
+                for (int i = 6; i <= 22; i++)
+                {
+                    string gio = i.ToString("00") + ":00"; // Format thành "06:00", "07:00"...
+
+                    // Giờ nào có doanh thu thì gán, không có thì bằng 0
+                    dict.Add(gio, groupedByHour.ContainsKey(i) ? groupedByHour[i] : 0);
+                }
+
+                return dict;
+            }
+        }
     }
 }
