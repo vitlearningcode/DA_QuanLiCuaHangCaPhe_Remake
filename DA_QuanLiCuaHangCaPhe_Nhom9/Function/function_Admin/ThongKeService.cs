@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Windows.Forms.DataVisualization.Charting;
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
 {
     public class ThongKeService
@@ -92,6 +92,34 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                         TongTien = x.TongTien ?? 0
                     })
                     .OrderByDescending(x => x.NgayLap)
+                    .ToList();
+            }
+        }
+
+        // 1. Chỉ là một class rỗng bình thường để chứa 2 biến vẽ biểu đồ
+        public class DuLieuBieuDoSanPham
+        {
+            public string TenSanPham { get; set; }
+            public int TongSoLuong { get; set; }
+        }
+
+        // 2. Hàm lấy Top 5 món bán chạy nhất
+        public List<DuLieuBieuDoSanPham> GetTop5SanPhamBanChay(DateTime tuNgay, DateTime denNgay)
+        {
+            using (var db = new DataSqlContext())
+            {
+                return db.ChiTietDonHangs
+                    .Where(ct => ct.MaDhNavigation.TrangThai == "Đã thanh toán"
+                              && ct.MaDhNavigation.NgayLap >= tuNgay.Date
+                              && ct.MaDhNavigation.NgayLap <= denNgay.Date.AddDays(1).AddTicks(-1))
+                    .GroupBy(ct => ct.MaSpNavigation.TenSp)
+                    .Select(g => new DuLieuBieuDoSanPham // Ném vào cái class bình dân vừa tạo
+                    {
+                        TenSanPham = g.Key,
+                        TongSoLuong = g.Sum(ct => ct.SoLuong)
+                    })
+                    .OrderByDescending(x => x.TongSoLuong)
+                    .Take(5)
                     .ToList();
             }
         }
