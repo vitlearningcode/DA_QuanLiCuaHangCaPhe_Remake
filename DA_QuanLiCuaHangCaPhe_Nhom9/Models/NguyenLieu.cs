@@ -1,6 +1,10 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+﻿using System;
+using System.Collections.Generic;
 
-public partial class NguyenLieu {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+
+public partial class NguyenLieu
+{
     public int MaNl { get; set; }
 
     public string TenNl { get; set; } = null!;
@@ -11,7 +15,7 @@ public partial class NguyenLieu {
 
     public decimal? NguongCanhBao { get; set; }
 
-    public string TrangThai { get; set; } = null;
+    public string TrangThai { get; set; } = null!;
 
     public virtual ICollection<ChiTietPhieuKho> ChiTietPhieuKhos { get; set; } = new List<ChiTietPhieuKho>();
 

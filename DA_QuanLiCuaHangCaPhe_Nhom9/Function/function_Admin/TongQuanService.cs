@@ -1,0 +1,86 @@
+﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
+{
+    public class TongQuanService
+    {
+        // 1. Hàm tính 5 con số tổng quan
+        public dynamic LaySoLieuTongQuan(DateTime tuNgay, DateTime denNgay)
+        {
+            using (var db = new DataSqlContext())
+            {
+                var start = tuNgay.Date;
+                var end = denNgay.Date.AddDays(1).AddTicks(-1);
+
+                // Lấy danh sách các đơn hàng trong khoảng thời gian
+                var listDonHang = db.DonHangs
+                                    .Where(dh => dh.NgayLap >= start && dh.NgayLap <= end)
+                                    .Select(dh => new { dh.MaDh, dh.TongTien })
+                                    .ToList();
+
+                var listMaDh = listDonHang.Select(dh => dh.MaDh).ToList();
+
+                // Tính DOANH SỐ (Tổng tiền gốc từ chi tiết đơn hàng: Số lượng * Đơn giá)
+                decimal doanhSo = 0;
+                if (listMaDh.Count > 0)
+                {
+                    doanhSo = db.ChiTietDonHangs
+                                .Where(ct => listMaDh.Contains(ct.MaDh))
+                                .Sum(ct => (decimal?)(ct.SoLuong * ct.DonGia)) ?? 0;
+                }
+
+                // Tính DOANH THU THUẦN (Tiền thực thu vào két sau khi đã trừ khuyến mãi)
+                decimal doanhThuThuan = listDonHang.Sum(dh => (decimal?)dh.TongTien ?? 0);
+
+                // Tính GIẢM GIÁ (Doanh số gốc - Doanh thu thuần)
+                decimal giamGia = doanhSo - doanhThuThuan;
+                if (giamGia < 0) giamGia = 0;
+
+                // Tính TỔNG CHI (Từ bảng PhieuChi)
+                decimal tongChi = db.PhieuChis
+                                    .Where(c => c.NgayChi >= start && c.NgayChi <= end)
+                                    .Sum(c => (decimal?)c.SoTien) ?? 0;
+
+                // Tính LỢI NHUẬN
+                decimal loiNhuan = doanhThuThuan - tongChi;
+
+                return new
+                {
+                    DoanhSo = doanhSo,
+                    GiamGia = giamGia,
+                    DoanhThuThuan = doanhThuThuan,
+                    TongChi = tongChi,
+                    LoiNhuan = loiNhuan
+                };
+            }
+        }
+
+        // 2. Hàm gom nhóm doanh thu theo từng ngày để vẽ Biểu đồ
+        public Dictionary<string, decimal> LayDoanhThuTheoNgay(DateTime tuNgay, DateTime denNgay)
+        {
+            using (var db = new DataSqlContext())
+            {
+                var start = tuNgay.Date;
+                var end = denNgay.Date.AddDays(1).AddTicks(-1);
+
+                var listDonHang = db.DonHangs
+                                    .Where(h => h.NgayLap >= start && h.NgayLap <= end)
+                                    .Select(h => new { h.NgayLap, h.TongTien })
+                                    .ToList();
+
+                var dict = listDonHang
+                            .Where(h => h.NgayLap.HasValue) // Lọc bỏ null
+                            .GroupBy(h => h.NgayLap.Value.Date)
+                            .ToDictionary(
+                                g => g.Key.ToString("dd/MM"),
+                                g => g.Sum(h => (decimal?)h.TongTien ?? 0)
+                            );
+
+                return dict;
+            }
+        }
+    }
+}
