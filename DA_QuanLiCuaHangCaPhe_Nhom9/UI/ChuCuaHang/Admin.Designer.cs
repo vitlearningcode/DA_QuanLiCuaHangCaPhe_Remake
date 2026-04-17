@@ -34,12 +34,14 @@
             btnKho = new Button();
             btnSanPham = new Button();
             pnlContent = new Panel();
+            button1 = new Button();
             pnlMenu.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMenu
             // 
             pnlMenu.BackColor = SystemColors.ActiveCaptionText;
+            pnlMenu.Controls.Add(button1);
             pnlMenu.Controls.Add(btnKhuyenMai);
             pnlMenu.Controls.Add(btnNhanVien);
             pnlMenu.Controls.Add(btnKho);
@@ -111,6 +113,19 @@
             pnlContent.Size = new Size(1438, 992);
             pnlContent.TabIndex = 1;
             // 
+            // button1
+            // 
+            button1.Dock = DockStyle.Top;
+            button1.FlatStyle = FlatStyle.Flat;
+            button1.ForeColor = Color.White;
+            button1.Location = new Point(0, 240);
+            button1.Name = "button1";
+            button1.Size = new Size(450, 60);
+            button1.TabIndex = 4;
+            button1.Text = "Thống kê - Báo cáo";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
             // Admin
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
@@ -133,5 +148,6 @@
         private Button btnKho;
         private Button btnNhanVien;
         private Button btnKhuyenMai;
+        private Button button1;
     }
 }
