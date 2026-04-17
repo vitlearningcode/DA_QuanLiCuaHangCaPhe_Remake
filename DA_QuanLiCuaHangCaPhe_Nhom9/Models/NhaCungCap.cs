@@ -13,5 +13,7 @@ public partial class NhaCungCap
 
     public string? SoDienThoai { get; set; }
 
+    public virtual ICollection<CongNo> CongNos { get; set; } = new List<CongNo>();
+
     public virtual ICollection<PhieuKho> PhieuKhos { get; set; } = new List<PhieuKho>();
 }

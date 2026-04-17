@@ -57,5 +57,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         {
             OpenChildControl(new UC_ThongKe());
         }
+
+        private void btnTongQuan_Click(object sender, EventArgs e)
+        {
+            OpenChildControl(new UC_TongQuan());
+        }
     }
 }
