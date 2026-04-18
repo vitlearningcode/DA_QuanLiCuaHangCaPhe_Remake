@@ -19,9 +19,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         private void UC_TongQuan_Load(object sender, EventArgs e)
         {
             // Thiết lập ngày mặc định: Từ đầu tháng đến hôm nay
-            DateTime today = DateTime.Today;
-            dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
-            dtpDenNgay.Value = today;
+            //DateTime today = DateTime.Today;
+            //dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
+            //dtpDenNgay.Value = today;
+
+            //zô là thấy cái hôm nay trước
+            dtpTuNgay.Value = DateTime.Today;
+            dtpDenNgay.Value = DateTime.Today;
             cboLoaiBieuDo.SelectedIndex = 0;
             HienThiDuLieu();
         }
@@ -33,6 +37,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 
         private void cboLoaiBieuDo_SelectedIndexChanged(object sender, EventArgs e)
         {
+           
             HienThiDuLieu(); // Gọi lại hàm hiển thị để vẽ lại biểu đồ
         }
 
@@ -65,10 +70,14 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 
         private void VeBieuDo(DateTime tuNgay, DateTime denNgay)
         {
-            var dict = _service.LayDoanhThuTheoGio(tuNgay, denNgay); // Lấy dữ liệu theo giờ từ service
+            var dict = _service.LayDuLieuBieuDoThongMinh(tuNgay, denNgay); // Lấy dữ liệu theo giờ từ service
 
             chartDoanhThu.Series.Clear();
             chartDoanhThu.Titles.Clear();
+
+            // TẮT BẢNG CHÚ THÍCH LƠ LỬNG (LEGEND)
+            chartDoanhThu.Legends.Clear();
+
             chartDoanhThu.Titles.Add("BIỂU ĐỒ BIẾN ĐỘNG DOANH THU");
             chartDoanhThu.Titles[0].Font = new Font("Segoe UI", 14, FontStyle.Bold);
 
@@ -94,7 +103,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     break;
             }
 
-            // Cấu hình chung giúp biểu đồ đẹp hơn (Giống UC_ThongKe)
+            // Cấu hình chung giúp biểu đồ đẹp hơn
             s.IsValueShownAsLabel = true;
             s.LabelFormat = "N0";
             s.IsXValueIndexed = true;
@@ -114,6 +123,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             chartDoanhThu.ChartAreas[0].AxisX.Interval = 1;
             chartDoanhThu.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.LightGray;
             chartDoanhThu.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.LightGray;
-        }   
+
+            // --- THÊM TIÊU ĐỀ TRỤC Y VÀ TRỤC X CHO GIỐNG BÊN THỐNG KÊ ---
+            chartDoanhThu.ChartAreas[0].AxisY.Title = "Doanh thu (VNĐ)";
+            chartDoanhThu.ChartAreas[0].AxisY.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+
+            chartDoanhThu.ChartAreas[0].AxisX.Title = "Thời gian";
+            chartDoanhThu.ChartAreas[0].AxisX.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+        }
     }
 }

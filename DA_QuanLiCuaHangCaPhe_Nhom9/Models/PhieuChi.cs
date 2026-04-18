@@ -25,5 +25,7 @@ public partial class PhieuChi
 
     public virtual CongNo? MaCongNoNavigation { get; set; }
 
+    public virtual NhanVien MaNvNavigation { get; set; } = null!;
+
     public virtual PhieuKho? MaPhieuNavigation { get; set; }
 }

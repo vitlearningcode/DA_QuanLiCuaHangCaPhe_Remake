@@ -117,5 +117,42 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                 return dict;
             }
         }
+
+        public Dictionary<string, decimal> LayDuLieuBieuDoThongMinh(DateTime tuNgay, DateTime denNgay)
+        {
+            using (var db = new DataSqlContext())
+            {
+                var start = tuNgay.Date;
+                var end = denNgay.Date.AddDays(1).AddTicks(-1);
+
+                // Lấy dữ liệu từ bảng DonHang dựa trên thuộc tính NgayLap
+                var query = db.DonHangs
+                              .Where(dh => dh.NgayLap >= start && dh.NgayLap <= end && dh.NgayLap.HasValue)
+                              .Select(dh => new { dh.NgayLap, dh.TongTien })
+                              .ToList();
+
+                if (tuNgay.Date == denNgay.Date)
+                {
+                    // Chế độ: TRONG NGÀY -> Nhóm theo GIỜ (00h - 23h)
+                    var dict = query.GroupBy(dh => dh.NgayLap.Value.Hour)
+                                    .ToDictionary(g => g.Key.ToString("D2") + "h", g => (decimal?)g.Sum(dh => dh.TongTien) ?? 0);
+
+                    // Đảm bảo hiện đủ 24 giờ cho đẹp biểu đồ
+                    for (int i = 0; i < 24; i++)
+                    {
+                        string key = i.ToString("D2") + "h";
+                        if (!dict.ContainsKey(key)) dict[key] = 0;
+                    }
+                    return dict.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+                }
+                else
+                {
+                    // Chế độ: NHIỀU NGÀY -> Nhóm theo NGÀY (dd/MM)
+                    return query.GroupBy(dh => dh.NgayLap.Value.Date)
+                                .OrderBy(g => g.Key)
+                                .ToDictionary(g => g.Key.ToString("dd/MM"), g => (decimal?)g.Sum(dh => dh.TongTien) ?? 0);
+                }
+            }
+        }
     }
 }
