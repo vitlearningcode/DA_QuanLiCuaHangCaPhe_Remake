@@ -21,7 +21,7 @@ public partial class PhieuChi
 
     public int? MaCongNo { get; set; }
 
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public virtual CongNo? MaCongNoNavigation { get; set; }
 

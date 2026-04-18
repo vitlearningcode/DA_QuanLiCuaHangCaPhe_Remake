@@ -5,7 +5,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
 public partial class NhanVien
 {
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public string TenNv { get; set; } = null!;
 

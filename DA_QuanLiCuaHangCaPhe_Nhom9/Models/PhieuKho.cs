@@ -11,7 +11,7 @@ public partial class PhieuKho
 
     public string? LoaiPhieu { get; set; }
 
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public int? MaNcc { get; set; }
 

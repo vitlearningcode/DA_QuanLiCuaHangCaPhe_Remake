@@ -9,7 +9,7 @@ public partial class TaiKhoan
 
     public string MatKhau { get; set; } = null!;
 
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public int MaVaiTro { get; set; }
 

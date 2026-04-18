@@ -148,7 +148,9 @@ public partial class DataSqlContext : DbContext
             entity.Property(e => e.MaDh).HasColumnName("MaDH");
             entity.Property(e => e.MaKh).HasColumnName("MaKH");
             entity.Property(e => e.MaKm).HasColumnName("MaKM");
-            entity.Property(e => e.MaNv).HasColumnName("MaNV");
+            entity.Property(e => e.MaNv)
+                .HasMaxLength(20)
+                .HasColumnName("MaNV");
             entity.Property(e => e.NgayLap)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -275,7 +277,9 @@ public partial class DataSqlContext : DbContext
 
             entity.ToTable("NhanVien");
 
-            entity.Property(e => e.MaNv).HasColumnName("MaNV");
+            entity.Property(e => e.MaNv)
+                .HasMaxLength(20)
+                .HasColumnName("MaNV");
             entity.Property(e => e.ChucVu).HasMaxLength(50);
             entity.Property(e => e.SoDienThoai)
                 .HasMaxLength(15)
@@ -296,6 +300,7 @@ public partial class DataSqlContext : DbContext
 
             entity.Property(e => e.HinhThuc).HasMaxLength(50);
             entity.Property(e => e.LoaiChi).HasMaxLength(50);
+            entity.Property(e => e.MaNv).HasMaxLength(20);
             entity.Property(e => e.NgayChi).HasColumnType("datetime");
             entity.Property(e => e.SoTien).HasColumnType("decimal(18, 0)");
 
@@ -322,7 +327,9 @@ public partial class DataSqlContext : DbContext
             entity.Property(e => e.MaPhieu).ValueGeneratedNever();
             entity.Property(e => e.LoaiPhieu).HasMaxLength(10);
             entity.Property(e => e.MaNcc).HasColumnName("MaNCC");
-            entity.Property(e => e.MaNv).HasColumnName("MaNV");
+            entity.Property(e => e.MaNv)
+                .HasMaxLength(20)
+                .HasColumnName("MaNV");
             entity.Property(e => e.NgayLap)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -371,7 +378,9 @@ public partial class DataSqlContext : DbContext
             entity.Property(e => e.TenDangNhap)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.MaNv).HasColumnName("MaNV");
+            entity.Property(e => e.MaNv)
+                .HasMaxLength(20)
+                .HasColumnName("MaNV");
             entity.Property(e => e.MatKhau).HasMaxLength(256);
             entity.Property(e => e.TrangThai).HasDefaultValue(true);
 

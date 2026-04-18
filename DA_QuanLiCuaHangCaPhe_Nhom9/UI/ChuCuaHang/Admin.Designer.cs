@@ -1,16 +1,9 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang 
+﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     partial class Admin
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,191 +15,255 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            pnlMenu = new Panel();
-            btnSoQuy = new Button();
-            btnTongQuan = new Button();
-            button1 = new Button();
-            btnKhuyenMai = new Button();
-            btnNhanVien = new Button();
-            btnKho = new Button();
-            btnSanPham = new Button();
-            pnlContent = new Panel();
-            btnKhachHang = new Button();
-            pnlMenu.SuspendLayout();
-            SuspendLayout();
+            this.pnlMenu = new System.Windows.Forms.Panel();
+            this.btnKhachHang = new System.Windows.Forms.Button();
+            this.btnSoQuy = new System.Windows.Forms.Button();
+            this.btnTongQuan = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnKhuyenMai = new System.Windows.Forms.Button();
+            this.btnNhanVien = new System.Windows.Forms.Button();
+            this.btnKho = new System.Windows.Forms.Button();
+            this.btnSanPham = new System.Windows.Forms.Button();
+            this.pnlLogo = new System.Windows.Forms.Panel();
+            this.lblStoreName = new System.Windows.Forms.Label();
+            this.lblIcon = new System.Windows.Forms.Label();
+            this.pnlContent = new System.Windows.Forms.Panel();
+
+            this.pnlMenu.SuspendLayout();
+            this.pnlLogo.SuspendLayout();
+            this.SuspendLayout();
             // 
-            // pnlMenu
+            // pnlMenu (Thanh điều hướng bên trái)
             // 
-            pnlMenu.BackColor = SystemColors.ActiveCaptionText;
-            pnlMenu.Controls.Add(btnKhachHang);
-            pnlMenu.Controls.Add(btnSoQuy);
-            pnlMenu.Controls.Add(btnTongQuan);
-            pnlMenu.Controls.Add(button1);
-            pnlMenu.Controls.Add(btnKhuyenMai);
-            pnlMenu.Controls.Add(btnNhanVien);
-            pnlMenu.Controls.Add(btnKho);
-            pnlMenu.Controls.Add(btnSanPham);
-            pnlMenu.Dock = DockStyle.Left;
-            pnlMenu.Location = new Point(0, 0);
-            pnlMenu.Margin = new Padding(2, 3, 2, 3);
-            pnlMenu.Name = "pnlMenu";
-            pnlMenu.Size = new Size(449, 992);
-            pnlMenu.TabIndex = 0;
-            // 
-            // btnSoQuy
-            // 
-            btnSoQuy.Dock = DockStyle.Top;
-            btnSoQuy.FlatStyle = FlatStyle.Flat;
-            btnSoQuy.ForeColor = Color.White;
-            btnSoQuy.Location = new Point(0, 360);
-            btnSoQuy.Margin = new Padding(2, 3, 2, 3);
-            btnSoQuy.Name = "btnSoQuy";
-            btnSoQuy.Size = new Size(449, 60);
-            btnSoQuy.TabIndex = 6;
-            btnSoQuy.Text = "Sổ Quỷ";
-            btnSoQuy.UseVisualStyleBackColor = true;
-            btnSoQuy.Click += btnSoQuy_Click;
-            // 
-            // btnTongQuan
-            // 
-            btnTongQuan.Dock = DockStyle.Top;
-            btnTongQuan.FlatStyle = FlatStyle.Flat;
-            btnTongQuan.ForeColor = Color.White;
-            btnTongQuan.Location = new Point(0, 300);
-            btnTongQuan.Margin = new Padding(2, 3, 2, 3);
-            btnTongQuan.Name = "btnTongQuan";
-            btnTongQuan.Size = new Size(449, 60);
-            btnTongQuan.TabIndex = 5;
-            btnTongQuan.Text = "Tổng quan";
-            btnTongQuan.UseVisualStyleBackColor = true;
-            btnTongQuan.Click += btnTongQuan_Click;
-            // 
-            // button1
-            // 
-            button1.Dock = DockStyle.Top;
-            button1.FlatStyle = FlatStyle.Flat;
-            button1.ForeColor = Color.White;
-            button1.Location = new Point(0, 240);
-            button1.Margin = new Padding(2, 3, 2, 3);
-            button1.Name = "button1";
-            button1.Size = new Size(449, 60);
-            button1.TabIndex = 4;
-            button1.Text = "Thống kê - Báo cáo";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
-            // btnKhuyenMai
-            // 
-            btnKhuyenMai.Dock = DockStyle.Top;
-            btnKhuyenMai.FlatStyle = FlatStyle.Flat;
-            btnKhuyenMai.ForeColor = Color.White;
-            btnKhuyenMai.Location = new Point(0, 180);
-            btnKhuyenMai.Margin = new Padding(2, 3, 2, 3);
-            btnKhuyenMai.Name = "btnKhuyenMai";
-            btnKhuyenMai.Size = new Size(449, 60);
-            btnKhuyenMai.TabIndex = 3;
-            btnKhuyenMai.Text = "Quản lý Khuyến Mãi";
-            btnKhuyenMai.UseVisualStyleBackColor = true;
-            btnKhuyenMai.Click += btnKhuyenMai_Click;
-            // 
-            // btnNhanVien
-            // 
-            btnNhanVien.Dock = DockStyle.Top;
-            btnNhanVien.FlatStyle = FlatStyle.Flat;
-            btnNhanVien.ForeColor = Color.White;
-            btnNhanVien.Location = new Point(0, 120);
-            btnNhanVien.Margin = new Padding(2, 3, 2, 3);
-            btnNhanVien.Name = "btnNhanVien";
-            btnNhanVien.Size = new Size(449, 60);
-            btnNhanVien.TabIndex = 2;
-            btnNhanVien.Text = "Quản lý Nhân Viên";
-            btnNhanVien.UseVisualStyleBackColor = true;
-            btnNhanVien.Click += btnNhanVien_Click;
-            // 
-            // btnKho
-            // 
-            btnKho.Dock = DockStyle.Top;
-            btnKho.FlatStyle = FlatStyle.Flat;
-            btnKho.ForeColor = Color.White;
-            btnKho.Location = new Point(0, 60);
-            btnKho.Margin = new Padding(2, 3, 2, 3);
-            btnKho.Name = "btnKho";
-            btnKho.Size = new Size(449, 60);
-            btnKho.TabIndex = 1;
-            btnKho.Text = "Quản lý Kho";
-            btnKho.UseVisualStyleBackColor = true;
-            btnKho.Click += btnKho_Click;
-            // 
-            // btnSanPham
-            // 
-            btnSanPham.Dock = DockStyle.Top;
-            btnSanPham.FlatStyle = FlatStyle.Flat;
-            btnSanPham.ForeColor = Color.White;
-            btnSanPham.Location = new Point(0, 0);
-            btnSanPham.Margin = new Padding(2, 3, 2, 3);
-            btnSanPham.Name = "btnSanPham";
-            btnSanPham.Size = new Size(449, 60);
-            btnSanPham.TabIndex = 0;
-            btnSanPham.Text = "Quản lý sản phẩm";
-            btnSanPham.UseVisualStyleBackColor = true;
-            btnSanPham.Click += btnSanPham_Click;
-            // 
-            // pnlContent
-            // 
-            pnlContent.BackColor = Color.WhiteSmoke;
-            pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Location = new Point(449, 0);
-            pnlContent.Margin = new Padding(2, 3, 2, 3);
-            pnlContent.Name = "pnlContent";
-            pnlContent.Size = new Size(1438, 992);
-            pnlContent.TabIndex = 1;
+            this.pnlMenu.BackColor = System.Drawing.Color.FromArgb(41, 53, 65); // Màu xanh đen nhám sang trọng
+            this.pnlMenu.Controls.Add(this.btnKhachHang);
+            this.pnlMenu.Controls.Add(this.btnSoQuy);
+            this.pnlMenu.Controls.Add(this.btnTongQuan);
+            this.pnlMenu.Controls.Add(this.button1);
+            this.pnlMenu.Controls.Add(this.btnKhuyenMai);
+            this.pnlMenu.Controls.Add(this.btnNhanVien);
+            this.pnlMenu.Controls.Add(this.btnKho);
+            this.pnlMenu.Controls.Add(this.btnSanPham);
+            this.pnlMenu.Controls.Add(this.pnlLogo); // Logo phải add cuối cùng để nó nổi lên trên cùng (Top)
+            this.pnlMenu.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlMenu.Location = new System.Drawing.Point(0, 0);
+            this.pnlMenu.Name = "pnlMenu";
+            this.pnlMenu.Size = new System.Drawing.Size(280, 850);
+            this.pnlMenu.TabIndex = 0;
             // 
             // btnKhachHang
             // 
-            btnKhachHang.Dock = DockStyle.Top;
-            btnKhachHang.FlatStyle = FlatStyle.Flat;
-            btnKhachHang.ForeColor = Color.White;
-            btnKhachHang.Location = new Point(0, 420);
-            btnKhachHang.Margin = new Padding(2, 3, 2, 3);
-            btnKhachHang.Name = "btnKhachHang";
-            btnKhachHang.Size = new Size(449, 60);
-            btnKhachHang.TabIndex = 7;
-            btnKhachHang.Text = "Quản lý Khách Hàng";
-            btnKhachHang.UseVisualStyleBackColor = true;
-            btnKhachHang.Click += btnKhachHang_Click;
+            this.btnKhachHang.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnKhachHang.FlatAppearance.BorderSize = 0;
+            this.btnKhachHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKhachHang.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnKhachHang.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnKhachHang.Location = new System.Drawing.Point(0, 560);
+            this.btnKhachHang.Name = "btnKhachHang";
+            this.btnKhachHang.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnKhachHang.Size = new System.Drawing.Size(280, 60);
+            this.btnKhachHang.TabIndex = 7;
+            this.btnKhachHang.Text = "👥  Quản lý Khách Hàng";
+            this.btnKhachHang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKhachHang.UseVisualStyleBackColor = true;
+            this.btnKhachHang.Click += new System.EventHandler(this.btnKhachHang_Click);
+            // 
+            // btnSoQuy
+            // 
+            this.btnSoQuy.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnSoQuy.FlatAppearance.BorderSize = 0;
+            this.btnSoQuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSoQuy.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnSoQuy.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnSoQuy.Location = new System.Drawing.Point(0, 500);
+            this.btnSoQuy.Name = "btnSoQuy";
+            this.btnSoQuy.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnSoQuy.Size = new System.Drawing.Size(280, 60);
+            this.btnSoQuy.TabIndex = 6;
+            this.btnSoQuy.Text = "💰  Sổ Quỹ";
+            this.btnSoQuy.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSoQuy.UseVisualStyleBackColor = true;
+            this.btnSoQuy.Click += new System.EventHandler(this.btnSoQuy_Click);
+            // 
+            // btnTongQuan
+            // 
+            this.btnTongQuan.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnTongQuan.FlatAppearance.BorderSize = 0;
+            this.btnTongQuan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTongQuan.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnTongQuan.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnTongQuan.Location = new System.Drawing.Point(0, 440);
+            this.btnTongQuan.Name = "btnTongQuan";
+            this.btnTongQuan.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnTongQuan.Size = new System.Drawing.Size(280, 60);
+            this.btnTongQuan.TabIndex = 5;
+            this.btnTongQuan.Text = "🌐  Tổng quan";
+            this.btnTongQuan.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnTongQuan.UseVisualStyleBackColor = true;
+            this.btnTongQuan.Click += new System.EventHandler(this.btnTongQuan_Click);
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.button1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.button1.Location = new System.Drawing.Point(0, 380);
+            this.button1.Name = "button1";
+            this.button1.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.button1.Size = new System.Drawing.Size(280, 60);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "📊  Thống kê - Báo cáo";
+            this.button1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // btnKhuyenMai
+            // 
+            this.btnKhuyenMai.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnKhuyenMai.FlatAppearance.BorderSize = 0;
+            this.btnKhuyenMai.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKhuyenMai.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnKhuyenMai.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnKhuyenMai.Location = new System.Drawing.Point(0, 320);
+            this.btnKhuyenMai.Name = "btnKhuyenMai";
+            this.btnKhuyenMai.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnKhuyenMai.Size = new System.Drawing.Size(280, 60);
+            this.btnKhuyenMai.TabIndex = 3;
+            this.btnKhuyenMai.Text = "🎁  Quản lý Khuyến Mãi";
+            this.btnKhuyenMai.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKhuyenMai.UseVisualStyleBackColor = true;
+            this.btnKhuyenMai.Click += new System.EventHandler(this.btnKhuyenMai_Click);
+            // 
+            // btnNhanVien
+            // 
+            this.btnNhanVien.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnNhanVien.FlatAppearance.BorderSize = 0;
+            this.btnNhanVien.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNhanVien.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnNhanVien.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnNhanVien.Location = new System.Drawing.Point(0, 260);
+            this.btnNhanVien.Name = "btnNhanVien";
+            this.btnNhanVien.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnNhanVien.Size = new System.Drawing.Size(280, 60);
+            this.btnNhanVien.TabIndex = 2;
+            this.btnNhanVien.Text = "🧑‍🍳  Quản lý Nhân Viên";
+            this.btnNhanVien.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNhanVien.UseVisualStyleBackColor = true;
+            this.btnNhanVien.Click += new System.EventHandler(this.btnNhanVien_Click);
+            // 
+            // btnKho
+            // 
+            this.btnKho.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnKho.FlatAppearance.BorderSize = 0;
+            this.btnKho.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnKho.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnKho.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnKho.Location = new System.Drawing.Point(0, 200);
+            this.btnKho.Name = "btnKho";
+            this.btnKho.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnKho.Size = new System.Drawing.Size(280, 60);
+            this.btnKho.TabIndex = 1;
+            this.btnKho.Text = "📦  Quản lý Kho";
+            this.btnKho.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnKho.UseVisualStyleBackColor = true;
+            this.btnKho.Click += new System.EventHandler(this.btnKho_Click);
+            // 
+            // btnSanPham
+            // 
+            this.btnSanPham.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnSanPham.FlatAppearance.BorderSize = 0;
+            this.btnSanPham.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSanPham.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnSanPham.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnSanPham.Location = new System.Drawing.Point(0, 140);
+            this.btnSanPham.Name = "btnSanPham";
+            this.btnSanPham.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnSanPham.Size = new System.Drawing.Size(280, 60);
+            this.btnSanPham.TabIndex = 0;
+            this.btnSanPham.Text = "🍔  Quản lý Sản Phẩm";
+            this.btnSanPham.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSanPham.UseVisualStyleBackColor = true;
+            this.btnSanPham.Click += new System.EventHandler(this.btnSanPham_Click);
+            // 
+            // pnlLogo (Khu vực Logo của cửa hàng)
+            // 
+            this.pnlLogo.BackColor = System.Drawing.Color.FromArgb(229, 124, 35); // Màu cam cà phê tạo điểm nhấn
+            this.pnlLogo.Controls.Add(this.lblStoreName);
+            this.pnlLogo.Controls.Add(this.lblIcon);
+            this.pnlLogo.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlLogo.Location = new System.Drawing.Point(0, 0);
+            this.pnlLogo.Name = "pnlLogo";
+            this.pnlLogo.Size = new System.Drawing.Size(280, 140);
+            this.pnlLogo.TabIndex = 8;
+            // 
+            // lblStoreName
+            // 
+            this.lblStoreName.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblStoreName.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblStoreName.ForeColor = System.Drawing.Color.White;
+            this.lblStoreName.Location = new System.Drawing.Point(0, 85);
+            this.lblStoreName.Name = "lblStoreName";
+            this.lblStoreName.Size = new System.Drawing.Size(280, 55);
+            this.lblStoreName.TabIndex = 1;
+            this.lblStoreName.Text = "COFFEE SHOP";
+            this.lblStoreName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblIcon
+            // 
+            this.lblIcon.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblIcon.Font = new System.Drawing.Font("Segoe UI", 40F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblIcon.ForeColor = System.Drawing.Color.White;
+            this.lblIcon.Location = new System.Drawing.Point(0, 0);
+            this.lblIcon.Name = "lblIcon";
+            this.lblIcon.Size = new System.Drawing.Size(280, 85);
+            this.lblIcon.TabIndex = 0;
+            this.lblIcon.Text = "☕";
+            this.lblIcon.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            // 
+            // pnlContent (Khu vực chứa các màn hình UC)
+            // 
+            this.pnlContent.BackColor = System.Drawing.Color.White;
+            this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlContent.Location = new System.Drawing.Point(280, 0);
+            this.pnlContent.Name = "pnlContent";
+            this.pnlContent.Size = new System.Drawing.Size(1100, 850);
+            this.pnlContent.TabIndex = 1;
             // 
             // Admin
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1887, 992);
-            Controls.Add(pnlContent);
-            Controls.Add(pnlMenu);
-            Margin = new Padding(2, 3, 2, 3);
-            Name = "Admin";
-            Text = "Admin";
-            Load += Admin_Load;
-            pnlMenu.ResumeLayout(false);
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1380, 850);
+            this.Controls.Add(this.pnlContent);
+            this.Controls.Add(this.pnlMenu);
+            this.Name = "Admin";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen; // Mở form lên là tự canh giữa màn hình
+            this.Text = "Hệ thống Quản lý Cửa hàng Cà Phê";
+            this.Load += new System.EventHandler(this.Admin_Load);
+            this.pnlMenu.ResumeLayout(false);
+            this.pnlLogo.ResumeLayout(false);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
 
-        private Panel pnlMenu;
-        private Panel pnlContent;
-        private Button btnSanPham;
-        private Button btnKho;
-        private Button btnNhanVien;
-        private Button btnKhuyenMai;
-        private Button button1;
-        private Button btnTongQuan;
-        private Button btnSoQuy;
-        private Button btnKhachHang;
+        private System.Windows.Forms.Panel pnlMenu;
+        private System.Windows.Forms.Panel pnlLogo;
+        private System.Windows.Forms.Label lblStoreName;
+        private System.Windows.Forms.Label lblIcon;
+        private System.Windows.Forms.Panel pnlContent;
+        private System.Windows.Forms.Button btnSanPham;
+        private System.Windows.Forms.Button btnKho;
+        private System.Windows.Forms.Button btnNhanVien;
+        private System.Windows.Forms.Button btnKhuyenMai;
+        private System.Windows.Forms.Button button1; // Nút thống kê
+        private System.Windows.Forms.Button btnTongQuan;
+        private System.Windows.Forms.Button btnSoQuy;
+        private System.Windows.Forms.Button btnKhachHang;
     }
 }
