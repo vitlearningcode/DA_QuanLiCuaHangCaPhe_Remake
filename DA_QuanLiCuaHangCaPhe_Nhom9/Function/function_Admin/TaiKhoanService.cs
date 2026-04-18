@@ -78,5 +78,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                 return false;
             }
         }
+
+        public TaiKhoan LayTaiKhoanTheoMaNV(int maNV)
+        {
+            using (var db = new DataSqlContext())
+            {
+                return db.TaiKhoans.FirstOrDefault(t => t.MaNv == maNV);
+            }
+        }
     }
 }

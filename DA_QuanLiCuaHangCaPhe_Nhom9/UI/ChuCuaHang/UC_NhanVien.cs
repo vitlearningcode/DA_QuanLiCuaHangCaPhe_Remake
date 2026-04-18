@@ -1,6 +1,8 @@
 ﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using System;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
@@ -8,8 +10,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
     public partial class UC_NhanVien : UserControl
     {
         private readonly NhanVienService _service = new NhanVienService();
-        TaiKhoanService _tkService = new TaiKhoanService();
-        private int _maNVDangChon = -1; // Lưu mã NV đang chọn để sửa
+        private readonly TaiKhoanService _tkService = new TaiKhoanService();
+
+        private int _maNVDangChon = -1;
 
         public UC_NhanVien()
         {
@@ -17,299 +20,50 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         }
 
         private void UC_NhanVien_Load(object sender, EventArgs e)
-        {// 1. Cập nhật danh sách chức vụ theo ý bạn (Thêm Order)
+        {
+            ThietLapLuoi();
+
             cboChucVu.Items.Clear();
-            cboChucVu.Items.AddRange(new string[] {
-                                                   "Chủ cửa hàng",
-                                                   "Quản lý",
-                                                   "Thu ngân",
-                                                   "Order",        // <-- Mới thêm
-                                                   "Phục vụ",      // <-- Có thể giữ hoặc bỏ
-                                                   "Pha chế"       // <-- Thêm thoải mái sau này
-                                                    });
-            cboChucVu.SelectedIndex = -1;
+            cboChucVu.Items.AddRange(new string[] { "Chủ cửa hàng", "Quản lý", "Thu ngân", "Order", "Pha chế" });
 
-            // 2. Load danh sách Quyền hạn (Giữ nguyên)
-            cboQuyen.DataSource = _tkService.LayDanhSachVaiTro();
-            cboQuyen.DisplayMember = "TenVaiTro";
+            // Đổ danh sách Vai Trò từ DB của bro vào ComboBox
+            var dsVaiTro = _tkService.LayDanhSachVaiTro();
+            cboQuyen.DataSource = dsVaiTro;
+            cboQuyen.DisplayMember = "TenVaiTro"; // Đổi thành tên cột của bro nếu trong DB viết khác (VD: TenVT)
             cboQuyen.ValueMember = "MaVaiTro";
-            cboQuyen.SelectedIndex = -1;
 
-            btnResetMatKhau.Enabled = false;
-            TaiDanhSach();
-
+            LoadDanhSach();
+            ResetForm();
         }
 
-        // Hàm trả về Mã Vai Trò dựa trên Tên Chức Vụ
-        private int GetMaVaiTroTuChucVu(string chucVu)
+        private void ThietLapLuoi()
         {
-            if (string.IsNullOrEmpty(chucVu)) return 3; // Mặc định là Nhân viên
+            dgvNhanVien.AutoGenerateColumns = false;
+            dgvNhanVien.Columns.Clear();
 
-            string s = chucVu.ToLower().Trim();
-
-            if (s.Contains("chủ") || s.Contains("admin")) return 1; // 1: Chủ cửa hàng
-            if (s.Contains("quản lý") || s.Contains("manager")) return 2; // 2: Quản lý
-
-            // Còn lại (Thu ngân, Phục vụ, Pha chế...) đều về nhóm 3: Nhân viên
-            return 3;
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn { Name = "MaNv", DataPropertyName = "MaNv", Visible = false });
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNv", HeaderText = "Họ Tên", DataPropertyName = "TenNv" });
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoDienThoai", HeaderText = "SĐT", DataPropertyName = "SoDienThoai", Width = 120 });
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn { Name = "ChucVu", HeaderText = "Chức Vụ", DataPropertyName = "ChucVu", Width = 150 });
+            dgvNhanVien.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "NgayVaoLam",
+                HeaderText = "Ngày Vào Làm",
+                DataPropertyName = "NgayVaoLam",
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" },
+                Width = 120
+            });
         }
 
-        private void TaiDanhSach()
+        private void LoadDanhSach()
         {
-            dgvNhanVien.DataSource = _service.LayDanhSachNhanVienDayDu();
-
-            // Ẩn cột không cần thiết (Ví dụ: ICollection DonHangs...)
-            // Entity Framework thường sinh ra các cột quan hệ ảo, nên ẩn chúng đi
-            foreach (DataGridViewColumn col in dgvNhanVien.Columns)
-                if (col.Name.Contains("DonHangs") || col.Name.Contains("PhieuKhos") || col.Name == ("QuyenHan"))
-                    col.Visible = false;
-
-
-            // Đặt tên tiếng Việt
-            if (dgvNhanVien.Columns["MaNv"] != null) dgvNhanVien.Columns["MaNv"].HeaderText = "Mã NV";
-            if (dgvNhanVien.Columns["TenNv"] != null) dgvNhanVien.Columns["TenNv"].HeaderText = "Họ Tên";
-            if (dgvNhanVien.Columns["SoDienThoai"] != null) dgvNhanVien.Columns["SoDienThoai"].HeaderText = "SĐT";
-            if (dgvNhanVien.Columns["ChucVu"] != null) dgvNhanVien.Columns["ChucVu"].HeaderText = "Chức Vụ";
-            if (dgvNhanVien.Columns["NgayVaoLam"] != null) dgvNhanVien.Columns["NgayVaoLam"].HeaderText = "Ngày Vào Làm";
-            if (dgvNhanVien.Columns["TrangThai"] != null) dgvNhanVien.Columns["TrangThai"].HeaderText = "Trạng thái";
-
-            //// Cột TTTK (Trạng thái tài khoản)
-            //if (dgvNhanVien.Columns["TrangThaiTK"] != null)
-            //{
-            //    dgvNhanVien.Columns["TrangThaiTK"].HeaderText = "TTTK";
-            //    dgvNhanVien.Columns["TrangThaiTK"].Visible = false; // Tạm ẩn cột trạng thái đi cho gọn, vì mình đã tô màu chữ rồi
-            //}
-
-            // 4. QUAN TRỌNG: Cấu hình cột Tài Khoản
-            if (dgvNhanVien.Columns["TaiKhoan"] != null)
-            {
-                //dgvNhanVien.Columns["TaiKhoan"].Visible = true; // Đảm bảo nó hiện
-                dgvNhanVien.Columns["TaiKhoan"].HeaderText = "Tài Khoản (User)";
-            }
+            dgvNhanVien.DataSource = _service.LayDanhSachNhanVien();
         }
-
-
-
-
-        // Bấm vào lưới đổ dữ liệu lên ô nhập
-        private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                var row = dgvNhanVien.Rows[e.RowIndex];
-                _maNVDangChon = Convert.ToInt32(row.Cells["MaNv"].Value);
-
-                // --- Load thông tin nhân viên
-                string chucVuHienTai = row.Cells["ChucVu"].Value?.ToString(); // Lấy chức vụ
-                txtTenNV.Text = row.Cells["TenNv"].Value?.ToString();
-
-                txtSDT.Text = row.Cells["SoDienThoai"].Value?.ToString();
-                cboChucVu.Text = chucVuHienTai;
-
-                if (row.Cells["NgayVaoLam"].Value != null)
-                {
-                    //dtpNgayVaoLam.Value = (DateTime)row.Cells["NgayVaoLam"].Value;
-                    DateOnly ngayVao = (DateOnly)row.Cells["NgayVaoLam"].Value;
-
-                    // Chuyển sang DateTime để gán vào DateTimePicker (Gán giờ là 00:00)
-                    dtpNgayVaoLam.Value = ngayVao.ToDateTime(TimeOnly.MinValue);
-                }
-
-                // --- Load thông tin Tài Khoản
-                string taiKhoan = row.Cells["TaiKhoan"].Value?.ToString();
-                // int quyenHan = Convert.ToInt32(row.Cells["QuyenHan"].Value ?? 0);
-
-                // Lấy Quyền Hạn từ cột ẨN (QuyenHan)
-                int quyenHienTai = 0;
-                if (dgvNhanVien.Columns.Contains("QuyenHan") && row.Cells["QuyenHan"].Value != null)
-                {
-                    quyenHienTai = Convert.ToInt32(row.Cells["QuyenHan"].Value);
-                }
-
-                if (taiKhoan == "NO ACCOUNT")
-                {
-                    // Chế độ: CẤP MỚI
-                    gb_ThongTinDangNhap.Text = "Cấp Tài Khoản Mới";
-                    txtUsername.Enabled = true;
-                    txtUsername.Clear();
-                    txtPassword.Enabled = true;
-                    txtPassword.Clear();
-                    txtPassword.PlaceholderText = " ";
-
-                    cboQuyen.SelectedValue = GetMaVaiTroTuChucVu(chucVuHienTai);
-
-                    btnLuuTaiKhoan.Text = "Cấp Tài Khoản";
-                    btnResetMatKhau.Enabled = false;
-                }
-                else
-                {
-                    // Chế độ: ĐÃ CÓ (Chỉ cho xem hoặc đổi quyền)
-                    gb_ThongTinDangNhap.Text = "Thông tin Tài Khoản";
-                    txtUsername.Text = taiKhoan;
-                    txtUsername.Enabled = false; // Không cho sửa tên đăng nhập
-                    txtPassword.Clear();
-
-                    if (row.Cells["QuyenHan"].Value != null)
-                    {
-                        cboQuyen.SelectedValue = Convert.ToInt32(row.Cells["QuyenHan"].Value);
-                    }
-
-                    cboQuyen.SelectedValue = quyenHienTai;
-
-                    txtPassword.PlaceholderText = "Nhập để đổi MK"; // Gợi ý (nếu dùng .NET mới)
-                    btnLuuTaiKhoan.Text = "Cập nhật MK/Quyền";
-                    btnResetMatKhau.Enabled = true;
-                }
-                // Khóa nút Thêm, mở nút Sửa/Xóa
-                btnThem.Enabled = false;
-                btnSua.Enabled = true;
-                btnXoa.Enabled = true;
-            }
-        }
-
-        //Sự kiện CellFormatting(Để tô màu chữ "Chưa cấp" cho nổi bật)
-        private void dgvNhanVien_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (dgvNhanVien.Columns[e.ColumnIndex].Name == "TaiKhoan")
-            {
-                if (e.Value != null && e.Value.ToString().Contains("NO ACCOUNT"))
-                {
-                    e.CellStyle.ForeColor = Color.Red;
-                    e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Italic);
-                }
-                else
-                {
-                    e.CellStyle.ForeColor = Color.DeepSkyBlue;
-                    e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
-                }
-            }
-        }
-
-        private void btnLuuTaiKhoan_Click(object sender, EventArgs e)
-        {
-            // Kiểm tra đã chọn nhân viên chưa
-            if (_maNVDangChon == -1)
-            {
-                MessageBox.Show("Vui lòng chọn nhân viên cần cấp/sửa tài khoản!");
-                return;
-            }
-
-            if (cboQuyen.SelectedValue == null) { MessageBox.Show("Chưa chọn quyền!"); return; }
-
-            string username = txtUsername.Text.Trim();
-            string password = txtPassword.Text.Trim();
-            int role = (int)cboQuyen.SelectedValue;
-
-            //// Kiểm tra xem có chọn quyền chưa
-            //if (cboQuyen.SelectedValue == null)
-            //{
-            //    MessageBox.Show("Vui lòng chọn quyền hạn!");
-            //    return;
-            //}
-            //int maVaiTro = (int)cboQuyen.SelectedValue;
-
-            // --- TRƯỜNG HỢP 1: CẤP MỚI (Username đang mở) ---
-            if (txtUsername.Enabled == true)
-            {
-                // Validate bắt buộc nhập đủ
-                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                {
-                    MessageBox.Show("Vui lòng nhập Tên đăng nhập và Mật khẩu!");
-                    return;
-                }
-
-                // Gọi hàm Tạo
-                if (_tkService.TaoTaiKhoan(username, password, _maNVDangChon, role))
-                {
-                    MessageBox.Show("Cấp tài khoản thành công!");
-                    TaiDanhSach(); // Load lại để cập nhật trạng thái trên lưới
-                    ResetForm();   // Xóa trắng form
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi: Tên đăng nhập đã tồn tại hoặc có lỗi hệ thống!");
-                }
-            }
-            // --- TRƯỜNG HỢP 2: CẬP NHẬT (Username đang khóa) ---
-            else
-            {
-                // Gọi hàm Sửa
-                if (_tkService.SuaTaiKhoan(username, password, role))
-                {
-                    string msg = string.IsNullOrEmpty(password)
-                        ? "Cập nhật quyền hạn thành công!"
-                        : "Cập nhật quyền và mật khẩu thành công!";
-
-                    MessageBox.Show(msg);
-                    TaiDanhSach();
-                    ResetForm();
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi: Không tìm thấy tài khoản để sửa!");
-                }
-            }
-        }
-
-
-
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtTenNV.Text)) { MessageBox.Show("Chưa nhập tên!"); return; }
-
-            var nv = new NhanVien
-            {
-                TenNv = txtTenNV.Text,
-                SoDienThoai = txtSDT.Text,
-                ChucVu = cboChucVu.Text,
-                NgayVaoLam = DateOnly.FromDateTime(dtpNgayVaoLam.Value)
-            };
-
-            if (_service.ThemNhanVien(nv))
-            {
-                MessageBox.Show("Thêm thành công!");
-                ResetForm();
-            }
-            else MessageBox.Show("Lỗi khi thêm!");
-        }
-
-        private void btnSua_Click(object sender, EventArgs e)
-        {
-            if (_maNVDangChon == -1) return;
-
-            var nv = new NhanVien
-            {
-                MaNv = _maNVDangChon,
-                TenNv = txtTenNV.Text,
-                SoDienThoai = txtSDT.Text,
-                ChucVu = cboChucVu.Text,
-                NgayVaoLam = DateOnly.FromDateTime(dtpNgayVaoLam.Value)
-            };
-
-            if (_service.SuaNhanVien(nv))
-            {
-                MessageBox.Show("Sửa thành công!");
-                ResetForm();
-            }
-            else MessageBox.Show("Lỗi khi sửa!");
-        }
-
-        private void btnXoa_Click(object sender, EventArgs e)
-        {
-            if (_maNVDangChon == -1) return;
-            if (MessageBox.Show("Xác nhận xóa?", "Cảnh báo", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                string ketQua = _service.XoaNhanVien(_maNVDangChon);
-                MessageBox.Show(ketQua);
-                if (ketQua.Contains("thành công")) ResetForm();
-            }
-        }
-
-        private void btnLamMoi_Click(object sender, EventArgs e) => ResetForm();
 
         private void ResetForm()
         {
             _maNVDangChon = -1;
+
             txtTenNV.Clear();
             txtSDT.Clear();
             cboChucVu.SelectedIndex = -1;
@@ -318,18 +72,171 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             txtUsername.Clear();
             txtPassword.Clear();
             cboQuyen.SelectedIndex = -1;
+            gb_ThongTinDangNhap.Enabled = false;
+
             btnThem.Enabled = true;
             btnSua.Enabled = false;
             btnXoa.Enabled = false;
-            TaiDanhSach();
+
+            dgvNhanVien.ClearSelection();
+        }
+
+        private void btnLamMoi_Click(object sender, EventArgs e) => ResetForm();
+
+        private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
+                _maNVDangChon = Convert.ToInt32(row.Cells["MaNv"].Value);
+
+                txtTenNV.Text = row.Cells["TenNv"].Value?.ToString();
+                txtSDT.Text = row.Cells["SoDienThoai"].Value?.ToString();
+                cboChucVu.Text = row.Cells["ChucVu"].Value?.ToString();
+
+                if (row.Cells["NgayVaoLam"].Value is DateOnly ngayLam)
+                {
+                    dtpNgayVaoLam.Value = ngayLam.ToDateTime(TimeOnly.MinValue);
+                }
+
+                gb_ThongTinDangNhap.Enabled = true;
+                LoadThongTinTaiKhoan(_maNVDangChon);
+
+                btnThem.Enabled = false;
+                btnSua.Enabled = true;
+                btnXoa.Enabled = true;
+            }
+        }
+
+        private void LoadThongTinTaiKhoan(int maNv)
+        {
+            var tk = _tkService.LayTaiKhoanTheoMaNV(maNv);
+            if (tk != null)
+            {
+                txtUsername.Text = tk.TenDangNhap;
+                txtUsername.ReadOnly = true;
+                txtPassword.Text = "********";
+                txtPassword.ReadOnly = true;
+                cboQuyen.SelectedValue = tk.MaVaiTro; // Map đúng Value của VaiTro
+
+                btnLuuTaiKhoan.Text = "CẬP NHẬT QUYỀN";
+                btnResetMatKhau.Enabled = true;
+            }
+            else
+            {
+                txtUsername.Clear();
+                txtUsername.ReadOnly = false;
+                txtPassword.Clear();
+                txtPassword.ReadOnly = false;
+                cboQuyen.SelectedIndex = -1;
+
+                btnLuuTaiKhoan.Text = "CẤP TÀI KHOẢN";
+                btnResetMatKhau.Enabled = false;
+            }
+        }
+
+        private void btnThem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTenNV.Text) || string.IsNullOrWhiteSpace(txtSDT.Text))
+            {
+                MessageBox.Show("Vui lòng nhập đầy đủ Họ tên và SĐT!", "Cảnh báo"); return;
+            }
+
+            NhanVien nv = new NhanVien
+            {
+                TenNv = txtTenNV.Text.Trim(),
+                SoDienThoai = txtSDT.Text.Trim(),
+                ChucVu = cboChucVu.Text,
+                NgayVaoLam = DateOnly.FromDateTime(dtpNgayVaoLam.Value)
+            };
+
+            if (_service.ThemNhanVien(nv))
+            {
+                MessageBox.Show("Thêm nhân viên thành công!", "Thông báo");
+                LoadDanhSach();
+                ResetForm();
+            }
+        }
+
+        private void btnSua_Click(object sender, EventArgs e)
+        {
+            if (_maNVDangChon == -1) return;
+
+            NhanVien nv = new NhanVien
+            {
+                MaNv = _maNVDangChon,
+                TenNv = txtTenNV.Text.Trim(),
+                SoDienThoai = txtSDT.Text.Trim(),
+                ChucVu = cboChucVu.Text,
+                NgayVaoLam = DateOnly.FromDateTime(dtpNgayVaoLam.Value)
+            };
+
+            if (_service.CapNhatNhanVien(nv))
+            {
+                MessageBox.Show("Cập nhật thông tin thành công!", "Thông báo");
+                LoadDanhSach();
+            }
+        }
+
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            if (_maNVDangChon == -1) return;
+
+            if (MessageBox.Show("Bạn có chắc chắn muốn cho nhân viên này nghỉ việc?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                string res = _service.XoaNhanVien(_maNVDangChon);
+                MessageBox.Show(res, "Thông báo");
+                LoadDanhSach();
+                ResetForm();
+            }
+        }
+
+        // ================= XỬ LÝ TÀI KHOẢN =================
+        private void btnLuuTaiKhoan_Click(object sender, EventArgs e)
+        {
+            if (_maNVDangChon == -1) return;
+            if (cboQuyen.SelectedValue == null) { MessageBox.Show("Vui lòng chọn Quyền hạn!"); return; }
+
+            int maVaiTro = Convert.ToInt32(cboQuyen.SelectedValue);
+            string user = txtUsername.Text.Trim();
+
+            if (btnLuuTaiKhoan.Text == "CẤP TÀI KHOẢN")
+            {
+                string pass = txtPassword.Text.Trim();
+                if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
+                {
+                    MessageBox.Show("Vui lòng nhập Username và Password để cấp mới!"); return;
+                }
+
+                // Khớp tham số: username, password, maNV, role
+                if (_tkService.TaoTaiKhoan(user, pass, _maNVDangChon, maVaiTro))
+                {
+                    MessageBox.Show("Đã cấp tài khoản thành công!", "Thông báo");
+                    LoadThongTinTaiKhoan(_maNVDangChon);
+                }
+            }
+            else // CẬP NHẬT QUYỀN
+            {
+                // Khớp tham số: username, password (để trống vì không đổi), role
+                if (_tkService.SuaTaiKhoan(user, "", maVaiTro))
+                {
+                    MessageBox.Show("Cập nhật quyền hạn thành công!", "Thông báo");
+                }
+            }
         }
 
         private void btnResetMatKhau_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Đặt lại mật khẩu về '1'?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (_maNVDangChon == -1) return;
+            string user = txtUsername.Text.Trim();
+
+            if (MessageBox.Show("Đặt lại mật khẩu của nhân viên này về mặc định là '1'?", "Xác nhận Reset", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                _tkService.ResetMatKhau(txtUsername.Text);
-                MessageBox.Show("Đã reset mật khẩu thành công!");
+                // Khớp tham số: username
+                if (_tkService.ResetMatKhau(user))
+                {
+                    MessageBox.Show("Reset mật khẩu thành công! Hãy báo nhân viên đăng nhập bằng mật khẩu '1'.", "Thông báo");
+                }
             }
         }
     }

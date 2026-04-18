@@ -198,6 +198,7 @@ public partial class DataSqlContext : DbContext
             entity.ToTable("KhuyenMai");
 
             entity.Property(e => e.MaKm).HasColumnName("MaKM");
+            entity.Property(e => e.DoiTuongApDung).HasMaxLength(50);
             entity.Property(e => e.GiaTri).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.LoaiKm)
                 .HasMaxLength(20)

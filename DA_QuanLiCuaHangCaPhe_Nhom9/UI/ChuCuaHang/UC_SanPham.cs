@@ -5,305 +5,350 @@ using System.Linq;
 using System.Windows.Forms;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     public partial class UC_SanPham : UserControl
     {
-        // Khởi tạo Service
         private readonly SanPhamService _service = new SanPhamService();
-
-        // --- FIX CHÍNH Ở ĐÂY: SỬA DinhLuong THÀNH CongThucHienThi ---
         private List<CongThucHienThi> _listCongThucTam = new List<CongThucHienThi>();
+        private int _maMonDangChon = 0;
+
+        // --- 2 Biến cờ hiệu bảo vệ dữ liệu ---
+        private bool _coThayDoiChuaLuu = false;
+        private bool _dangTaiDuLieu = false;
 
         public UC_SanPham()
         {
             InitializeComponent();
+            DangKySuKien();
         }
 
-        // Sự kiện Load: Chạy khi màn hình vừa mở
+        private void DangKySuKien()
+        {
+            this.Load += UC_SanPham_Load;
+            this.btnTaoMonMoi.Click += BtnTaoMonMoi_Click;
+            this.btnThemNL.Click += BtnThemNL_Click;
+            this.btnXoaNL.Click += BtnXoaNL_Click;
+            this.btnLuu.Click += BtnLuu_Click;
+
+            this.dgvCongThuc.SelectionChanged += DgvCongThuc_SelectionChanged;
+            this.dgvCongThuc.CellClick += DgvCongThuc_CellClick;
+            this.dgvCongThuc.CellDoubleClick += DgvCongThuc_CellDoubleClick;
+            this.txtTimKiem.TextChanged += TxtTimKiem_TextChanged;
+
+            // Đăng ký bắt sự kiện khi người dùng thay đổi dữ liệu trên Form
+            this.txtTenMon.TextChanged += DanhDauThayDoi;
+            this.txtGiaBan.TextChanged += DanhDauThayDoi;
+            this.cboLoai.TextChanged += DanhDauThayDoi;
+            this.cboTrangThai.SelectedIndexChanged += DanhDauThayDoi;
+        }
+
+        // Hàm này tự động bật cờ cảnh báo nếu người dùng tác động vào form
+        private void DanhDauThayDoi(object sender, EventArgs e)
+        {
+            if (!_dangTaiDuLieu) _coThayDoiChuaLuu = true;
+        }
+
+        // ================= HÀM BẢO VỆ DỮ LIỆU (DIRTY CHECK) =================
+        private bool KiemTraVaLuuThayDoi()
+        {
+            if (!_coThayDoiChuaLuu) return true; // Form sạch, cho phép đi tiếp
+
+            var rs = MessageBox.Show("Bạn có thông tin thay đổi chưa được lưu. Bạn có muốn lưu lại trước khi chuyển sang món khác không?", "Cảnh báo chưa lưu", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+
+            if (rs == DialogResult.Yes)
+            {
+                return ThucHienLuuXuongDB(true); // Lưu, nếu thành công sẽ đi tiếp
+            }
+            else if (rs == DialogResult.Cancel)
+            {
+                return false; // Hủy bỏ, đứng im tại form hiện tại
+            }
+
+            return true; // Người dùng chọn No -> Mặc kệ thay đổi, đi tiếp
+        }
+        // ====================================================================
+
         private void UC_SanPham_Load(object sender, EventArgs e)
         {
-            TaiDanhSachMonBenTrai();
+            ThietLapLuoi();
+            TaiDanhSachLoaiVaTrangThai();
             TaiNguyenLieuVaoComboBox();
-
-            // Gọi hàm load dữ liệu tự động từ DB
-            TaiDanhSachLoaiVaDonVi();
+            TaiDanhSachMonBenTrai();
             LamMoiGiaoDien();
         }
 
-        #region Các Hàm load
-        private void TaiDanhSachLoaiVaDonVi()
+        private void ThietLapLuoi()
         {
-            // Tải Loại món
-            cboLoai.Items.Clear();
-            var listLoai = _service.LayDanhSachLoaiMon();
-            if (listLoai != null) cboLoai.Items.AddRange(listLoai.ToArray());
+            dgvCongThuc.AutoGenerateColumns = false;
+            dgvCongThuc.Columns.Clear();
 
-            // Tải Đơn vị tính
-            cboDonVi.Items.Clear();
-            var listDonVi = _service.LayDanhSachDonVi();
-            if (listDonVi != null) cboDonVi.Items.AddRange(listDonVi.ToArray());
+            dgvCongThuc.Columns.Add(new DataGridViewTextBoxColumn { Name = "MaNL", DataPropertyName = "MaNL", Visible = false });
+            dgvCongThuc.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenNL", HeaderText = "Tên Nguyên Liệu", DataPropertyName = "TenNL" });
+            dgvCongThuc.Columns.Add(new DataGridViewTextBoxColumn { Name = "SoLuong", HeaderText = "Định Lượng", DataPropertyName = "SoLuong", Width = 150 });
+            dgvCongThuc.Columns.Add(new DataGridViewTextBoxColumn { Name = "DonViTinh", HeaderText = "ĐVT Kho", DataPropertyName = "DonViTinh", Width = 150 });
+        }
+
+        private void TaiDanhSachLoaiVaTrangThai()
+        {
+            var dsLoai = _service.LayDanhSachLoaiMon();
+            cboLoai.DataSource = null;
+            cboLoai.Items.Clear();
+            cboLoai.Items.AddRange(dsLoai.ToArray());
+
+            if (cboTrangThai.Items.Count == 0)
+                cboTrangThai.Items.AddRange(new object[] { "Còn bán", "Ngừng kinh doanh" });
+            cboTrangThai.SelectedIndex = 0;
+        }
+
+        private void TaiNguyenLieuVaoComboBox()
+        {
+            var dsNL = _service.LayDanhSachNguyenLieu();
+            cboNguyenLieu.DataSource = dsNL;
+            cboNguyenLieu.DisplayMember = "TenNl";
+            cboNguyenLieu.ValueMember = "MaNl";
+            cboNguyenLieu.SelectedIndex = -1;
+        }
+
+        private void TaiDanhSachMonBenTrai(string tuKhoa = "")
+        {
+            flpDanhSachMon.Controls.Clear();
+            var danhSachMon = _service.LayDanhSachMonAn();
+
+            if (!string.IsNullOrWhiteSpace(tuKhoa))
+            {
+                tuKhoa = tuKhoa.ToLower();
+                danhSachMon = danhSachMon.Where(m =>
+                    (m.TenSp != null && m.TenSp.ToLower().Contains(tuKhoa)) ||
+                    (m.LoaiSp != null && m.LoaiSp.ToLower().Contains(tuKhoa))
+                ).ToList();
+            }
+
+            foreach (var mon in danhSachMon)
+            {
+                Button btnMon = new Button
+                {
+                    Text = $"{mon.TenSp}\n\n{Convert.ToDecimal(mon.DonGia).ToString("N0")}đ",
+                    Width = 331,
+                    Height = 254,
+                    Tag = mon,
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = mon.TrangThai == "Ngừng kinh doanh" ? Color.LightGray : Color.WhiteSmoke,
+                    Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+
+                btnMon.FlatAppearance.BorderColor = Color.Gainsboro;
+                btnMon.FlatAppearance.BorderSize = 1;
+
+                btnMon.Click += (s, ev) =>
+                {
+                    // 1. Kiểm tra lưu trước khi load món mới
+                    if (!KiemTraVaLuuThayDoi()) return;
+
+                    // 2. Bắt đầu Load dữ liệu (Khóa cờ)
+                    _dangTaiDuLieu = true;
+
+                    _maMonDangChon = mon.MaSp;
+                    txtTenMon.Text = mon.TenSp;
+                    cboLoai.Text = mon.LoaiSp;
+                    txtGiaBan.Text = mon.DonGia.ToString("N0");
+                    cboTrangThai.Text = mon.TrangThai ?? "Còn bán";
+
+                    _listCongThucTam = _service.LayCongThucTheoMon(mon.MaSp);
+                    HienThiLuoiCongThuc();
+
+                    btnLuu.Text = "CẬP NHẬT SẢN PHẨM";
+                    btnLuu.BackColor = Color.Orange;
+
+                    // 3. Kết thúc Load (Mở cờ & Reset thay đổi)
+                    _dangTaiDuLieu = false;
+                    _coThayDoiChuaLuu = false;
+                };
+
+                flpDanhSachMon.Controls.Add(btnMon);
+            }
+        }
+
+        private void TxtTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            TaiDanhSachMonBenTrai(txtTimKiem.Text.Trim());
         }
 
         private void LamMoiGiaoDien()
         {
+            _dangTaiDuLieu = true;
+
+            _maMonDangChon = 0;
             txtTenMon.Clear();
             txtGiaBan.Clear();
-            cboLoai.SelectedIndex = -1;
-            cboDonVi.SelectedIndex = -1;
-            txtSoLuongNL.Clear();
+            cboLoai.Text = "";
+            cboTrangThai.SelectedIndex = 0;
+
             cboNguyenLieu.SelectedIndex = -1;
+            txtSoLuongNL.Clear();
 
             _listCongThucTam.Clear();
             HienThiLuoiCongThuc();
-
-            btnLuu.Text = "THÊM VÀO MENU"; // Đổi chức năng nút Lưu thành Thêm Mới
-            btnLuu.BackColor = Color.LightSeaGreen;
-            btnLuu.Tag = null; // Tag = null nghĩa là đang ở chế độ Thêm Mới
-
             btnXoaNL.Enabled = false;
+
+            _dangTaiDuLieu = false;
+            _coThayDoiChuaLuu = false; // Vừa làm mới xong thì coi như form sạch
         }
 
-        private void TaiDanhSachMonBenTrai()
-        {
-            flpDanhSachMon.Controls.Clear();
-            var listMon = _service.LayDanhSachMonAn();
-
-            foreach (var mon in listMon)
-            {
-                Button btn = new Button();
-                // Hiển thị Tên món ở dòng 1, Giá tiền ở dòng 2
-                btn.Text = $"{mon.TenSp}\n({mon.DonGia:N0} đ)";
-
-                // Kích thước và căn chỉnh
-                btn.Width = 220;
-                btn.Height = 100;
-                btn.TextAlign = ContentAlignment.MiddleCenter;
-                btn.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-
-                // Màu sắc giao diện
-                btn.BackColor = Color.White;
-                btn.ForeColor = Color.FromArgb(64, 64, 64);
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderSize = 1;
-                btn.FlatAppearance.BorderColor = Color.LightGray;
-
-                btn.Tag = mon;
-                btn.Click += BtnMon_Click;
-
-                flpDanhSachMon.Controls.Add(btn);
-            }
-        }
-
-        // Hàm 2: Nạp nguyên liệu vào ComboBox để chọn
-        private void TaiNguyenLieuVaoComboBox()
-        {
-            cboNguyenLieu.DataSource = _service.LayDanhSachNguyenLieu();
-            cboNguyenLieu.DisplayMember = "TenNl";
-            cboNguyenLieu.ValueMember = "MaNl";
-        }
-
-        // Hàm phụ trợ để load list tạm lên DataGridView
         private void HienThiLuoiCongThuc()
         {
             dgvCongThuc.DataSource = null;
-            if (_listCongThucTam.Count > 0)
+            dgvCongThuc.DataSource = _listCongThucTam;
+        }
+
+        private void BtnTaoMonMoi_Click(object sender, EventArgs e)
+        {
+            // Nếu người dùng chủ động bấm nút Tạo Mới thì phải kiểm tra form cũ
+            if (sender != null && !KiemTraVaLuuThayDoi()) return;
+
+            LamMoiGiaoDien();
+            btnLuu.Text = "LƯU SẢN PHẨM MỚI";
+            btnLuu.BackColor = Color.DarkSlateBlue;
+            txtTenMon.Focus();
+        }
+
+        // ================= XỬ LÝ NGUYÊN LIỆU =================
+        private void DgvCongThuc_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
             {
-                dgvCongThuc.DataSource = _listCongThucTam.ToList();
-
-                dgvCongThuc.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
-                // Định dạng tên cột theo Property của CongThucHienThi
-                if (dgvCongThuc.Columns["MaNL"] != null) dgvCongThuc.Columns["MaNL"].Visible = false;
-                if (dgvCongThuc.Columns["TenNL"] != null) dgvCongThuc.Columns["TenNL"].HeaderText = "Tên Nguyên Liệu";
-                if (dgvCongThuc.Columns["SoLuong"] != null) dgvCongThuc.Columns["SoLuong"].HeaderText = "Định Lượng";
-                if (dgvCongThuc.Columns["DonViTinh"] != null) dgvCongThuc.Columns["DonViTinh"].HeaderText = "Đơn Vị";
-
-                dgvCongThuc.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                var row = dgvCongThuc.Rows[e.RowIndex];
+                cboNguyenLieu.SelectedValue = Convert.ToInt32(row.Cells["MaNL"].Value);
+                txtSoLuongNL.Text = Convert.ToDecimal(row.Cells["SoLuong"].Value).ToString("0.##");
             }
         }
 
-        #endregion
-
-        #region các hàm sự kiện
-
-        // Sự kiện: Khi bấm vào nút món ăn bên trái
-        private void BtnMon_Click(object sender, EventArgs e)
+        private void BtnThemNL_Click(object sender, EventArgs e)
         {
-            Button btn = (Button)sender;
-            SanPham monChon = (SanPham)btn.Tag;
-
-            // Xóa sạch các ô nhập công thức cũ
-            txtSoLuongNL.Clear();
-            cboNguyenLieu.SelectedIndex = -1;
-
-            // 1. Đổ thông tin món lên giao diện
-            txtTenMon.Text = monChon.TenSp;
-            txtGiaBan.Text = monChon.DonGia.ToString("N0");
-            cboLoai.Text = monChon.LoaiSp;
-            cboDonVi.Text = monChon.DonVi;
-
-            // 2. Nạp công thức từ DB vào list tạm
-            _listCongThucTam.Clear();
-            var listCongThucTuDB = _service.LayCongThucMon(monChon.MaSp);
-            if (listCongThucTuDB != null)
+            if (cboNguyenLieu.SelectedItem == null || string.IsNullOrWhiteSpace(txtSoLuongNL.Text))
             {
-                _listCongThucTam.AddRange(listCongThucTuDB);
+                MessageBox.Show("Vui lòng chọn Nguyên liệu và nhập Số lượng hao hụt!", "Cảnh báo"); return;
             }
 
-            // 3. Hiển thị lên lưới
-            HienThiLuoiCongThuc();
-
-            // Đổi trạng thái nút
-            btnLuu.Text = "CẬP NHẬT MÓN";
-            btnLuu.BackColor = Color.Orange;
-            btnLuu.Tag = monChon;
-        }
-
-        // Sự kiện: Thêm Nguyên liệu vào công thức
-        private void btnThemNL_Click(object sender, EventArgs e)
-        {
-            if (cboNguyenLieu.SelectedValue == null) return;
-
-            decimal soLuong;
-            if (!decimal.TryParse(txtSoLuongNL.Text, out soLuong) || soLuong <= 0)
+            if (!decimal.TryParse(txtSoLuongNL.Text, out decimal soLuong) || soLuong <= 0)
             {
-                MessageBox.Show("Vui lòng nhập định lượng hợp lệ!");
-                return;
+                MessageBox.Show("Số lượng phải là số lớn hơn 0!", "Cảnh báo"); return;
             }
 
-            int maNLChon = (int)cboNguyenLieu.SelectedValue;
-            string tenNLChon = cboNguyenLieu.Text; // Lấy tên nguyên liệu để hiển thị
+            var nlDuocChon = (NguyenLieu)cboNguyenLieu.SelectedItem;
+            var nguyenLieuDaCo = _listCongThucTam.FirstOrDefault(x => x.MaNL == nlDuocChon.MaNl);
 
-            // Kiểm tra xem nguyên liệu này đã có trong lưới chưa
-            var monDaCo = _listCongThucTam.FirstOrDefault(x => x.MaNL == maNLChon);
-            if (monDaCo != null)
-            {
-                // Có rồi thì cộng dồn số lượng
-                monDaCo.SoLuong += soLuong;
-            }
+            if (nguyenLieuDaCo != null) nguyenLieuDaCo.SoLuong = soLuong;
             else
             {
-                // Chưa có thì thêm mới vào list tạm dạng CongThucHienThi
                 _listCongThucTam.Add(new CongThucHienThi
                 {
-                    MaNL = maNLChon,
-                    TenNL = tenNLChon,
+                    MaNL = nlDuocChon.MaNl,
+                    TenNL = nlDuocChon.TenNl,
                     SoLuong = soLuong,
-                    DonViTinh = "---" // Đơn vị sẽ được cập nhật khi tải lại từ DB
+                    DonViTinh = nlDuocChon.DonViTinh
                 });
             }
 
             HienThiLuoiCongThuc();
             txtSoLuongNL.Clear();
+            if (!_dangTaiDuLieu) _coThayDoiChuaLuu = true; // Báo hiệu đã sửa công thức
         }
 
-        // Sự kiện: Lưu Cập nhật Món và Công thức
-        private void btnLuu_Click(object sender, EventArgs e)
-        {
-            // --- BƯỚC 1: VALIDATION (KIỂM TRA NHẬP LIỆU) ---
-            if (string.IsNullOrWhiteSpace(txtTenMon.Text)) { MessageBox.Show("Vui lòng nhập Tên món!"); txtTenMon.Focus(); return; }
-            if (string.IsNullOrWhiteSpace(txtGiaBan.Text)) { MessageBox.Show("Vui lòng nhập Giá bán!"); txtGiaBan.Focus(); return; }
-            if (string.IsNullOrWhiteSpace(cboLoai.Text)) { MessageBox.Show("Vui lòng chọn hoặc nhập Loại món!"); cboLoai.Focus(); return; }
-            if (string.IsNullOrWhiteSpace(cboDonVi.Text)) { MessageBox.Show("Vui lòng chọn hoặc nhập Đơn vị tính!"); cboDonVi.Focus(); return; }
-
-            decimal giaBan;
-            if (!decimal.TryParse(txtGiaBan.Text.Replace(",", ""), out giaBan)) { MessageBox.Show("Giá bán không hợp lệ!"); return; }
-
-            // --- BƯỚC 2: XỬ LÝ LOGIC "NGỪNG BÁN" (Như bạn yêu cầu) ---
-            string trangThaiMon = "Còn bán";
-            if (_listCongThucTam.Count == 0)
-            {
-                var tl = MessageBox.Show("Món này đang không có nguyên liệu nào!\nĐể tránh lỗi khi bán hàng, hệ thống sẽ tự động đổi trạng thái món thành 'Ngừng Bán'.\nBạn có muốn tiếp tục lưu?", "Cảnh báo định lượng", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (tl == DialogResult.No) return; // Hủy lưu để người dùng nhập thêm NL
-
-                trangThaiMon = "Ngừng bán"; // Gán trạng thái
-            }
-
-            // --- BƯỚC 3: THỰC THI THÊM HOẶC SỬA ---
-            bool isSuccess = false;
-
-            if (btnLuu.Tag == null)
-            {
-                // TRẠNG THÁI: THÊM MỚI SẢN PHẨM
-                SanPham spMoi = new SanPham
-                {
-                    TenSp = txtTenMon.Text.Trim(),
-                    DonGia = giaBan,
-                    LoaiSp = cboLoai.Text,
-                    DonVi = cboDonVi.Text,
-                    TrangThai = trangThaiMon // Lấy trạng thái từ logic kiểm tra nguyên liệu ở trên
-                };
-
-                isSuccess = _service.ThemSanPhamMoi(spMoi, _listCongThucTam);
-
-                if (isSuccess) MessageBox.Show("Đã thêm món mới vào Menu thành công!");
-                else MessageBox.Show("Lỗi khi thêm món mới vào cơ sở dữ liệu!");
-            }
-            else
-            {
-                // TRẠNG THÁI: CẬP NHẬT MÓN CŨ
-                SanPham monDangChon = (SanPham)btnLuu.Tag;
-                monDangChon.TenSp = txtTenMon.Text.Trim();
-                monDangChon.DonGia = giaBan;
-                monDangChon.LoaiSp = cboLoai.Text;
-                monDangChon.DonVi = cboDonVi.Text;
-                monDangChon.TrangThai = trangThaiMon; // Cập nhật trạng thái
-
-                isSuccess = _service.CapNhatSanPhamVaCongThuc(monDangChon, _listCongThucTam);
-                if (isSuccess) MessageBox.Show("Cập nhật món và công thức thành công!");
-            }
-
-            if (isSuccess)
-            {
-                TaiDanhSachMonBenTrai(); // Load lại lưới
-                LamMoiGiaoDien(); // Quay về trạng thái sạch sẽ
-            }
-        }
-
-        private void btnTaoMonMoi_Click(object sender, EventArgs e) => LamMoiGiaoDien();
-
-        private void dgvCongThuc_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DgvCongThuc_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
                 string tenNL = _listCongThucTam[e.RowIndex].TenNL;
-                if (MessageBox.Show($"Bỏ nguyên liệu '{tenNL}' khỏi công thức?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show($"Bỏ nguyên liệu '{tenNL}' khỏi công thức pha chế?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     _listCongThucTam.RemoveAt(e.RowIndex);
                     HienThiLuoiCongThuc();
+                    if (!_dangTaiDuLieu) _coThayDoiChuaLuu = true;
+
+                    if (_listCongThucTam.Count == 0)
+                    {
+                        MessageBox.Show("Sản phẩm không còn nguyên liệu pha chế. Tự động chuyển sang 'Ngừng kinh doanh'.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        cboTrangThai.Text = "Ngừng kinh doanh";
+                    }
                 }
             }
         }
 
-        // Nếu có chọn ít nhất 1 dòng thì sáng nút Xóa lên
-        private void dgvCongThuc_SelectionChanged(object sender, EventArgs e) => btnXoaNL.Enabled = dgvCongThuc.SelectedRows.Count > 0;
-
-        private void btnXoaNL_Click(object sender, EventArgs e)
+        private void BtnXoaNL_Click(object sender, EventArgs e)
         {
             if (dgvCongThuc.SelectedRows.Count > 0)
             {
                 if (MessageBox.Show("Xóa các nguyên liệu đang chọn?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    // Duyệt ngược để xóa không bị lỗi index
                     for (int i = dgvCongThuc.SelectedRows.Count - 1; i >= 0; i--)
                     {
-                        int index = dgvCongThuc.SelectedRows[i].Index;
-                        _listCongThucTam.RemoveAt(index);
+                        _listCongThucTam.RemoveAt(dgvCongThuc.SelectedRows[i].Index);
                     }
                     HienThiLuoiCongThuc();
+                    if (!_dangTaiDuLieu) _coThayDoiChuaLuu = true;
+
+                    if (_listCongThucTam.Count == 0)
+                    {
+                        MessageBox.Show("Sản phẩm không còn nguyên liệu pha chế. Tự động chuyển sang 'Ngừng kinh doanh'.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        cboTrangThai.Text = "Ngừng kinh doanh";
+                    }
                 }
             }
         }
 
-        #endregion
+        private void DgvCongThuc_SelectionChanged(object sender, EventArgs e) => btnXoaNL.Enabled = dgvCongThuc.SelectedRows.Count > 0;
 
+        // ================= LOGIC LƯU DB =================
+        private void BtnLuu_Click(object sender, EventArgs e)
+        {
+            if (ThucHienLuuXuongDB(true))
+            {
+                TaiDanhSachLoaiVaTrangThai();
+                BtnTaoMonMoi_Click(null, null); // Lưu bằng nút thủ công xong thì reset form
+            }
+        }
 
+        private bool ThucHienLuuXuongDB(bool hienThongBao)
+        {
+            if (string.IsNullOrWhiteSpace(txtTenMon.Text) || string.IsNullOrWhiteSpace(txtGiaBan.Text))
+            {
+                MessageBox.Show("Tên món và Giá bán không được để trống!", "Cảnh báo"); return false;
+            }
 
+            if (!double.TryParse(txtGiaBan.Text, out double donGia) || donGia < 0)
+            {
+                MessageBox.Show("Giá bán không hợp lệ!", "Cảnh báo"); return false;
+            }
 
+            if (cboTrangThai.Text == "Còn bán" && _listCongThucTam.Count == 0)
+            {
+                MessageBox.Show("Sản phẩm chưa có công thức pha chế! Phải thêm nguyên liệu hoặc chọn 'Ngừng kinh doanh'.", "Lỗi nghiệp vụ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
 
+            SanPham sp = new SanPham
+            {
+                TenSp = txtTenMon.Text.Trim(),
+                LoaiSp = cboLoai.Text.Trim(),
+                DonGia = (decimal)donGia,
+                TrangThai = cboTrangThai.Text
+            };
 
+            bool ketQua = _maMonDangChon == 0 ? _service.ThemMonMoi(sp, _listCongThucTam) : _service.CapNhatMon((sp.MaSp = _maMonDangChon) == _maMonDangChon ? sp : sp, _listCongThucTam);
+
+            if (ketQua)
+            {
+                _coThayDoiChuaLuu = false; // Lưu xong thì cờ sạch
+                if (hienThongBao) MessageBox.Show("Lưu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                TaiDanhSachMonBenTrai();
+                return true;
+            }
+
+            MessageBox.Show("Có lỗi xảy ra khi lưu vào CSDL!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
     }
 }

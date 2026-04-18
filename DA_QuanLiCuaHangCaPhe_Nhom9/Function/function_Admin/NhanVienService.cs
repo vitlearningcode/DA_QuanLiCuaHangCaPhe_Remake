@@ -5,34 +5,18 @@ using System;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
 {
-
     public class NhanVienService
-
     {
-        // 1. Lấy danh sách nhân viên
-        public dynamic LayDanhSachNhanVienDayDu()
+        // 1. Lấy danh sách nhân viên (Chỉ lấy những người đang làm việc)
+        public List<NhanVien> LayDanhSachNhanVien()
         {
             using (var db = new DataSqlContext())
             {
-                // Kỹ thuật LEFT JOIN: Lấy tất cả nhân viên, kể cả người chưa có tài khoản
-                var query = from nv in db.NhanViens
-                            join tk in db.TaiKhoans on nv.MaNv equals tk.MaNv into tks
-                            from subTk in tks.DefaultIfEmpty() // Nếu không có tài khoản thì subTk = null
-                            orderby nv.MaNv descending
-                            select new
-                            {
-                                MaNv = nv.MaNv,
-                                TenNv = nv.TenNv,
-                                SoDienThoai = nv.SoDienThoai,
-                                ChucVu = nv.ChucVu,
-                                NgayVaoLam = nv.NgayVaoLam,
-                                // Cột quan trọng: Nếu subTk null thì ghi "Chưa cấp", ngược lại lấy tên đăng nhập
-                                TaiKhoan = subTk != null ? subTk.TenDangNhap : "NO ACCOUNT",
-                                QuyenHan = subTk != null ? subTk.MaVaiTro : 0,
-                                TrangThaiTK = (subTk != null && subTk.TrangThai == true) ? "Hoạt động" : (subTk == null ? "" : "Đã khóa")
-                            };
-
-                return query.ToList();
+                // Ẩn những người đã bị "xóa mềm" (Nghỉ việc) khỏi lưới
+                return db.NhanViens
+                         .Where(nv => nv.ChucVu != "Đã nghỉ việc")
+                         .OrderByDescending(nv => nv.NgayVaoLam)
+                         .ToList();
             }
         }
 
@@ -47,15 +31,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                     db.SaveChanges();
                     return true;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Windows.Forms.MessageBox.Show("Lỗi thêm: " + ex.Message);
                     return false;
                 }
             }
         }
 
-        // 3. Sửa nhân viên
-        public bool SuaNhanVien(NhanVien nvMoi)
+        // 3. Cập nhật nhân viên (Khớp tên với UI mới)
+        public bool CapNhatNhanVien(NhanVien nvMoi)
         {
             using (var db = new DataSqlContext())
             {
@@ -72,33 +57,52 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // 4. Xóa nhân viên (Cẩn thận: Nếu nhân viên đã bán hàng thì không xóa được do ràng buộc khóa ngoại)
+        // 4. XÓA NHÂN VIÊN (NÂNG CẤP: ÁP DỤNG XÓA MỀM AN TOÀN)
         public string XoaNhanVien(int maNV)
         {
             using (var db = new DataSqlContext())
             {
                 var nv = db.NhanViens.Find(maNV);
-                if (nv == null) return "Không tìm thấy nhân viên";
+                if (nv == null) return "Không tìm thấy nhân viên!";
 
-                // Kiểm tra ràng buộc (Ví dụ: Đã có tài khoản, đã lập phiếu kho...)
-                bool coTaiKhoan = db.TaiKhoans.Any(tk => tk.MaNv == maNV);
-                bool coDonHang = db.DonHangs.Any(dh => dh.MaNv == maNV);
-                bool coPhieuKho = db.PhieuKhos.Any(pk => pk.MaNv == maNV);
-
-                if (coTaiKhoan || coDonHang || coPhieuKho)
-                {
-                    return "Không thể xóa: Nhân viên này đã có dữ liệu liên quan (Đơn hàng/Tài khoản).";
-                }
+                // Kiểm tra xem nhân viên này đã phát sinh dữ liệu (Đơn hàng, Phiếu kho) chưa
+                bool daCoDuLieu = db.DonHangs.Any(dh => dh.MaNv == maNV) ||
+                                  db.PhieuKhos.Any(pk => pk.MaNv == maNV) ||
+                                  db.PhieuChis.Any(pc => pc.MaNv == maNV);
 
                 try
                 {
-                    db.NhanViens.Remove(nv);
-                    db.SaveChanges();
-                    return "Xóa thành công!";
+                    if (daCoDuLieu)
+                    {
+                        // TH1: Đã có dữ liệu -> XÓA MỀM
+                        // Đổi trạng thái thành Đã nghỉ việc để ẩn khỏi danh sách
+                        nv.ChucVu = "Đã nghỉ việc";
+
+                        // Tìm và Khóa luôn tài khoản đăng nhập của người này (nếu có)
+                        var tk = db.TaiKhoans.FirstOrDefault(t => t.MaNv == maNV);
+                        if (tk != null)
+                        {
+                            tk.TrangThai = false;
+                        }
+
+                        db.SaveChanges();
+                        return "Nhân viên đã có lịch sử làm việc. Hệ thống đã thực hiện XÓA MỀM (Chuyển thành 'Đã nghỉ việc' và Khóa tài khoản) để bảo toàn dữ liệu doanh thu!";
+                    }
+                    else
+                    {
+                        // TH2: Nhân viên mới thêm vào chưa làm gì cả -> XÓA CỨNG
+                        // Xóa tài khoản trước (nếu lỡ tạo)
+                        var tk = db.TaiKhoans.FirstOrDefault(t => t.MaNv == maNV);
+                        if (tk != null) db.TaiKhoans.Remove(tk);
+
+                        db.NhanViens.Remove(nv);
+                        db.SaveChanges();
+                        return "Xóa nhân viên thành công!";
+                    }
                 }
                 catch (Exception ex)
                 {
-                    return "Lỗi: " + ex.Message;
+                    return "Lỗi Database: " + (ex.InnerException?.Message ?? ex.Message);
                 }
             }
         }

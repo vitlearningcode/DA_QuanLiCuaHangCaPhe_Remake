@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             pnlMenu = new Panel();
+            btnSoQuy = new Button();
             btnTongQuan = new Button();
             button1 = new Button();
             btnKhuyenMai = new Button();
@@ -36,13 +37,14 @@
             btnKho = new Button();
             btnSanPham = new Button();
             pnlContent = new Panel();
-            btnSoQuy = new Button();
+            btnKhachHang = new Button();
             pnlMenu.SuspendLayout();
             SuspendLayout();
             // 
             // pnlMenu
             // 
             pnlMenu.BackColor = SystemColors.ActiveCaptionText;
+            pnlMenu.Controls.Add(btnKhachHang);
             pnlMenu.Controls.Add(btnSoQuy);
             pnlMenu.Controls.Add(btnTongQuan);
             pnlMenu.Controls.Add(button1);
@@ -56,6 +58,20 @@
             pnlMenu.Name = "pnlMenu";
             pnlMenu.Size = new Size(449, 992);
             pnlMenu.TabIndex = 0;
+            // 
+            // btnSoQuy
+            // 
+            btnSoQuy.Dock = DockStyle.Top;
+            btnSoQuy.FlatStyle = FlatStyle.Flat;
+            btnSoQuy.ForeColor = Color.White;
+            btnSoQuy.Location = new Point(0, 360);
+            btnSoQuy.Margin = new Padding(2, 3, 2, 3);
+            btnSoQuy.Name = "btnSoQuy";
+            btnSoQuy.Size = new Size(449, 60);
+            btnSoQuy.TabIndex = 6;
+            btnSoQuy.Text = "Sổ Quỷ";
+            btnSoQuy.UseVisualStyleBackColor = true;
+            btnSoQuy.Click += btnSoQuy_Click;
             // 
             // btnTongQuan
             // 
@@ -151,19 +167,19 @@
             pnlContent.Size = new Size(1438, 992);
             pnlContent.TabIndex = 1;
             // 
-            // btnSoQuy
+            // btnKhachHang
             // 
-            btnSoQuy.Dock = DockStyle.Top;
-            btnSoQuy.FlatStyle = FlatStyle.Flat;
-            btnSoQuy.ForeColor = Color.White;
-            btnSoQuy.Location = new Point(0, 360);
-            btnSoQuy.Margin = new Padding(2, 3, 2, 3);
-            btnSoQuy.Name = "btnSoQuy";
-            btnSoQuy.Size = new Size(449, 60);
-            btnSoQuy.TabIndex = 6;
-            btnSoQuy.Text = "Sổ Quỷ";
-            btnSoQuy.UseVisualStyleBackColor = true;
-            btnSoQuy.Click += btnSoQuy_Click;
+            btnKhachHang.Dock = DockStyle.Top;
+            btnKhachHang.FlatStyle = FlatStyle.Flat;
+            btnKhachHang.ForeColor = Color.White;
+            btnKhachHang.Location = new Point(0, 420);
+            btnKhachHang.Margin = new Padding(2, 3, 2, 3);
+            btnKhachHang.Name = "btnKhachHang";
+            btnKhachHang.Size = new Size(449, 60);
+            btnKhachHang.TabIndex = 7;
+            btnKhachHang.Text = "Quản lý Khách Hàng";
+            btnKhachHang.UseVisualStyleBackColor = true;
+            btnKhachHang.Click += btnKhachHang_Click;
             // 
             // Admin
             // 
@@ -191,5 +207,6 @@
         private Button button1;
         private Button btnTongQuan;
         private Button btnSoQuy;
+        private Button btnKhachHang;
     }
 }
