@@ -34,7 +34,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_QuanLi
         }
 
         // Nghiệp vụ riêng của Quản lý: Chỉ Báo hết hoặc Mở bán lại (Khớp DB)
-        public bool BaoHetHang(int maSP) => _coreSP.CapNhatTrangThai(maSP, "Ngừng bán");
+        public bool BaoNgungBan(int maSP) => _coreSP.CapNhatTrangThai(maSP, "Ngừng bán");
 
         public bool MoBanLai(int maSP) => _coreSP.CapNhatTrangThai(maSP, "Còn bán");
     }
