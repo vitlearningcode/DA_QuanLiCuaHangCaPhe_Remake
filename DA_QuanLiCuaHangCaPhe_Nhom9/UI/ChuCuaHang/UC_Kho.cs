@@ -425,7 +425,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 NgayLap = dtpNgayNhap.Value,
                 MaNcc = maNhaCungCap,  // <--- CẬP NHẬT DÒNG NÀY (Bỏ cái (int) đi)
                 LoaiPhieu = loai,
-                MaNv = 1,
+                MaNv = "1",
                 TrangThai = "Hoàn thành"
             };
 

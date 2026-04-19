@@ -5,7 +5,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
 public partial class NhanVien
 {
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public string TenNv { get; set; } = null!;
 
@@ -18,6 +18,10 @@ public partial class NhanVien
     public string TrangThai { get; set; } = null!;
 
     public virtual ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
+
+    public virtual ICollection<LichLamViec> LichLamViecs { get; set; } = new List<LichLamViec>();
+
+    public virtual ICollection<PhieuChi> PhieuChis { get; set; } = new List<PhieuChi>();
 
     public virtual ICollection<PhieuKho> PhieuKhos { get; set; } = new List<PhieuKho>();
 

@@ -11,7 +11,7 @@ public partial class DonHang
 
     public int? MaKh { get; set; }
 
-    public int MaNv { get; set; }
+    public string MaNv { get; set; } = null!;
 
     public decimal? TongTien { get; set; }
 

@@ -19,16 +19,26 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         private void UC_TongQuan_Load(object sender, EventArgs e)
         {
             // Thiết lập ngày mặc định: Từ đầu tháng đến hôm nay
-            DateTime today = DateTime.Today;
-            dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
-            dtpDenNgay.Value = today;
+            //DateTime today = DateTime.Today;
+            //dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
+            //dtpDenNgay.Value = today;
 
+            //zô là thấy cái hôm nay trước
+            dtpTuNgay.Value = DateTime.Today;
+            dtpDenNgay.Value = DateTime.Today;
+            cboLoaiBieuDo.SelectedIndex = 0;
             HienThiDuLieu();
         }
 
         private void btnLoc_Click(object sender, EventArgs e)
         {
             HienThiDuLieu();
+        }
+
+        private void cboLoaiBieuDo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+           
+            HienThiDuLieu(); // Gọi lại hàm hiển thị để vẽ lại biểu đồ
         }
 
         private void HienThiDuLieu()
@@ -60,26 +70,66 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 
         private void VeBieuDo(DateTime tuNgay, DateTime denNgay)
         {
-            var dict = _service.LayDoanhThuTheoNgay(tuNgay, denNgay);
+            var dict = _service.LayDuLieuBieuDoThongMinh(tuNgay, denNgay); // Lấy dữ liệu theo giờ từ service
 
             chartDoanhThu.Series.Clear();
             chartDoanhThu.Titles.Clear();
-            chartDoanhThu.Titles.Add("BIỂU ĐỒ DOANH THU THEO NGÀY");
-            chartDoanhThu.Titles[0].Font = new Font("Arial", 14, FontStyle.Bold);
 
-            Series s = new Series("Doanh Thu");
-            s.ChartType = SeriesChartType.Column;
+            // TẮT BẢNG CHÚ THÍCH LƠ LỬNG (LEGEND)
+            chartDoanhThu.Legends.Clear();
+
+            chartDoanhThu.Titles.Add("BIỂU ĐỒ BIẾN ĐỘNG DOANH THU");
+            chartDoanhThu.Titles[0].Font = new Font("Segoe UI", 14, FontStyle.Bold);
+
+            Series s = new Series("DoanhThu");
+
+            // --- LOGIC CHUYỂN ĐỔI DỰA TRÊN COMBOBOX ---
+            switch (cboLoaiBieuDo.SelectedIndex)
+            {
+                case 0: // Biểu đồ Cột
+                    s.ChartType = SeriesChartType.Column;
+                    s.Color = Color.DodgerBlue;
+                    break;
+                case 1: // Biểu đồ Đường
+                    s.ChartType = SeriesChartType.Spline;
+                    s.Color = Color.MediumSeaGreen;
+                    s.BorderWidth = 4;
+                    break;
+                case 2: // Biểu đồ Miền
+                    s.ChartType = SeriesChartType.SplineArea;
+                    s.Color = Color.FromArgb(120, Color.MediumOrchid); // Màu tím trong suốt
+                    s.BorderColor = Color.MediumOrchid;
+                    s.BorderWidth = 2;
+                    break;
+            }
+
+            // Cấu hình chung giúp biểu đồ đẹp hơn
             s.IsValueShownAsLabel = true;
             s.LabelFormat = "N0";
-            s.Color = Color.DodgerBlue;
+            s.IsXValueIndexed = true;
+            s.MarkerStyle = MarkerStyle.Circle;
+            s.MarkerSize = 8;
+            s.MarkerColor = Color.White;
 
             foreach (var item in dict)
             {
-                s.Points.AddXY(item.Key, item.Value);
+                int i = s.Points.AddXY(item.Key, item.Value);
+                if (item.Value == 0) s.Points[i].IsValueShownAsLabel = false; // Ẩn số 0 cho đỡ rối
             }
 
             chartDoanhThu.Series.Add(s);
+
+            // Tinh chỉnh trục X và lưới (Grid)
             chartDoanhThu.ChartAreas[0].AxisX.Interval = 1;
+            chartDoanhThu.ChartAreas[0].AxisX.MajorGrid.LineColor = Color.LightGray;
+            chartDoanhThu.ChartAreas[0].AxisY.MajorGrid.LineColor = Color.LightGray;
+
+            // --- THÊM TIÊU ĐỀ TRỤC Y VÀ TRỤC X CHO GIỐNG BÊN THỐNG KÊ ---
+            chartDoanhThu.ChartAreas[0].AxisY.Title = "Doanh thu (VNĐ)";
+            chartDoanhThu.ChartAreas[0].AxisY.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+
+            chartDoanhThu.ChartAreas[0].AxisX.Title = "Thời gian";
+            chartDoanhThu.ChartAreas[0].AxisX.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
         }
     }
 }

@@ -21,6 +21,8 @@ public partial class KhuyenMai
 
     public string? TrangThai { get; set; }
 
+    public string? DoiTuongApDung { get; set; }
+
     public virtual ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
 
     public virtual ICollection<SanPham> MaSps { get; set; } = new List<SanPham>();

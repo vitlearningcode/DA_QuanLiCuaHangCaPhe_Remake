@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
@@ -32,16 +32,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         /// Kiểm tra trạng thái tồn kho (Đủ, Sắp hết, Hết)
         /// (Dùng để tô màu nút sản phẩm)
 
-
         public TrangThaiKho KiemTraDuNguyenLieu(int maSP, List<DinhLuong> allDinhLuong, List<NguyenLieu> allNguyenLieu) {
-            // 1. Lấy công thức từ List tạm
-            var congThuc = new List<DinhLuong>();
-
-            foreach (var dl in allDinhLuong) {
-                if (dl.MaSp == maSP) {
-                    congThuc.Add(dl);
-                }
-            }
+            // 1. Lấy công thức từ List tạm (LINQ to Objects thay foreach+Add)
+            var congThuc = allDinhLuong.Where(dl => dl.MaSp == maSP).ToList();
 
             if (congThuc.Count == 0) {
                 return TrangThaiKho.DuHang; // Không có công thức = Luôn đủ
@@ -51,14 +44,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
             // 3. Lặp qua TỪNG NGUYÊN LIỆU trong công thức
             foreach (var nguyenLieuCan in congThuc) {
-                // 4. Lấy nguyên liệu trong kho từ List tạm
-                NguyenLieu nguyenLieuTrongKho = null;
-                foreach (var nl in allNguyenLieu) {
-                    if (nl.MaNl == nguyenLieuCan.MaNl) {
-                        nguyenLieuTrongKho = nl;
-                        break;
-                    }
-                }
+                // 4. Lấy nguyên liệu trong kho từ List tạm (LINQ to Objects thay foreach+break)
+                NguyenLieu nguyenLieuTrongKho = allNguyenLieu
+                    .FirstOrDefault(nl => nl.MaNl == nguyenLieuCan.MaNl);
 
                 if (nguyenLieuTrongKho == null) {
                     return TrangThaiKho.HetHang; // Lỗi CSDL, coi như hết
@@ -81,7 +69,6 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
         /// Lấy giá bán cuối cùng của 1 sản phẩm (đã trừ KM 'SanPham' nếu có)
 
-
         public decimal GetGiaBan(int maSanPham, decimal giaGoc) {
             try {
                 // Mở kết nối CSDL
@@ -89,16 +76,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                     // --- BƯỚC 1: LẤY HẾT DỮ LIỆU CẦN THIẾT TỪ CSDL ---
                     DateOnly homNay = DateOnly.FromDateTime(DateTime.Now);
 
-                    // 2. Lấy TẤT CẢ các khuyến mãi 'SanPham' đang hoạt động
-                    var dsKMDangChay_SP = new List<KhuyenMai>();
-                    foreach (var km in db.KhuyenMais.ToList()) {
-                        if (km.LoaiKm == "SanPham" &&
-                            km.TrangThai == "Đang áp dụng" &&
-                            km.NgayBatDau <= homNay &&
-                            km.NgayKetThuc >= homNay) {
-                            dsKMDangChay_SP.Add(km);
-                        }
-                    }
+                    // 2. Lấy TẤT CẢ các khuyến mãi 'SanPham' đang hoạt động (LINQ thay foreach+if)
+                    var dsKMDangChay_SP = db.KhuyenMais
+                        .Where(km => km.LoaiKm == "SanPham" &&
+                                     km.TrangThai == "Đang áp dụng" &&
+                                     km.NgayBatDau <= homNay &&
+                                     km.NgayKetThuc >= homNay)
+                        .ToList();
 
                     if (dsKMDangChay_SP.Count == 0) {
                         return giaGoc;
@@ -107,37 +91,24 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                     // 3. Tải TẤT CẢ sản phẩm và "liên kết" khuyến mãi
                     var dsSanPham_va_KM = db.SanPhams.Include(sp => sp.MaKms).ToList();
 
-                    // --- BƯỚC 2: LỌC BẰNG VÒNG LẶP (FOREACH VÀ IF) ---
+                    // --- BƯỚC 2: LỌC BẰNG LINQ ---
 
-                    // 4. Tìm sản phẩm ta cần
-                    SanPham sanPhamCuaToi = null;
-                    foreach (var sp in dsSanPham_va_KM) {
-                        if (sp.MaSp == maSanPham) {
-                            sanPhamCuaToi = sp;
-                            break;
-                        }
-                    }
+                    // 4. Tìm sản phẩm ta cần (LINQ thay foreach+break)
+                    SanPham sanPhamCuaToi = dsSanPham_va_KM
+                        .FirstOrDefault(sp => sp.MaSp == maSanPham);
 
                     if (sanPhamCuaToi == null) {
                         return giaGoc;
                     }
 
                     // 5. Tìm khuyến mãi tốt nhất cho sản phẩm này
-                    KhuyenMai kmTotNhat = null;
-
-                    // Lặp qua các "liên kết" KM CỦA RIÊNG sản phẩm này
-                    foreach (var kmCuaSP in sanPhamCuaToi.MaKms) {
-                        // Lặp qua danh sách KM "đang chạy"
-                        foreach (var kmDangChay in dsKMDangChay_SP) {
-                            // Nếu KM của sản phẩm này khớp với một KM đang chạy
-                            if (kmCuaSP.MaKm == kmDangChay.MaKm) {
-                                if (kmTotNhat == null || kmDangChay.GiaTri > kmTotNhat.GiaTri) {
-                                    kmTotNhat = kmDangChay;
-                                }
-                                break;
-                            }
-                        }
-                    }
+                    // Lặp qua các "liên kết" KM CỦA RIÊNG sản phẩm này,
+                    // chỉ lấy những KM khớp với danh sách đang chạy, chọn GiaTri lớn nhất
+                    KhuyenMai kmTotNhat = sanPhamCuaToi.MaKms
+                        .Where(kmCuaSP => dsKMDangChay_SP.Any(kmDangChay => kmDangChay.MaKm == kmCuaSP.MaKm))
+                        .Select(kmCuaSP => dsKMDangChay_SP.First(kmDangChay => kmDangChay.MaKm == kmCuaSP.MaKm))
+                        .OrderByDescending(km => km.GiaTri)
+                        .FirstOrDefault();
 
                     // --- BƯỚC 3: TÍNH GIÁ CUỐI CÙNG ---
                     if (kmTotNhat != null) {
@@ -160,7 +131,6 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         /// Kiểm tra xem kho có đủ nguyên liệu không.
         /// (Dùng khi thêm vào giỏ hàng)
 
-
         /// <returns>Một đối tượng KetQuaKiemKho.</returns>
         public KetQuaKiemKho KiemTraSoLuongTonThucTe(int maSP, int soLuongMuonKiemTra) {
             // Mở CSDL (chỉ để kiểm tra)
@@ -168,7 +138,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                 // 1. Lấy công thức
                 var congThuc = db.DinhLuongs
                                  .Where(dl => dl.MaSp == maSP)
-                                 .ToList(); // .ToList()
+                                 .ToList();
 
                 if (congThuc.Count == 0) {
                     // Không có công thức, luôn đủ

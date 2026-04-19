@@ -1,4 +1,5 @@
 ﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,16 +7,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
 {
     public class SanPhamService
     {
-        // Hàm lấy danh sách món để tạo Button
+        // 1. Lấy tất cả món (Cho sếp xem cả món Đang bán lẫn Ngừng kinh doanh)
         public List<SanPham> LayDanhSachMonAn()
         {
             using (var db = new DataSqlContext())
             {
-                return db.SanPhams.ToList(); // Không WHERE gì hết, lấy hết lên!
+                return db.SanPhams.OrderByDescending(s => s.MaSp).ToList();
             }
         }
 
-        //Lấy danh sách nguyên liệu để nạp vào ComboBox chọn
+        // 2. Lấy danh sách nguyên liệu để chọn
         public List<NguyenLieu> LayDanhSachNguyenLieu()
         {
             using (var db = new DataSqlContext())
@@ -24,7 +25,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // Lấy danh sách Loại món tự động từ DB (Không trùng lặp)
+        // 3. Lấy danh sách loại món
         public List<string> LayDanhSachLoaiMon()
         {
             using (var db = new DataSqlContext())
@@ -37,129 +38,104 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // Lấy danh sách Đơn vị tính tự động từ DB (Không trùng lặp)
-        public List<string> LayDanhSachDonVi()
+        // 4. Lấy công thức (Định lượng) của 1 món cụ thể
+        public List<CongThucHienThi> LayCongThucTheoMon(int maSp)
         {
             using (var db = new DataSqlContext())
             {
-                return db.SanPhams
-                         .Where(sp => !string.IsNullOrEmpty(sp.DonVi))
-                         .Select(sp => sp.DonVi)
-                         .Distinct()
-                         .ToList();
+                var query = from dl in db.DinhLuongs
+                            join nl in db.NguyenLieus on dl.MaNl equals nl.MaNl
+                            where dl.MaSp == maSp
+                            select new CongThucHienThi
+                            {
+                                MaNL = nl.MaNl,
+                                TenNL = nl.TenNl,
+                                SoLuong = (decimal)dl.SoLuongCan,
+                                DonViTinh = nl.DonViTinh
+                            };
+                return query.ToList();
             }
         }
 
-        // Hàm lấy chi tiết công thức của 1 món
-        public List<CongThucHienThi> LayCongThucMon(int maSp)
+        // 5. THÊM MỚI SẢN PHẨM & CÔNG THỨC
+        public bool ThemMonMoi(SanPham sp, List<CongThucHienThi> congThuc)
         {
             using (var db = new DataSqlContext())
             {
-                var list = from dl in db.DinhLuongs
-                           join nl in db.NguyenLieus on dl.MaNl equals nl.MaNl
-                           where dl.MaSp == maSp
-                           select new CongThucHienThi
-                           {
-                               MaNL = nl.MaNl,
-                               TenNL = nl.TenNl,
-                               SoLuong = dl.SoLuongCan,
-                               DonViTinh = nl.DonViTinh
-                           };
-                return list.ToList();
-            }
-        }
-
-        // Thêm hàm này vào trong class SanPhamService
-        public bool CapNhatSanPhamVaCongThuc(SanPham sp, List<CongThucHienThi> listCongThuc)
-        {
-            using (var db = new DataSqlContext())
-            {
-                // Dùng Transaction để đảm bảo tính toàn vẹn dữ liệu
                 using (var transaction = db.Database.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Cập nhật thông tin cơ bản của Sản phẩm
-                        var spDb = db.SanPhams.Find(sp.MaSp);
-                        if (spDb != null)
-                        {
-                            spDb.TenSp = sp.TenSp;
-                            spDb.DonGia = sp.DonGia;
-                            spDb.LoaiSp = sp.LoaiSp;
-                            spDb.DonVi = sp.DonVi;
-                            spDb.TrangThai = sp.TrangThai;
-                        }
+                        db.SanPhams.Add(sp);
+                        db.SaveChanges(); // Lưu để EF Core sinh ra MaSp mới
 
-                        // 2. Xóa toàn bộ công thức cũ của món này
-                        var congThucCu = db.DinhLuongs.Where(d => d.MaSp == sp.MaSp).ToList();
-                        db.DinhLuongs.RemoveRange(congThucCu);
-
-                        // 3. Thêm công thức mới vào
-                        foreach (var item in listCongThuc)
+                        // Lưu công thức (nếu có)
+                        if (congThuc != null && congThuc.Count > 0)
                         {
-                            var dlMoi = new DinhLuong
+                            foreach (var ct in congThuc)
                             {
-                                MaSp = sp.MaSp,
-                                MaNl = item.MaNL,
-                                SoLuongCan = item.SoLuong
-                            };
-                            db.DinhLuongs.Add(dlMoi);
+                                db.DinhLuongs.Add(new DinhLuong
+                                {
+                                    MaSp = sp.MaSp,
+                                    MaNl = ct.MaNL,
+                                    SoLuongCan = (decimal)ct.SoLuong
+                                });
+                            }
+                            db.SaveChanges();
                         }
-
-                        db.SaveChanges();
-                        transaction.Commit(); // Chốt lưu
+                        transaction.Commit();
                         return true;
                     }
                     catch
                     {
-                        transaction.Rollback(); // Có lỗi thì hoàn tác
+                        transaction.Rollback();
                         return false;
                     }
                 }
             }
         }
 
-        // Hàm THÊM SẢN PHẨM MỚI VÀ CÔNG THỨC
-        public bool ThemSanPhamMoi(SanPham spMoi, List<CongThucHienThi> listCongThuc)
+        // 6. CẬP NHẬT SẢN PHẨM & CÔNG THỨC
+        public bool CapNhatMon(SanPham spMoi, List<CongThucHienThi> congThucMoi)
         {
             using (var db = new DataSqlContext())
             {
-                // Sử dụng Transaction để đảm bảo an toàn dữ liệu
                 using (var transaction = db.Database.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Thêm sản phẩm mới vào DB
-                        db.SanPhams.Add(spMoi);
+                        var spCu = db.SanPhams.Find(spMoi.MaSp);
+                        if (spCu == null) return false;
 
-                        // Lưu lần 1 để DB tự động cấp phát mã Sản Phẩm (MaSp) mới
-                        db.SaveChanges();
+                        spCu.TenSp = spMoi.TenSp;
+                        spCu.LoaiSp = spMoi.LoaiSp;
+                        spCu.DonGia = spMoi.DonGia; // Đã đổi thành DonGia
+                        spCu.TrangThai = spMoi.TrangThai;
 
-                        // 2. Thêm công thức cho sản phẩm vừa tạo
-                        if (listCongThuc != null && listCongThuc.Count > 0)
+                        // Xóa sạch công thức cũ
+                        var dinhLuongCu = db.DinhLuongs.Where(dl => dl.MaSp == spMoi.MaSp);
+                        db.DinhLuongs.RemoveRange(dinhLuongCu);
+
+                        // Lưu công thức mới
+                        if (congThucMoi != null && congThucMoi.Count > 0)
                         {
-                            foreach (var item in listCongThuc)
+                            foreach (var ct in congThucMoi)
                             {
-                                var dlMoi = new DinhLuong
+                                db.DinhLuongs.Add(new DinhLuong
                                 {
-                                    MaSp = spMoi.MaSp, // Lấy mã món vừa được tạo ở trên
-                                    MaNl = item.MaNL,
-                                    SoLuongCan = item.SoLuong
-                                };
-                                db.DinhLuongs.Add(dlMoi);
+                                    MaSp = spMoi.MaSp,
+                                    MaNl = ct.MaNL,
+                                    SoLuongCan = (decimal)ct.SoLuong
+                                });
                             }
-
-                            // Lưu lần 2 cho bảng DinhLuong (Công thức)
-                            db.SaveChanges();
                         }
 
-                        // Chốt giao dịch thành công
+                        db.SaveChanges();
                         transaction.Commit();
                         return true;
                     }
                     catch
                     {
-                        // Nếu có bất kỳ lỗi gì xảy ra, quay xe (Rollback) xóa hết những gì vừa làm
                         transaction.Rollback();
                         return false;
                     }
@@ -168,7 +144,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
         }
     }
 
-    // Class DTO để hiển thị công thức
+    // Class phụ trợ để truyền data lên giao diện
     public class CongThucHienThi
     {
         public int MaNL { get; set; }
@@ -176,8 +152,4 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
         public decimal SoLuong { get; set; }
         public string DonViTinh { get; set; }
     }
-
-
-
-
 }

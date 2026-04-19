@@ -17,5 +17,9 @@ public partial class ThanhToan
 
     public string? TrangThai { get; set; }
 
+    public int? DiemSuDung { get; set; }
+
+    public decimal? TienGiamTuDiem { get; set; }
+
     public virtual DonHang MaDhNavigation { get; set; } = null!;
 }

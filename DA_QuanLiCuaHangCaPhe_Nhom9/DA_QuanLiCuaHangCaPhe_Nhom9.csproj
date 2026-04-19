@@ -36,6 +36,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>dsBaoCao.xsd</DependentUpon>
     </Compile>
+    <Compile Update="Report\HoaDonDataSet.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HoaDonDataSet.xsd</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -56,7 +61,14 @@
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>dsBaoCao.Designer.cs</LastGenOutput>
     </None>
+    <None Update="Report\HoaDonDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>HoaDonDataSet.Designer.cs</LastGenOutput>
+    </None>
     <None Update="Report\rptDoanhThu.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Report\rptHoaDon.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

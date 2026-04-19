@@ -27,6 +27,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             ((ListBox)clbSanPham).DisplayMember = "TenSp";
             ((ListBox)clbSanPham).ValueMember = "MaSp";
 
+            // Đăng ký sự kiện tô màu cho lưới
+            dgvKhuyenMai.CellFormatting += dgvKhuyenMai_CellFormatting;
+
             LamMoiGiaoDien();
         }
 
@@ -38,26 +41,48 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             dgvKhuyenMai.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvKhuyenMai.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
+            dgvKhuyenMai.Columns.Clear(); // Chống lỗi duplicate khi load lại
             dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "MaKm", DataPropertyName = "MaKm", Visible = false });
             dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "TenKm", HeaderText = "Tên Khuyến Mãi", DataPropertyName = "TenKm" });
-            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "LoaiKm", HeaderText = "Loại", DataPropertyName = "LoaiKm", Width = 80 }); // Thêm cột hiển thị Loại
-            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "GiaTri", HeaderText = "Giảm (%)", DataPropertyName = "GiaTri" });
+            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "LoaiKm", HeaderText = "Loại", DataPropertyName = "LoaiKm", Width = 120 });
+            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "GiaTri", HeaderText = "Giảm", DataPropertyName = "GiaTri", Width = 80 });
+            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "DoiTuongApDung", HeaderText = "Áp Dụng Cho", DataPropertyName = "DoiTuongApDung", Width = 100 });
             dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "NgayBatDau", HeaderText = "Từ Ngày", DataPropertyName = "NgayBatDau", DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" } });
             dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "NgayKetThuc", HeaderText = "Đến Ngày", DataPropertyName = "NgayKetThuc", DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" } });
-            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng Thái", DataPropertyName = "TrangThai" });
+            dgvKhuyenMai.Columns.Add(new DataGridViewTextBoxColumn { Name = "TrangThai", HeaderText = "Trạng Thái", DataPropertyName = "TrangThai", Width = 120 });
+
         }
-            
+
+        // NÂNG CẤP: Tự động tô màu và format %
+        private void dgvKhuyenMai_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvKhuyenMai.Columns[e.ColumnIndex].Name == "GiaTri" && e.Value != null)
+            {
+                e.Value = Convert.ToDecimal(e.Value).ToString("0.##") + " %";
+                e.FormattingApplied = true;
+            }
+
+            if (dgvKhuyenMai.Columns[e.ColumnIndex].Name == "TrangThai" && e.Value != null)
+            {
+                string status = e.Value.ToString();
+                if (status == "Đang áp dụng") e.CellStyle.ForeColor = Color.MediumSeaGreen;
+                else if (status == "Đã kết thúc") e.CellStyle.ForeColor = Color.Crimson;
+                else if (status == "Sắp diễn ra") e.CellStyle.ForeColor = Color.DarkOrange;
+
+                e.CellStyle.Font = new Font(dgvKhuyenMai.Font, FontStyle.Bold);
+            }
+        }
+
         private void cboLoaiKM_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Mặc định: Index 0 là "Hóa đơn", Index 1 là "Sản phẩm"
             if (cboLoaiKM.SelectedIndex == 0) // Là Hóa đơn
             {
-                clbSanPham.Enabled = false; // Khóa mờ đi
-                for (int i = 0; i < clbSanPham.Items.Count; i++) clbSanPham.SetItemChecked(i, false); // Tích bỏ hết
+                clbSanPham.Enabled = false;
+                for (int i = 0; i < clbSanPham.Items.Count; i++) clbSanPham.SetItemChecked(i, false);
             }
             else // Là Sản phẩm
             {
-                clbSanPham.Enabled = true; // Sáng lên cho chọn
+                clbSanPham.Enabled = true;
             }
         }
 
@@ -66,8 +91,11 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             txtTenKM.Clear();
             txtMoTa.Clear();
             txtGiaTri.Clear();
+
+            // Xóa Trạng thái vì nó sẽ tự động tính
             cboTrangThai_KM.Text = "Đang áp dụng";
-            cboLoaiKM.Text = "Hóa đơn"; // Mặc định là Hóa đơn
+            cboDoiTuong.Text = "Tất cả"; // Đặt mặc định
+            cboLoaiKM.Text = "Hóa Đơn"; // Khớp với Database của bro
 
             cboLoaiKM_SelectedIndexChanged(null, null);
             btnXoa.Enabled = false;
@@ -97,13 +125,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 {
                     txtTenKM.Text = kmChon.TenKm;
                     txtMoTa.Text = kmChon.MoTa;
-                    txtGiaTri.Text = kmChon.GiaTri.ToString("N0");
-                    cboLoaiKM.Text = kmChon.LoaiKm ?? "Hóa đơn"; // Load Loại KM
+                    txtGiaTri.Text = kmChon.GiaTri.ToString("0.##");
+                    cboLoaiKM.Text = kmChon.LoaiKm ?? "Hóa Đơn";
                     dtpNgayBatDau.Value = kmChon.NgayBatDau.ToDateTime(TimeOnly.MinValue);
                     dtpNgayKetThuc.Value = kmChon.NgayKetThuc.ToDateTime(TimeOnly.MinValue);
                     cboTrangThai_KM.Text = kmChon.TrangThai ?? "Đang áp dụng";
+                    cboDoiTuong.Text = kmChon.DoiTuongApDung ?? "Tất cả";
 
-                    // Load các dấu tick
                     for (int i = 0; i < clbSanPham.Items.Count; i++)
                     {
                         var spTrongList = (SanPham)clbSanPham.Items[i];
@@ -131,11 +159,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 MessageBox.Show("Giá trị % giảm giá phải từ 1 đến 100!"); return;
             }
 
-            // --- LẤY VÀ KIỂM TRA MÓN ĂN ---
             List<int> danhSachSpDuocChon = new List<int>();
 
-            // Nếu chọn "Sản phẩm" (Index == 1)
-            if (cboLoaiKM.SelectedIndex == 1)
+            if (cboLoaiKM.Text == "Sản Phẩm")
             {
                 foreach (var item in clbSanPham.CheckedItems)
                 {
@@ -143,18 +169,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     danhSachSpDuocChon.Add(sp.MaSp);
                 }
 
-                // RÀNG BUỘC THÉP: Nếu là KM Sản phẩm thì BẮT BUỘC phải có đồ ăn
                 if (danhSachSpDuocChon.Count == 0)
                 {
                     MessageBox.Show("LỖI: Bạn đã chọn loại KM là 'Sản phẩm', vui lòng tích chọn ít nhất 1 sản phẩm ở danh sách bên cạnh!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return; // CHẶN LẠI NGAY LẬP TỨC, KHÔNG CHO LƯU
+                    return;
                 }
             }
 
-            // --- TIẾN HÀNH LƯU ---
             bool isSuccess = false;
-            string loaiKmDb = cboLoaiKM.Text; // Lấy chữ Hóa đơn hoặc Sản phẩm
+            string loaiKmDb = cboLoaiKM.Text;
             string trangThai = cboTrangThai_KM.Text;
+            string cboDT = cboDoiTuong.Text;
 
             if (btnLuu.Tag == null) // THÊM MỚI
             {
@@ -166,10 +191,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     GiaTri = giaTri,
                     NgayBatDau = DateOnly.FromDateTime(dtpNgayBatDau.Value),
                     NgayKetThuc = DateOnly.FromDateTime(dtpNgayKetThuc.Value),
-                    TrangThai = trangThai
+                    TrangThai = trangThai,
+                    DoiTuongApDung = cboDT
                 };
                 isSuccess = _service.ThemKhuyenMai(kmMoi, danhSachSpDuocChon);
-                if (isSuccess) MessageBox.Show("Đã thêm Khuyến mãi thành công!");
             }
             else // CẬP NHẬT
             {
@@ -181,9 +206,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 kmDangChon.NgayBatDau = DateOnly.FromDateTime(dtpNgayBatDau.Value);
                 kmDangChon.NgayKetThuc = DateOnly.FromDateTime(dtpNgayKetThuc.Value);
                 kmDangChon.TrangThai = trangThai;
+                kmDangChon.DoiTuongApDung = cboDT;
 
                 isSuccess = _service.CapNhatKhuyenMai(kmDangChon, danhSachSpDuocChon);
-                if (isSuccess) MessageBox.Show("Cập nhật thành công!");
             }
 
             if (isSuccess)
@@ -191,10 +216,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 MessageBox.Show(btnLuu.Tag == null ? "Đã thêm Khuyến mãi thành công!" : "Cập nhật Khuyến mãi thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LamMoiGiaoDien();
             }
-            // NẾU THẤT BẠI MÀ KHÔNG CÓ THÔNG BÁO LỖI TỪ DB, THÌ BÁO CHUNG CHUNG
             else
             {
-                // Thông báo này đề phòng trường hợp lỗi ngầm
                 MessageBox.Show("Lưu thất bại! Vui lòng kiểm tra lại thông tin.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -204,20 +227,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             if (btnLuu.Tag != null)
             {
                 KhuyenMai kmChon = (KhuyenMai)btnLuu.Tag;
-
-                // Hỏi lại cho chắc ăn
                 var xacNhan = MessageBox.Show($"Bạn có chắc chắn muốn xóa khuyến mãi '{kmChon.TenKm}' không?",
                                               "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (xacNhan == DialogResult.Yes)
                 {
-                    // Gọi hàm Xóa Thông Minh ở Service
                     string thongBao = _service.XoaKhuyenMaiAnToan(kmChon.MaKm);
-
-                    // Hiện kết quả (Báo Xóa vĩnh viễn hay Ẩn)
                     MessageBox.Show(thongBao, "Kết quả", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    // Reset lại màn hình cho sạch sẽ
                     LamMoiGiaoDien();
                 }
             }
