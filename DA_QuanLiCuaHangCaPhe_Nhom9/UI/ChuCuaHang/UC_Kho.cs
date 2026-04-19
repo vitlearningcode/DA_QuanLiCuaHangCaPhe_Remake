@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
@@ -10,18 +12,20 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
     public partial class UC_Kho : UserControl
     {
         #region Setup
+        // DÙNG ĐÚNG KHO SERVICE CỦA BẠN - KHÔNG THÊM CLASS LẠ
         private readonly KhoService _service = new KhoService();
-        private List<ChiTietPhieuKho> _listChiTietTam = new List<ChiTietPhieuKho>();
-        private int _maNLDangChon = -1; // Biến lưu ID nguyên liệu đang chọn để sửa/xóa
+
+        private int _maNLDangChon = -1;
+        private List<NguyenLieu> _danhSachKhoGoc = new List<NguyenLieu>(); // Dùng Model NguyenLieu chuẩn của EF Core
 
         public UC_Kho()
         {
             InitializeComponent();
         }
 
-        // --- SỰ KIỆN LOAD FORM ---
         private void UC_Kho_Load(object sender, EventArgs e)
         {
+            // Tab 1
             TaiDanhSachKho();
             LoadDanhSachPhieuNhap();
 
@@ -32,100 +36,55 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         }
         #endregion
 
-        #region LoadData
-
+        #region TAB 1: QUẢN LÝ DANH MỤC NGUYÊN LIỆU
         private void TaiDanhSachKho()
         {
             var listNL = _service.LayDanhSachNguyenLieu();
             dgvNguyenLieu.DataSource = listNL;
 
-            // Định dạng lưới cho đẹp
             dgvNguyenLieu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             if (dgvNguyenLieu.Columns["MaNl"] != null) dgvNguyenLieu.Columns["MaNl"].Visible = false;
             if (dgvNguyenLieu.Columns["TrangThai"] != null) dgvNguyenLieu.Columns["TrangThai"].Visible = false;
+            if (dgvNguyenLieu.Columns["ChiTietPhieuKhos"] != null) dgvNguyenLieu.Columns["ChiTietPhieuKhos"].Visible = false;
+            if (dgvNguyenLieu.Columns["DinhLuongs"] != null) dgvNguyenLieu.Columns["DinhLuongs"].Visible = false;
 
-            // Đặt tên cột tiếng Việt
             if (dgvNguyenLieu.Columns["TenNl"] != null) dgvNguyenLieu.Columns["TenNl"].HeaderText = "Tên Nguyên Liệu";
             if (dgvNguyenLieu.Columns["SoLuongTon"] != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText = "Tồn Kho";
             if (dgvNguyenLieu.Columns["DonViTinh"] != null) dgvNguyenLieu.Columns["DonViTinh"].HeaderText = "Đơn Vị";
 
-            cboChonNL_Tab2.DataSource = listNL;
-            cboChonNL_Tab2.DisplayMember = "TenNl"; // Hiện tên
-            cboChonNL_Tab2.ValueMember = "MaNl";
-
-            // Load Nhà Cung Cấp
             cboNhaCungCap.DataSource = _service.LayDanhSachNhaCungCap();
             cboNhaCungCap.DisplayMember = "TenNcc";
             cboNhaCungCap.ValueMember = "MaNcc";
         }
 
-
-        #endregion
-
-        #region TinhNang
-        // --- TÍNH NĂNG 1: TÔ MÀU CẢNH BÁO SẮP HẾT HÀNG ---
-        // (nhớ chọn dgvNguyenLieu -> Events -> CellFormatting để gắn hàm này)
         private void dgvNguyenLieu_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            // Kiểm tra cột "SoLuongTon"
             if (dgvNguyenLieu.Columns[e.ColumnIndex].Name == "SoLuongTon" && e.Value != null)
             {
                 decimal tonKho;
-                if (decimal.TryParse(e.Value.ToString(), out tonKho))
+                if (decimal.TryParse(e.Value.ToString(), out tonKho) && tonKho < 5) // Cảnh báo dưới 5
                 {
-                    if (tonKho < 5) // NGƯỠNG CẢNH BÁO: Dưới 5 là báo động
-                    {
-                        // Tô màu nền đỏ, chữ trắng cho cả dòng
-                        dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Salmon;
-                        dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White;
-                    }
+                    dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Salmon;
+                    dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White;
                 }
             }
         }
 
-        // --- TÍNH NĂNG 2: BẤM VÀO LƯỚI -> HIỆN LÊN Ô NHẬP ---
         private void dgvNguyenLieu_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dgvNguyenLieu.Rows[e.RowIndex];
-
-                // Lấy dữ liệu từ dòng chọn
                 _maNLDangChon = Convert.ToInt32(row.Cells["MaNl"].Value);
-                txtTenNL.Text = row.Cells["TenNl"].Value.ToString();
-                txtDonVi.Text = row.Cells["DonViTinh"].Value.ToString();
+                txtTenNL.Text = row.Cells["TenNl"].Value?.ToString();
+                txtDonVi.Text = row.Cells["DonViTinh"].Value?.ToString();
 
-                // Đổi trạng thái nút
-                btnThemNL.Enabled = false; // Đang chọn sửa thì khóa nút thêm
+                btnThemNL.Enabled = false;
                 btnSuaNL.Enabled = true;
                 btnXoaNL.Enabled = true;
             }
         }
 
-        // --- TÍNH NĂNG 3: Hiển thị list tạ
-        private void HienThiListTam()
-        {
-            using (var db = new DataSqlContext())
-            {
-                // Join để lấy tên hiển thị
-                var hienThi = from ct in _listChiTietTam
-                              join nl in db.NguyenLieus on ct.MaNl equals nl.MaNl
-                              select new
-                              {
-                                  TenNL = nl.TenNl,
-                                  SoLuong = ct.SoLuong,
-                                  GiaNhap = ct.GiaNhap, // <--- ĐÃ SỬA
-                                  ThanhTien = ct.SoLuong * ct.GiaNhap // <--- ĐÃ SỬA
-                              };
-                dgvChiTietNhap.DataSource = hienThi.ToList();
-
-                // Định dạng lại cột hiển thị tiền tệ cho đẹp (nếu cần)
-                dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
-                dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
-            }
-        }
-
-        //reset
         private void ResetInput()
         {
             txtTenNL.Clear();
@@ -273,49 +232,98 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             ResetInput();
         }
 
-        // --- CÁC NÚT THAO TÁC (CRUD) ---
         private void btnThemNL_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTenNL.Text)) return;
-
-            //decimal giaNhap = 0;
-            //decimal.TryParse(txtDonGia.Text, out giaNhap);
-
             if (_service.ThemNguyenLieu(txtTenNL.Text, txtDonVi.Text))
             {
                 MessageBox.Show("Thêm mới thành công!");
                 ResetInput();
+
+                // Cập nhật lại khung chọn nhanh bên tab Nhập hàng
+                _danhSachKhoGoc = _service.LayDanhSachNguyenLieu();
+                HienThiTatCaHangHoaLenPanel();
             }
-            else
-            {
-                MessageBox.Show("Lỗi: Tên nguyên liệu có thể đã tồn tại!");
-            }
+            else MessageBox.Show("Lỗi: Tên nguyên liệu có thể đã tồn tại!");
         }
 
         private void btnSuaNL_Click(object sender, EventArgs e)
         {
             if (_maNLDangChon == -1) return;
-
             _service.SuaNguyenLieu(_maNLDangChon, txtTenNL.Text, txtDonVi.Text);
             MessageBox.Show("Cập nhật thành công!");
             ResetInput();
+            _danhSachKhoGoc = _service.LayDanhSachNguyenLieu();
+            HienThiTatCaHangHoaLenPanel();
         }
 
         private void btnXoaNL_Click(object sender, EventArgs e)
         {
             if (_maNLDangChon == -1) return;
-
-            if (MessageBox.Show("Bạn chắc chắn muốn xóa nguyên liệu này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show("Xóa nguyên liệu này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 _service.XoaNguyenLieu(_maNLDangChon);
                 MessageBox.Show("Đã xóa!");
                 ResetInput();
+                _danhSachKhoGoc = _service.LayDanhSachNguyenLieu();
+                HienThiTatCaHangHoaLenPanel();
+            }
+        }
+        #endregion
+
+        #region TAB 2: NHẬP HÀNG (Dùng EF Core Models)
+
+        private void ThietLapLuoiNhapHang()
+        {
+            dgvChiTietNhap.Columns.Clear();
+            dgvChiTietNhap.AllowUserToAddRows = false;
+            dgvChiTietNhap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvChiTietNhap.Columns.Add("MaHang", "Mã Hàng");
+            dgvChiTietNhap.Columns["MaHang"].Visible = false;
+
+            dgvChiTietNhap.Columns.Add("TenHang", "Tên Hàng Hóa");
+            dgvChiTietNhap.Columns["TenHang"].ReadOnly = true;
+
+            dgvChiTietNhap.Columns.Add("DonVi", "Đơn Vị");
+            dgvChiTietNhap.Columns["DonVi"].ReadOnly = true;
+
+            dgvChiTietNhap.Columns.Add("SoLuong", "Số Lượng");
+            dgvChiTietNhap.Columns["SoLuong"].DefaultCellStyle.Format = "N2";
+            dgvChiTietNhap.Columns["SoLuong"].DefaultCellStyle.BackColor = Color.LightYellow;
+
+            dgvChiTietNhap.Columns.Add("GiaNhap", "Giá Nhập");
+            dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
+            dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.BackColor = Color.LightYellow;
+
+            dgvChiTietNhap.Columns.Add("ThanhTien", "Thành Tiền");
+            dgvChiTietNhap.Columns["ThanhTien"].ReadOnly = true;
+            dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
+        }
+
+        private void HienThiTatCaHangHoaLenPanel()
+        {
+            flpDanhSachHangHoa.Controls.Clear();
+
+            foreach (var item in _danhSachKhoGoc)
+            {
+                Button btn = new Button();
+                btn.Text = $"{item.TenNl}\n({item.DonViTinh})";
+                btn.Width = 110;
+                btn.Height = 80;
+                btn.BackColor = Color.WhiteSmoke;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderColor = Color.LightGray;
+                btn.Tag = item; // Tag lúc này chứa object NguyenLieu của EF Core
+                btn.Click += BtnHangHoa_Click;
+                flpDanhSachHangHoa.Controls.Add(btn);
             }
         }
 
-        private void btnThemVaoPhieu_Click(object sender, EventArgs e)
+        private void BtnHangHoa_Click(object sender, EventArgs e)
         {
-            if (cboChonNL_Tab2.SelectedValue == null) return;
+            Button btn = (Button)sender;
+            NguyenLieu monChon = (NguyenLieu)btn.Tag;
 
             int maNL = (int)cboChonNL_Tab2.SelectedValue;
             decimal soLuong, giaNhap = 0;
@@ -349,12 +357,48 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 GiaNhap = giaNhap // Gán cái giá đã được xử lý thông minh ở trên vào đây
             };
 
-            _listChiTietTam.Add(item);
-            HienThiListTam();
+                    decimal.TryParse(row.Cells["SoLuong"].Value?.ToString(), out soLuong);
+                    decimal.TryParse(row.Cells["GiaNhap"].Value?.ToString(), out giaNhap);
 
-            // Reset ô nhập
-            txtSoLuongNhap.Clear();
-            txtDonGia.Clear();
+                    row.Cells["ThanhTien"].Value = soLuong * giaNhap;
+                    TinhTongTienPhieu();
+                }
+            }
+        }
+
+        private void dgvChiTietNhap_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvChiTietNhap.IsCurrentCellDirty)
+            {
+                dgvChiTietNhap.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private void TinhTongTienPhieu()
+        {
+            decimal tongTien = 0;
+            foreach (DataGridViewRow row in dgvChiTietNhap.Rows)
+            {
+                decimal thanhTienDoi = 0;
+                if (decimal.TryParse(row.Cells["ThanhTien"].Value?.ToString(), out thanhTienDoi))
+                {
+                    tongTien += thanhTienDoi;
+                }
+            }
+            if (lblTongTien != null) lblTongTien.Text = "Tổng tiền: " + tongTien.ToString("N0") + " VNĐ";
+        }
+
+        private void dgvChiTietNhap_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                string tenMon = dgvChiTietNhap.Rows[e.RowIndex].Cells["TenHang"].Value.ToString();
+                if (MessageBox.Show($"Xóa {tenMon} khỏi phiếu nhập?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    dgvChiTietNhap.Rows.RemoveAt(e.RowIndex);
+                    TinhTongTienPhieu();
+                }
+            }
         }
 
         private void btnLuuPhieu_Click(object sender, EventArgs e)

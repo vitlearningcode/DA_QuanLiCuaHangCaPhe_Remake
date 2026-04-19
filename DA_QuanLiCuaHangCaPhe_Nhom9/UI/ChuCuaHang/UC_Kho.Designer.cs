@@ -54,7 +54,7 @@
             lbl_SoLuongNhap = new Label();
             label1 = new Label();
             lbl_ChonNgayNhap = new Label();
-            lbl_ChonNguyenLieu = new Label();
+            lblTongTien = new Label();
             tab_Kho.SuspendLayout();
             DanhSach_TonKho.SuspendLayout();
             pnlGridNL.SuspendLayout();
@@ -79,6 +79,7 @@
             tab_Kho.Dock = DockStyle.Fill;
             tab_Kho.Font = new Font("Segoe UI", 9.5F);
             tab_Kho.Location = new Point(0, 0);
+            tab_Kho.Margin = new Padding(1);
             tab_Kho.Name = "tab_Kho";
             tab_Kho.SelectedIndex = 0;
             tab_Kho.Size = new Size(900, 600);
@@ -447,7 +448,7 @@
             txtDonGia.Size = new Size(200, 24);
             txtDonGia.TabIndex = 4;
             // 
-            // dtpNgayNhap
+            // panel3
             // 
             dtpNgayNhap.Location = new Point(140, 97);
             dtpNgayNhap.Name = "dtpNgayNhap";
@@ -467,7 +468,7 @@
             btnThemVaoPhieu.UseVisualStyleBackColor = false;
             btnThemVaoPhieu.Click += btnThemVaoPhieu_Click;
             // 
-            // txtSoLuongNhap
+            // label1
             // 
             txtSoLuongNhap.Location = new Point(140, 217);
             txtSoLuongNhap.Name = "txtSoLuongNhap";
@@ -481,14 +482,14 @@
             cboNhaCungCap.Size = new Size(200, 25);
             cboNhaCungCap.TabIndex = 8;
             // 
-            // cboChonNL_Tab2
+            // dtpNgayNhap
             // 
             cboChonNL_Tab2.Location = new Point(140, 137);
             cboChonNL_Tab2.Name = "cboChonNL_Tab2";
             cboChonNL_Tab2.Size = new Size(200, 25);
             cboChonNL_Tab2.TabIndex = 9;
             // 
-            // lbl_GiaNhap
+            // panel2
             // 
             lbl_GiaNhap.Location = new Point(20, 180);
             lbl_GiaNhap.Name = "lbl_GiaNhap";
@@ -496,7 +497,7 @@
             lbl_GiaNhap.TabIndex = 10;
             lbl_GiaNhap.Text = "Giá Nhập:";
             // 
-            // lbl_SoLuongNhap
+            // dgvChiTietNhap
             // 
             lbl_SoLuongNhap.Location = new Point(20, 220);
             lbl_SoLuongNhap.Name = "lbl_SoLuongNhap";
@@ -504,7 +505,7 @@
             lbl_SoLuongNhap.TabIndex = 11;
             lbl_SoLuongNhap.Text = "Số Lượng:";
             // 
-            // label1
+            // btnLuuPhieu
             // 
             label1.Location = new Point(20, 60);
             label1.Name = "label1";
@@ -520,7 +521,7 @@
             lbl_ChonNgayNhap.TabIndex = 13;
             lbl_ChonNgayNhap.Text = "Ngày Nhập:";
             // 
-            // lbl_ChonNguyenLieu
+            // lblTongTien
             // 
             lbl_ChonNguyenLieu.Location = new Point(20, 140);
             lbl_ChonNguyenLieu.Name = "lbl_ChonNguyenLieu";
@@ -533,6 +534,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(tab_Kho);
+            Margin = new Padding(1);
             Name = "UC_Kho";
             Size = new Size(900, 600);
             Load += UC_Kho_Load;

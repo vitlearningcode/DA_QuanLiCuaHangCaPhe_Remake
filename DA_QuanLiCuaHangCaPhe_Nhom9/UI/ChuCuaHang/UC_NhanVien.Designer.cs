@@ -364,7 +364,7 @@
             // 
             // UC_NhanVien
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(pnlRight);
             Controls.Add(pnlLeft);
