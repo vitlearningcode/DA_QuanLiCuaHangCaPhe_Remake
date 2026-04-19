@@ -447,6 +447,7 @@ public partial class DataSqlContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("NgayTT");
             entity.Property(e => e.SoTien).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.TienGiamTuDiem).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TrangThai)
                 .HasMaxLength(20)
                 .HasDefaultValue("Chưa thanh toán");

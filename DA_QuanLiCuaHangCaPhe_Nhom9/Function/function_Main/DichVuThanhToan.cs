@@ -1,9 +1,11 @@
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main
+{
     // DTO trả về toàn bộ dữ liệu cần cho form ThanhToan
-    public class ThongTinDonHangDayDu {
+    public class ThongTinDonHangDayDu
+    {
         // DonHang: đối tượng chính của đơn
         public DonHang DonHang { get; set; }
 
@@ -15,6 +17,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
         // Danh sách sản phẩm toàn bộ (dùng join thủ công để lấy tên)
         public List<SanPham> SanPhams { get; set; } // Danh sách SP để lấy tên
+
+        public KhachHang KhachHang { get; set; }
     }
 
     // DTO dùng để hiển thị preview (không thay đổi DB)
@@ -72,6 +76,11 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                     if (ketQua.DonHang == null || ketQua.ThanhToan == null) {
                         return null;
                     }
+
+                    if (ketQua.DonHang.MaKh.HasValue)
+                    {
+                        ketQua.KhachHang = db.KhachHangs.FirstOrDefault(kh => kh.MaKh == ketQua.DonHang.MaKh.Value);
+                    }
                     return ketQua;
                 }
             }
@@ -89,7 +98,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         /// - Ghi HinhThuc (Tiền mặt / QR)
         /// - Lưu thay đổi và trả về true/false
 
-        public bool XacNhanThanhToan(int maDonHang, string hinhThuc) {
+        public bool XacNhanThanhToan(int maDonHang, string hinhThuc, int diemSuDung = 0, decimal tienGiamTuDiem = 0) {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
                     // Tìm DonHang bằng FirstOrDefault thay foreach+break
@@ -100,6 +109,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                     Models.ThanhToan thanhToan = db.ThanhToans
                         .FirstOrDefault(tt => tt.MaDh == maDonHang && tt.TrangThai == "Chưa thanh toán");
 
+
                     // Nếu không tìm thấy -> trả về false cho caller
                     if (donHang == null || thanhToan == null) {
                         return false;
@@ -109,6 +119,28 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
                     donHang.TrangThai = "Đã thanh toán";
                     thanhToan.TrangThai = "Đã thanh toán";
                     thanhToan.HinhThuc = hinhThuc;
+
+                    thanhToan.DiemSuDung = diemSuDung;
+                    thanhToan.TienGiamTuDiem = tienGiamTuDiem;
+
+                    if (donHang.MaKh.HasValue)
+                    {
+                        KhachHang kh = db.KhachHangs.FirstOrDefault(k => k.MaKh == donHang.MaKh.Value);
+                        if (kh != null)
+                        {
+                            // 1. Trừ điểm khách đã dùng cho đơn này
+                            kh.DiemTichLuy -= diemSuDung;
+                            if (kh.DiemTichLuy < 0) kh.DiemTichLuy = 0;
+
+                            // 2. Tích điểm cộng thêm từ số tiền THỰC TRẢ (10.000đ = 1 điểm)
+                            decimal tienThucTra = (thanhToan.SoTien ?? 0) - tienGiamTuDiem;
+                            if (tienThucTra > 0)
+                            {
+                                int diemCongMoi = (int)(tienThucTra / 10000m);
+                                kh.DiemTichLuy += diemCongMoi;
+                            }
+                        }
+                    }
 
                     // Lưu thay đổi vào DB
                     db.SaveChanges();

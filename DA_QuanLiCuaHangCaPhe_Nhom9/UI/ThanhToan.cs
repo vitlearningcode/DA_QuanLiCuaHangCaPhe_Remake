@@ -1,9 +1,10 @@
-
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
-    public partial class ThanhToan : Form {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9
+{
+    public partial class ThanhToan : Form
+    {
         // Biến (fields) để lưu dữ liệu
         private decimal _tongTien;
         private int _maDonHangChon;
@@ -13,20 +14,29 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
         private decimal _tongTienGoc_passed;
         private decimal _soTienGiam_passed;
 
+        // --- BỔ SUNG: Biến lưu trữ điểm sử dụng ---
+        private int _diemSuDungThucTe = 0;
+        private decimal _tienGiamTuDiemThucTe = 0;
+        // ------------------------------------------
+
         // *** THAY ĐỔI: Khai báo Dịch Vụ ***
         private readonly DichVuThanhToan _dichVuThanhToan;
         #region KHỞI TẠO VÀ TẢI DỮ LIỆU
-        public ThanhToan(int maDonHangChon, decimal tongGoc, decimal soTienGiam) {
+        // diemSuDung, tienGiamTuDiem: đã xử lý ở MainForm trước khi mở form này
+        public ThanhToan(int maDonHangChon, decimal tongGoc, decimal soTienGiam, int diemSuDung = 0, decimal tienGiamTuDiem = 0)
+        {
             InitializeComponent();
             _maDonHangChon = maDonHangChon;
             _tongTienGoc_passed = tongGoc;
             _soTienGiam_passed = soTienGiam;
+            _diemSuDungThucTe = diemSuDung;       // đã được nhân viên chọn ở MainForm
+            _tienGiamTuDiemThucTe = tienGiamTuDiem;   // đã được tính ở MainForm
 
-            // *** THAY ĐỔI: Khởi tạo Dịch Vụ ***
+            // *** THAY ĐỖI: Khởi tạo Dịch Vụ ***
             _dichVuThanhToan = new DichVuThanhToan();
         }
 
-        
+
         private void ThanhToan_Load(object sender, EventArgs e)
         {
             try
@@ -56,7 +66,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
                 txtKhachDua.Text = _tongTien.ToString("N0");
                 lblTienDu.Text = "0 đ";
 
-                
+
                 // Chúng ta sẽ tính lại tổng gốc (Tiền trước giảm)
                 // ngay tại đây để đảm bảo nó luôn đúng,
                 // bất kể MainForm truyền gì sang.
@@ -89,6 +99,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
                 _tongTienGoc_passed = tongGocMoi; // <-- Ghi đè thành 45.000
                 _soTienGiam_passed = tongGocMoi - _tongTien; // <-- Ghi đè thành (45.000 - 36.000) = 9.000
 
+                // --- ÁP DỤNG GIẢM TỪ ĐIỂM (đã được chọn ở MainForm trước khi mở form này) ---
+                if (_tienGiamTuDiemThucTe > 0)
+                {
+                    _tongTien -= _tienGiamTuDiemThucTe; // áp vào số tiền phải trả
+                    _soTienGiam_passed += _tienGiamTuDiemThucTe; // cộng vào tổng giảm trên bill preview
+                    // Cập nhật lại UI
+                    lblTongCongBill.Text = _tongTien.ToString("N0") + " đ";
+                    txtKhachDua.Text = _tongTien.ToString("N0");
+                }
+                // -----------------------------------------------------------------------
+
                 // --- KẾT THÚC SỬA LỖI ---
 
 
@@ -113,25 +134,27 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
 
         #region HÓA ĐƠN XEM TRƯỚC (Giữ nguyên logic)
 
-        private Label AddLabelToBill(string text, int verticalPosition, float fontSize, FontStyle fontStyle = FontStyle.Regular, int horizontalPosition = -1) {
+        private Label AddLabelToBill(string text, int verticalPosition, float fontSize, FontStyle fontStyle = FontStyle.Regular, int horizontalPosition = -1)
+        {
             Label lbl = new Label(); lbl.Text = text; lbl.Font = new Font("Segoe UI", fontSize, fontStyle); lbl.AutoSize = true; lbl.BackColor = Color.Transparent; int xPosition = horizontalPosition; if (xPosition == -1) { xPosition = (panelBillPreview.Width - TextRenderer.MeasureText(text, lbl.Font).Width) / 2; }
             lbl.Location = new Point(xPosition, verticalPosition); panelBillPreview.Controls.Add(lbl); return lbl;
         }
-        private void HienThiBillPreview(Panel panelBillPreview) {
+        private void HienThiBillPreview(Panel panelBillPreview)
+        {
             while (panelBillPreview.Controls.Count > 0) { Control c = panelBillPreview.Controls[0]; if (c != pbQR_InBill) { panelBillPreview.Controls.Remove(c); c.Dispose(); } else { panelBillPreview.Controls.Remove(c); } }
             int currentY = 10;
-            Label lblTenQuan = AddLabelToBill("COFFEE", currentY, 14, FontStyle.Bold); 
+            Label lblTenQuan = AddLabelToBill("COFFEE", currentY, 14, FontStyle.Bold);
             currentY += lblTenQuan.Height + 2;
-            Label lblDiaChi = AddLabelToBill("Ung Van Khiem, Long Xuyen", currentY, 9); 
+            Label lblDiaChi = AddLabelToBill("Ung Van Khiem, Long Xuyen", currentY, 9);
             currentY += lblDiaChi.Height;
-            Label lblSDT = AddLabelToBill("0814 585 526", currentY, 9); 
-            currentY += lblSDT.Height + 5; 
+            Label lblSDT = AddLabelToBill("0814 585 526", currentY, 9);
+            currentY += lblSDT.Height + 5;
             currentY += 20;
-            Label lblHoaDon = AddLabelToBill("HÓA ĐƠN", currentY, 12, FontStyle.Bold); 
+            Label lblHoaDon = AddLabelToBill("HÓA ĐƠN", currentY, 12, FontStyle.Bold);
             currentY += lblHoaDon.Height + 15;
-            AddLabelToBill("Tên món", currentY, 9, FontStyle.Regular, 40); 
-            AddLabelToBill("SL", currentY, 9, FontStyle.Regular, 250); 
-            AddLabelToBill("Dơn giá", currentY, 9, FontStyle.Regular, 320); 
+            AddLabelToBill("Tên món", currentY, 9, FontStyle.Regular, 40);
+            AddLabelToBill("SL", currentY, 9, FontStyle.Regular, 250);
+            AddLabelToBill("Dơn giá", currentY, 9, FontStyle.Regular, 320);
             AddLabelToBill("Thành tiền", currentY, 9, FontStyle.Regular, 450); currentY += 30;
             foreach (ListViewItem item in lvChiTietBill.Items) { string tenMon = item.SubItems[0].Text; string soLuong = item.SubItems[1].Text; string donGia = item.SubItems[2].Text; string thanhTien = item.SubItems[3].Text; AddLabelToBill(tenMon, currentY, 9, FontStyle.Regular, 40); AddLabelToBill(soLuong, currentY, 9, FontStyle.Regular, 250); AddLabelToBill(donGia, currentY, 9, FontStyle.Regular, 320); AddLabelToBill(thanhTien, currentY, 9, FontStyle.Regular, 450); currentY += 30; }
             currentY += 15; AddLabelToBill("-----------------------------------", currentY, 9); currentY += 55;
@@ -146,7 +169,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
         #region XỬ LÝ SỰ KIỆN (Thay đổi btn_inhoadon_Click)
 
 
-        private void txtKhachDua_TextChanged(object sender, EventArgs e) {
+        private void txtKhachDua_TextChanged(object sender, EventArgs e)
+        {
             decimal khachDua = 0;
             decimal.TryParse(txtKhachDua.Text.Replace(".", ""), out khachDua);
             decimal tienDu = khachDua - _tongTien;
@@ -154,57 +178,70 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
         }
 
 
-        private void rbQR_CheckedChanged(object sender, EventArgs e) {
-            if (rbQR.Checked) {
+        private void rbQR_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbQR.Checked)
+            {
                 pbQR_InBill.Visible = true;
                 txtKhachDua.Enabled = false;
                 lblTienDu.Text = "0 đ";
                 try { pbQR_InBill.ImageLocation = $"https://api.vietqr.io/image/970436-0909090909-snt03N5.jpg?accountName=TEST&amount={_tongTien}"; }
                 catch (Exception) { MessageBox.Show("Lỗi khi tải mã QR. Vui lòng kiểm tra kết nối internet."); }
             }
-            else if (rbTienMat.Checked) {
+            else if (rbTienMat.Checked)
+            {
                 pbQR_InBill.Visible = false;
                 txtKhachDua.Enabled = true;
                 txtKhachDua_TextChanged(sender, e);
             }
         }
 
-        // *** ĐÃ THAY ĐỔI: Gọi DichVuThanhToan ***
-        private void btn_inhoadon_Click(object sender, EventArgs e) {
+        // *** ĐÃ THAY ĐỔI: Gọi DichVuThanhToan CÓ TRUYỀN SỐ ĐIỂM ***
+        private void btn_inhoadon_Click(object sender, EventArgs e)
+        {
             // 1. Kiểm tra tiền mặt (Giữ nguyên)
-            if (rbTienMat.Checked) {
+            if (rbTienMat.Checked)
+            {
                 decimal khachDua = 0;
                 decimal.TryParse(txtKhachDua.Text.Replace(".", ""), out khachDua);
-                if (khachDua < _tongTien) {
+                if (khachDua < _tongTien)
+                {
                     MessageBox.Show("Số tiền khách đưa không đủ!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             }
 
             // 2. LƯU CSDL (*** THAY ĐỔI ***)
-            try {
+            try
+            {
                 string hinhThucThanhToan = rbTienMat.Checked ? "Tiền mặt" : "Chuyển khoản QR";
 
-                // Gọi Dịch Vụ
-                bool success = _dichVuThanhToan.XacNhanThanhToan(_maDonHangChon, hinhThucThanhToan);
+                // --- BỔ SUNG: Truyền tham số điểm vào hàm XacNhanThanhToan ---
+                bool success = _dichVuThanhToan.XacNhanThanhToan(_maDonHangChon, hinhThucThanhToan, _diemSuDungThucTe, _tienGiamTuDiemThucTe);
 
-                if (success) {
+                if (success)
+                {
                     MessageBox.Show($"Đã thanh toán thành công {_tongTien.ToString("N0")} đ", "Thông báo");
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                else {
+                else
+                {
                     MessageBox.Show("Lỗi khi lưu đơn hàng: Không tìm thấy đơn hàng hoặc thanh toán.", "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show("Lỗi khi lưu đơn hàng: " + ex.InnerException?.Message ?? ex.Message);
             }
         }
 
         #endregion
-        private void pbQR_InBill_Click(object sender, EventArgs e) {
+        private void pbQR_InBill_Click(object sender, EventArgs e)
+        {
 
         }
+
+        // Phương thức HienThiHoiDiem đã được chuyển sang MainForm (bên cấu hỏi gợi ý trước khi mở form này)
     }
 }

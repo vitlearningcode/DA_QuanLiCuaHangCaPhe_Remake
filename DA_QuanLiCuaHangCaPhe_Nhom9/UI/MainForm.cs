@@ -3,10 +3,12 @@ using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;   // import các lớp
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;                   // import các entity model EF Core (SanPham, DonHang, ...)
 using global::System.Globalization;                         // import CultureInfo/formatting dùng khi parse/format số/ngày
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
+namespace DA_QuanLiCuaHangCaPhe_Nhom9
+{ // namespace của project
 
     // MainForm: màn hình POS chính nơi nhân viên tạo đơn, quản lý giỏ hàng và thanh toán.
-    public partial class MainForm : Form {
+    public partial class MainForm : Form
+    {
         // === KHAI BÁO CÁC BIẾN ===
         // _currentMaNV: id nhân viên hiện tại, được truyền từ Loginform.
         private string _currentMaNV = "3";
@@ -19,7 +21,11 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         // soTienGiam: tổng tiền đã giảm (dùng để hiển thị và truyền).
         private decimal soTienGiam = 0;
 
-        // Các service/ repository / domain logic:
+        // Trạng thái điểm thưởng của đơn hiện tại:
+        private KhachHang _currentKhachHang = null; // object khách đang phục vụ (null = vãng lai)
+        private int _diemSuDungThucTe = 0;          // số điểm khách chọn dùng
+        private decimal _tienGiamTuDiemThucTe = 0;  // số tiền giảm tương ứng (diemSuDung * 1000)
+
         // _dichVuDonHang: service chứa logic giá bán / kiểm tra kho cho sản phẩm.
         private readonly DichVuDonHang _dichVuDonHang;
         // _khoTruyVan: repository dữ liệu cần cho MainForm (sản phẩm, khách,...).
@@ -30,11 +36,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
         #region thông báo toast
         // Bắt sự kiện thông báo toàn cục để hiển thị toast (NotificationCenter pattern).
-        private void NotificationCenter_NotificationRaised(NotificationCenter.Notification n) {
+        private void NotificationCenter_NotificationRaised(NotificationCenter.Notification n)
+        {
             try { if (n.Type == NotificationCenter.NotificationType.UnpaidInvoice || n.Type == NotificationCenter.NotificationType.LowStock) { ShowToast(n.Message); } } catch { }
         }
         // Tạo form nhỏ làm "toast" — vị trí tính dựa trên vị trí form chính.
-        private void ShowToast(string message) {
+        private void ShowToast(string message)
+        {
             if (this.InvokeRequired) { this.BeginInvoke(new Action(() => ShowToast(message))); return; }
             Form toast = new Form(); // biên thể toast
             toast.FormBorderStyle = FormBorderStyle.None;
@@ -56,7 +64,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
             toast.Show(this); // hiển thị và đặt owner
         }
         // Khi form đóng, huỷ đăng ký sự kiện thông báo
-        protected override void OnFormClosed(FormClosedEventArgs e) {
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
             base.OnFormClosed(e);
             NotificationCenter.NotificationRaised -= NotificationCenter_NotificationRaised; // unsubscribe
         }
@@ -64,7 +73,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
         #region Hàm khởi tạo và tải form
         // Constructor: nhận MaNV từ Loginform, khởi tạo các service và khởi đăng ký notification
-        public MainForm(string MaNV) {
+        public MainForm(string MaNV)
+        {
             InitializeComponent();          // phương thức auto-generated khởi tạo control
             _currentMaNV = MaNV;            // gán id nhân viên hiện tại
 
@@ -79,7 +89,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         }
 
         // Load event: cấu hình ListView giỏ hàng và tải loại/sản phẩm
-        private void MainForm_Load(object sender, EventArgs e) {
+        private void MainForm_Load(object sender, EventArgs e)
+        {
             // Cấu hình hiển thị ListView lvDonHang
             lvDonHang.View = View.Details;
             lvDonHang.Columns.Clear();
@@ -101,39 +112,46 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         #region Các hàm tải dữ liệu (Đã tách CSDL)
 
         // Tạo danh sách nút cho từng loại sản phẩm (dựa trên dữ liệu từ KhoTruyVan)
-        private void TaiLoaiSanPham() {
+        private void TaiLoaiSanPham()
+        {
             flpLoaiSP.Controls.Clear();                         // xóa controls cũ
             flpLoaiSP.FlowDirection = FlowDirection.TopDown;    // sắp xếp top->down
-            try {
+            try
+            {
                 var cacLoaiSP = _khoTruyVan.TaiLoaiSanPham(); // Lấy danh sách tên loại
                 // Tạo nút "Tất Cả"
                 Button btnTatCa = new Button { Text = "Tất Cả", Tag = "TatCa", Width = flpLoaiSP.Width, Height = 45, Margin = new Padding(5), Font = new Font("Segoe UI", 9F, FontStyle.Bold), BackColor = Color.LightGray, };
                 btnTatCa.Click += BtnLoai_Click;
                 flpLoaiSP.Controls.Add(btnTatCa);
                 // Tạo nút cho từng loại trả về
-                foreach (var tenLoai in cacLoaiSP) {
+                foreach (var tenLoai in cacLoaiSP)
+                {
                     Button btn = new Button { Text = tenLoai, Tag = tenLoai, Width = flpLoaiSP.Width, Height = 50, Margin = new Padding(5) };
                     btn.Click += BtnLoai_Click;
                     flpLoaiSP.Controls.Add(btn);
                 }
             }
-            catch (Exception ex) { // nếu lỗi khi gọi repo
+            catch (Exception ex)
+            { // nếu lỗi khi gọi repo
                 MessageBox.Show("Lỗi khi tải loại sản phẩm: " + ex.InnerException?.Message ?? ex.Message);
             }
         }
 
         // Tạo các nút sản phẩm trong flowpanel flpSanPham dựa trên bộ lọc và tìm kiếm
-        private void TaiSanPham(string maLoai) {
+        private void TaiSanPham(string maLoai)
+        {
             flpSanPham.Controls.Clear(); // xóa các nút cũ
             string searchText = txtTimKiemSP.Text.Trim().ToLower(); // lấy nội dung tìm kiếm, chuẩn hoá lowercase
-            try {
+            try
+            {
                 // Lấy data aggregate (sản phẩm, định lượng, nguyên liệu)
                 var duLieu = _khoTruyVan.LayDuLieuSanPham();
                 var tatCaSanPham = duLieu.TatCaSanPham;
                 var allDinhLuong = duLieu.AllDinhLuong;
                 var allNguyenLieu = duLieu.AllNguyenLieu;
 
-                foreach (var sp in tatCaSanPham) {
+                foreach (var sp in tatCaSanPham)
+                {
                     // Áp filter loại và text search
                     if (maLoai != "TatCa" && sp.LoaiSp != maLoai) continue;
                     if (!string.IsNullOrEmpty(searchText) && !sp.TenSp.ToLower().Contains(searchText)) continue;
@@ -144,7 +162,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
                     // Kiểm tra trạng thái kho cho món (DuHang/SapHet/HetHang) bằng DichVuDonHang
                     var trangThaiKho = _dichVuDonHang.KiemTraDuNguyenLieu(sp.MaSp, allDinhLuong, allNguyenLieu);
-                    switch (trangThaiKho) {
+                    switch (trangThaiKho)
+                    {
                         case DichVuDonHang.TrangThaiKho.DuHang: // đủ nguyên liệu
                             btn.Enabled = true; btn.BackColor = Color.White; btn.ForeColor = Color.Black;
                             break;
@@ -161,7 +180,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                     flpSanPham.Controls.Add(btn);
                 }
             }
-            catch (Exception ex) { // nếu lỗi khi lấy dữ liệu
+            catch (Exception ex)
+            { // nếu lỗi khi lấy dữ liệu
                 MessageBox.Show("Lỗi khi tải sản phẩm: " + ex.Message);
             }
         }
@@ -171,7 +191,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         #region Các hàm xử lý sự kiện (Event Handlers)
 
         // Xử lý khi chọn 1 loại: lấy tag của nút để lọc và tải lại sản phẩm
-        private void BtnLoai_Click(object sender, EventArgs e) {
+        private void BtnLoai_Click(object sender, EventArgs e)
+        {
             Button nutDuocBam = (Button)sender;             // cast sender về Button
             string maLoai = nutDuocBam.Tag.ToString();      // lấy tag (mã loại)
             _currentMaLoai = maLoai;                        // gán loại hiện tại
@@ -179,7 +200,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         }
 
         // Thêm sản phẩm vào giỏ hàng: gọi logic trong GioHang và cập nhật UI nếu thành công
-        private void BtnSanPham_Click(object sender, EventArgs e) {
+        private void BtnSanPham_Click(object sender, EventArgs e)
+        {
             Button nutDuocBam = (Button)sender;             // button được bấm
             SanPham spDuocChon = (SanPham)nutDuocBam.Tag;   // lấy entity SanPham từ Tag
 
@@ -187,12 +209,19 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
             var ketQua = _gioHang.ThemMon(spDuocChon);
 
             // 2. Kiểm tra kết quả add
-            if (ketQua.Success) {
+            if (ketQua.Success)
+            {
                 // 3. Nếu ok -> cập nhật listview và tổng tiền
                 CapNhatGiaoDienGioHang();
                 CapNhatTongTien();
+
+                // 4. Sau khi có món trong giỏ, kiểm tra lại hiển thị nút Đổi điểm
+                //    (trường hợp nhân viên nhập SĐT TRƯỚC khi chọn món thì lúc search giỏ còn rỗng)
+                if (_currentKhachHang != null && _currentKhachHang.DiemTichLuy >= 30)
+                    btnDoiDiem.Visible = true;
             }
-            else {
+            else
+            {
                 // Nếu thất bại (ví dụ hết nguyên liệu) -> báo cho người dùng
                 MessageBox.Show(ketQua.Message, "Hết Hàng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -209,8 +238,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                 int maDonHangVuaTao = ThucHienLuuTam();
                 if (maDonHangVuaTao > 0)
                 {
-                    // Truyền tongGoc, soTienGiam hiện tại của giỏ hàng
-                    ThanhToan frmThanhToan = new ThanhToan(maDonHangVuaTao, tongGoc, soTienGiam);
+                    // Truyền tongGoc, soTienGiam (đã bao gồm giảm điểm) và số điểm cần trừ
+                    // _tienGiamTuDiemThucTe truyền 0 vì amount đã được baked vào soTienGiam/lblTongCong
+                    ThanhToan frmThanhToan = new ThanhToan(maDonHangVuaTao, tongGoc, soTienGiam, _diemSuDungThucTe, 0);
                     var result = frmThanhToan.ShowDialog();
 
                     if ((result == DialogResult.OK) || (result == DialogResult.Cancel))
@@ -278,22 +308,28 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         }
 
         // Hủy đơn hiện tại (trong UI): hỏi xác nhận rồi reset nếu có món
-        private void btnHuyDon_Click(object sender, EventArgs e) {
+        private void btnHuyDon_Click(object sender, EventArgs e)
+        {
 
-            if (_gioHang.LaySoLuongMon() != 0) { 
+            if (_gioHang.LaySoLuongMon() != 0)
+            {
                 var confirm = MessageBox.Show("Bạn có chắc muốn hủy đơn hàng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (confirm == DialogResult.Yes) {
+                if (confirm == DialogResult.Yes)
+                {
                     ResetMainForm(); // reset toàn bộ form -> xóa giỏ, reset thông tin
                 }
             }
-            else {
+            else
+            {
                 MessageBox.Show("Vui lòng thêm sản phẩm vào giỏ hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         // Xóa 1 món đã chọn khỏi giỏ: lấy MaSp từ Tag của ListViewItem và gọi GioHang.XoaMon
-        private void btnXoaMon_Click(object sender, EventArgs e) {
-            if (lvDonHang.SelectedItems.Count > 0) {
+        private void btnXoaMon_Click(object sender, EventArgs e)
+        {
+            if (lvDonHang.SelectedItems.Count > 0)
+            {
                 // Lấy item được chọn
                 ListViewItem itemDaChon = lvDonHang.SelectedItems[0];
                 int maSp = (int)itemDaChon.Tag;
@@ -301,11 +337,15 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                 // Gọi logic giỏ hàng để xóa
                 _gioHang.XoaMon(maSp);
 
+                // Bill thay đổi -> xóa điểm đã chọn để tránh hiển thị âm
+                ResetDoiDiem();
+
                 // Cập nhật UI sau khi xóa
                 CapNhatGiaoDienGioHang();
                 CapNhatTongTien();
             }
-            else {
+            else
+            {
                 MessageBox.Show("Vui lòng chọn một món ăn trong giỏ hàng để xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -313,19 +353,23 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         // Giảm số lượng 1 đơn vị cho món được chọn:
         // - Nếu >1 thì chỉ giảm
         // - Nếu =1 thì hỏi xác nhận xóa
-        private void btnGIamSoLuong_Click(object sender, EventArgs e) {
-            if (lvDonHang.SelectedItems.Count > 0) {
+        private void btnGIamSoLuong_Click(object sender, EventArgs e)
+        {
+            if (lvDonHang.SelectedItems.Count > 0)
+            {
                 ListViewItem itemDaChon = lvDonHang.SelectedItems[0];
                 int maSp = (int)itemDaChon.Tag;
                 int soLuongHienTai = int.Parse(itemDaChon.SubItems[1].Text); // cột SL
 
                 bool daXoaMon = false;
 
-                if (soLuongHienTai > 1) {
+                if (soLuongHienTai > 1)
+                {
                     // Giảm đơn giản
                     _gioHang.GiamSoLuong(maSp);
                 }
-                else {
+                else
+                {
                     // Xác nhận trước khi xóa nếu giảm sẽ về 0
                     var confirm = MessageBox.Show(
                         "Số lượng món này là 1. Giảm nữa sẽ xóa món này khỏi giỏ hàng. Bạn có chắc không?",
@@ -333,63 +377,75 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question);
 
-                    if (confirm == DialogResult.Yes) {
+                    if (confirm == DialogResult.Yes)
+                    {
                         _gioHang.GiamSoLuong(maSp); // gọi giảm (sẽ xóa item)
                         daXoaMon = true;
                     }
                 }
 
-                // Nếu có sự thay đổi -> cập nhật UI và tổng tiền
-                if (daXoaMon || soLuongHienTai > 1) {
+                // Nếu có sự thay đổi -> xóa điểm đổi cũ + cập nhật UI
+                if (daXoaMon || soLuongHienTai > 1)
+                {
+                    ResetDoiDiem(); // bill thay đổi -> tính lại, cho phép đổi điểm lại
                     CapNhatGiaoDienGioHang();
                     CapNhatTongTien();
                 }
             }
-            else {
+            else
+            {
                 MessageBox.Show("Vui lòng chọn một món ăn trong giỏ hàng để giảm số lượng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         // TextChanged cho tìm sản phẩm -> reload sản phẩm với filter mới
-        private void txtTimKiemSP_TextChanged(object sender, EventArgs e) {
+        private void txtTimKiemSP_TextChanged(object sender, EventArgs e)
+        {
             TaiSanPham(_currentMaLoai);
         }
 
         // Mở form thêm khách hàng mới (nếu SĐT không tìm thấy)
-        private void btnThem_Click(object sender, EventArgs e) {
+        private void btnThem_Click(object sender, EventArgs e)
+        {
             ThemKhachHangMoi tmk = new ThemKhachHangMoi(txtTimKiemKH.Text.Trim()); // truyền SĐT sẵn có
             var result = tmk.ShowDialog();
-            if (result == DialogResult.OK) {
+            if (result == DialogResult.OK)
+            {
                 SearchKhachHangBySDT(txtTimKiemKH.Text.Trim()); // nếu thêm thành công -> tìm lại KH để bind id
             }
         }
 
         // Lưu tạm đơn (không in, không trừ kho nữa vì LuuDonHangTam trong KhoTruyVan đã trừ)
-        private void btnLuuTam_Click(object sender, EventArgs e) {
+        private void btnLuuTam_Click(object sender, EventArgs e)
+        {
             int maDonHangMoi = ThucHienLuuTam();
-            if (maDonHangMoi > 0) {
+            if (maDonHangMoi > 0)
+            {
                 MessageBox.Show($"Đã lưu tạm đơn hàng {maDonHangMoi}", "Lưu tạm thành công");
                 ResetMainForm(); // reset giao diện sau khi lưu
             }
         }
 
         // Chỉ cho phép nhập số trong ô tìm SĐT khách hàng
-        private void txtTimKiemKH_KeyPress(object sender, KeyPressEventArgs e) {
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar)) {
+        private void txtTimKiemKH_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            {
                 e.Handled = true; // chặn ký tự không phải số
             }
         }
 
         // Khi thay đổi text tìm SĐT, validate độ dài 10 chữ số rồi gọi SearchKhachHangBySDT
-        private void txtTimKiemKH_TextChanged(object sender, EventArgs e) {
+        private void txtTimKiemKH_TextChanged(object sender, EventArgs e)
+        {
             string sdt = txtTimKiemKH.Text.Trim();
-            if (string.IsNullOrEmpty(sdt)) { // nếu rỗng -> mặc định khách vãng lai
-                lblTenKH.Text = "Khách vãng lai";
-                _currentMaKH = null;
-                btnThem.Enabled = false;
+            if (string.IsNullOrEmpty(sdt))
+            { // nếu rỗng -> reset về mặc định (khách vãng lai)
+                ResetInfoKhachHang();
                 return;
             }
-            if (sdt.Length != 10 || !sdt.All(char.IsDigit)) { // nếu chưa đủ 10 chữ số -> yêu cầu nhập đủ
+            if (sdt.Length != 10 || !sdt.All(char.IsDigit))
+            { // nếu chưa đủ 10 chữ số -> yêu cầu nhập đủ
                 lblTenKH.Text = "Nhập đủ 10 số";
                 _currentMaKH = null;
                 btnThem.Enabled = false;
@@ -403,12 +459,14 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
         #region Các hàm logic nghiệp vụ (Business Logic)
 
         // Cập nhật ListView hiển thị giỏ hàng từ dữ liệu trong _gioHang
-        private void CapNhatGiaoDienGioHang() {
+        private void CapNhatGiaoDienGioHang()
+        {
             lvDonHang.Items.Clear(); // xóa tất cả item hiện tại
 
             var dsMonAn = _gioHang.LayTatCaMon(); // Lấy danh sách item từ GioHang
 
-            foreach (var item in dsMonAn) {
+            foreach (var item in dsMonAn)
+            {
                 ListViewItem lvi = new ListViewItem(item.TenSp); // cột 0: tên
                 lvi.Tag = item.MaSp;                              // Tag lưu MaSp để thao tác
                 lvi.SubItems.Add(item.SoLuong.ToString());        // cột 1: số lượng
@@ -427,7 +485,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
 
         // Tính tổng tiền hiển thị trên UI dựa trên giỏ hàng và khuyến mãi
-        private void CapNhatTongTien() {
+        private void CapNhatTongTien()
+        {
             // 1. Tổng tiền gốc (chưa áp giảm)
             decimal tongTien = _gioHang.LayTongTienGoc();
             decimal tongTienGiamGia = 0;
@@ -435,7 +494,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
             var dsMonAn = _gioHang.LayTatCaMon();               // lấy danh sách món
 
             // 2. Tính giảm giá theo từng sản phẩm (dùng DichVuDonHang.GetGiaBan)
-            foreach (var item in dsMonAn) {
+            foreach (var item in dsMonAn)
+            {
                 // GetGiaBan trả về giá sau KM (nếu có), giá gốc là item.DonGiaGoc
                 decimal donGiaMoi = _dichVuDonHang.GetGiaBan(item.MaSp, item.DonGiaGoc);
                 decimal discountPerItem = item.DonGiaGoc - donGiaMoi;
@@ -444,39 +504,47 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
             // 3. Tìm khuyến mãi theo hóa đơn (loại HoaDon) từ KhoTruyVan
             KhuyenMai kmHoaDon = null;
-            try {
+            try
+            {
                 kmHoaDon = _khoTruyVan.LayKhuyenMaiHoaDon();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show("Lỗi khi lấy KM hóa đơn: " + ex.Message); // báo lỗi nếu có
             }
 
             // 4. Tính giảm giá theo hóa đơn (phần trăm trên base sau giảm sản phẩm)
             decimal baseForHoaDon = tongTien - tongTienGiamGia;
             decimal tongGiamGiaHoaDon = 0;
-            if (kmHoaDon != null) { // nếu có KM hóa đơn áp dụng
+            if (kmHoaDon != null)
+            { // nếu có KM hóa đơn áp dụng
                 decimal phanTramGiam = kmHoaDon.GiaTri / 100;       // chuyển % -> hệ số
                 tongGiamGiaHoaDon = baseForHoaDon * phanTramGiam;   // tổng giảm do hóa đơn
             }
 
-            // 5. Tổng giảm = giảm theo SP + giảm theo hóa đơn => tính final total
+            // 5. Tổng giảm KM = giảm theo SP + giảm theo hóa đơn
             decimal tongTienGiaHD = tongTienGiamGia + tongGiamGiaHoaDon;
-            decimal finalTotal = tongTien - tongTienGiaHD; // tổng cuối cùng khách phải trả
+
+            // 5b. Cộng thêm giảm từ điểm (nếu nhân viên đã chọn gợi ý đổi điểm)
+            decimal tongGiamTatCa = tongTienGiaHD + _tienGiamTuDiemThucTe;
+            decimal finalTotal    = tongTien - tongGiamTatCa; // thành tiền sau tất cả giảm
 
             // 6. Cập nhật labels trên UI (định dạng tiền)
             lblTienTruocGiam.Text = tongTien.ToString("N0") + " đ";
-            lblGiamGia.Text = (-tongTienGiaHD).ToString("N0") + " đ";
+            lblGiamGia.Text = (-tongGiamTatCa).ToString("N0") + " đ"; // bao gồm cả giảm KM + điểm
             lblTongCong.Text = finalTotal.ToString("N0") + " đ";
 
             // Lưu giá trị để truyền sang form thanh toán nếu cần
-            soTienGiam = tongTienGiaHD;
-            tongGoc = tongTien;
+            soTienGiam = tongGiamTatCa; // tổng giảm bao gồm cả điểm
+            tongGoc    = tongTien;
         }
 
 
         // Lưu đơn hàng tạm lên DB: chuẩn hóa dữ liệu từ _gioHang sang DTO ChiTietGioHang và gọi KhoTruyVan.LuuDonHangTam
-        private int ThucHienLuuTam() {
-            if (_gioHang.LaySoLuongMon() == 0) { // nếu giỏ rỗng -> không lưu
+        private int ThucHienLuuTam()
+        {
+            if (_gioHang.LaySoLuongMon() == 0)
+            { // nếu giỏ rỗng -> không lưu
                 MessageBox.Show("Vui lòng thêm sản phẩm vào giỏ hàng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return -1;
             }
@@ -485,11 +553,14 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
             string tongTienStr = lblTongCong.Text.Replace(" đ", "").Replace(".", "");
             decimal tongTien = decimal.Parse(tongTienStr, CultureInfo.InvariantCulture); // parse về decimal
 
-            try {
+            try
+            {
                 // Bước 1: Chuẩn bị dữ liệu theo kiểu ChiTietGioHang để repo lưu
                 var gioHangChoDb = new List<ChiTietGioHang>();
-                foreach (var item in _gioHang.LayTatCaMon()) {
-                    gioHangChoDb.Add(new ChiTietGioHang {
+                foreach (var item in _gioHang.LayTatCaMon())
+                {
+                    gioHangChoDb.Add(new ChiTietGioHang
+                    {
                         MaSP = item.MaSp,
                         SoLuong = item.SoLuong,
                         DonGia = item.DonGiaGoc // Lưu giá gốc vào CSDL (theo business của bạn)
@@ -499,60 +570,227 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                 // Bước 2: Gọi KhoTruyVan để lưu (bao gồm logic trừ kho bên trong)
                 int maDonHangMoi = _khoTruyVan.LuuDonHangTam(gioHangChoDb, tongTien, _currentMaNV, _currentMaKH);
 
-                if (maDonHangMoi == -1) { // nếu lưu thất bại -> báo lỗi
+                if (maDonHangMoi == -1)
+                { // nếu lưu thất bại -> báo lỗi
                     MessageBox.Show("Lỗi khi lưu tạm đơn hàng. Vui lòng kiểm tra log.");
                 }
                 return maDonHangMoi; // trả về MaDH mới (hoặc -1 nếu lỗi)
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show("Lỗi khi lưu tạm đơn hàng: " + ex.InnerException?.Message ?? ex.Message); // thông báo lỗi
                 return -1;
             }
         }
 
-        // Reset form sau khi lưu/thoát đơn: xóa giỏ hàng logic + UI, reset tìm khách, tải lại sản phẩm (vì kho thay đổi)
-        private void ResetMainForm() {
+        // Reset form sau khi lưu/thoát đơn: xóa giỏ hàng logic + UI, reset tìm khách, tải lại sản phẩm
+        private void ResetMainForm()
+        {
             _gioHang.XoaTatCa();                // xóa toàn bộ món trong giỏ logic
             lvDonHang.Items.Clear();            // xóa UI ListView
-            CapNhatTongTien();                  // cập nhật lại tổng (về 0)
-            lblTenKH.Text = "Khách vãng lai";   // reset thông tin khách
-            _currentMaKH = null;
+            ResetInfoKhachHang();               // reset điểm + KH TRƯỚC (để _tienGiamTuDiemThucTe = 0)
+            CapNhatTongTien();                  // tính lại tổng (giờ đúng: 0đ)
             txtTimKiemKH.Text = "";             // xoá textbox tìm khách
             txtTimKiemSP.Text = "";             // xoá text tìm sản phẩm
             TaiSanPham(_currentMaLoai);         // tải lại sản phẩm (vì tồn kho có thể đã thay đổi)
             lvDonHang.SelectedItems.Clear();    // clear selection
-            btnThem.Enabled = false;            // disable nút thêm khách
         }
 
-        // Tìm khách hàng theo SĐT bằng KhoTruyVan và cập nhật UI (lblTenKH) + bật/tắt nút Thêm
-        private void SearchKhachHangBySDT(string sdt) {
-            try {
+        // Tìm khách hàng theo SĐT: cập nhật lblTenKH, lblLoaiKH, lblDiemKH và btnDoiDiem
+        private void SearchKhachHangBySDT(string sdt)
+        {
+            try
+            {
                 var khachHang = _khoTruyVan.SearchKhachHangBySDT(sdt);
 
-                if (khachHang != null) {
+                if (khachHang != null)
+                {
+                    _currentKhachHang = khachHang;
+                    _currentMaKH     = khachHang.MaKh;
+                    btnThem.Enabled  = false;
+
+                    // Hiển thị tên
                     lblTenKH.Text = khachHang.TenKh;
-                    _currentMaKH = khachHang.MaKh;
-                    btnThem.Enabled = false; // không cần thêm mới
+
+                    // Loại KH: VIP cam nổi, Thường xám
+                    if (khachHang.LoaiKh == "VIP")
+                    {
+                        lblLoaiKH.Text      = "⭐ VIP";
+                        lblLoaiKH.ForeColor = Color.DarkOrange;
+                    }
+                    else
+                    {
+                        lblLoaiKH.Text      = "Thường";
+                        lblLoaiKH.ForeColor = Color.DimGray;
+                    }
+
+                    // Điểm tích lũy
+                    lblDiemKH.Text      = $"{khachHang.DiemTichLuy}★";
+                    lblDiemKH.ForeColor = Color.SeaGreen;
+
+                    // Nút Đổi điểm: chỉ hiện khi đủ 30 điểm VÀ giỏ không rỗng
+                    btnDoiDiem.Visible = (khachHang.DiemTichLuy >= 30 && _gioHang.LaySoLuongMon() > 0);
+
+                    // Toast thông báo khi đủ điểm
+                    if (khachHang.DiemTichLuy >= 30)
+                        ShowToast($"Khách [{khachHang.TenKh}] có {khachHang.DiemTichLuy} điểm đủ đổi ưu đãi! 🎉");
                 }
-                else { // không tìm thấy -> bật nút Thêm để tạo khách mới
-                    lblTenKH.Text = "Không tìm thấy KH";
-                    _currentMaKH = null;
-                    btnThem.Enabled = true; // cho phép thêm khách mới
+                else
+                { // không tìm thấy -> bật nút Thêm
+                    ResetInfoKhachHang();
+                    lblTenKH.Text   = "Không tìm thấy KH";
+                    btnThem.Enabled = true;
                 }
             }
-            catch (Exception ex) {
-                // nếu lỗi khi tìm -> show message và reset trạng thái
+            catch (Exception ex)
+            {
                 MessageBox.Show("Lỗi khi tìm khách hàng: " + ex.Message);
+                ResetInfoKhachHang();
                 lblTenKH.Text = "Lỗi khi tìm";
-                _currentMaKH = null;
-                btnThem.Enabled = false;
             }
+        }
+
+        // Reset trạng thái đổi điểm khi bill thay đổi (thêm/xóa/giảm món)
+        // → xóa tiền giảm từ điểm cũ; re-show btnDoiDiem nếu khách vẫn đủ điều kiện
+        private void ResetDoiDiem()
+        {
+            _diemSuDungThucTe     = 0;
+            _tienGiamTuDiemThucTe = 0;
+            pnlGoiYDiem.Visible   = false;
+            pnlGoiYDiem.Controls.Clear();
+
+            // Tính lại sau reset: nếu giỏ còn hàng và khách đủ điểm thì hiện lại nút
+            bool conMon   = _gioHang.LaySoLuongMon() > 0;
+            bool duDiem   = _currentKhachHang != null && _currentKhachHang.DiemTichLuy >= 30;
+            btnDoiDiem.Visible = conMon && duDiem;
+
+            // Cập nhật lblDiemKH về màu gốc (xanh)
+            if (_currentKhachHang != null)
+            {
+                lblDiemKH.Text      = $"{_currentKhachHang.DiemTichLuy}★";
+                lblDiemKH.ForeColor = Color.SeaGreen;
+            }
+        }
+
+        // Ẩn/reset toàn bộ thông tin và trạng thái điểm khách hàng
+        private void ResetInfoKhachHang()
+        {
+            _currentKhachHang     = null;
+            _currentMaKH          = null;
+            _diemSuDungThucTe     = 0;
+            _tienGiamTuDiemThucTe = 0;
+            lblTenKH.Text         = "Khách vãng lai";
+            lblLoaiKH.Text        = "";
+            lblDiemKH.Text        = "";
+            btnDoiDiem.Visible    = false;
+            pnlGoiYDiem.Visible   = false;
+            pnlGoiYDiem.Controls.Clear();
+            btnThem.Enabled       = false;
+        }
+
+        // Xử lý nút Đổi điểm: tính 2 gợi ý và hiển thị bên dưới
+        private void btnDoiDiem_Click(object sender, EventArgs e)
+        {
+            if (_currentKhachHang == null || _gioHang.LaySoLuongMon() == 0) return;
+
+            // Lấy tổng tiền hiện tại từ label (trước khi áp điểm)
+            string tongTienStr = lblTongCong.Text.Replace(" đ", "").Replace(".", "");
+            if (!decimal.TryParse(tongTienStr, out decimal bill) || bill <= 0) return;
+
+            pnlGoiYDiem.Controls.Clear();
+
+            int     diemHienCo = _currentKhachHang.DiemTichLuy;
+            decimal maxDisc    = Math.Floor(bill * 0.5m); // giới hạn 50%
+
+            // Gợi ý 1: Làm tròn xuống bội số 5.000đ gần nhất
+            decimal roundedDown = Math.Floor(bill / 5000m) * 5000m;
+            decimal disc1       = bill - roundedDown;
+            int     pts1        = (int)Math.Ceiling(disc1 / 1000m);
+            bool    ok1         = pts1 > 0 && pts1 <= diemHienCo && disc1 <= maxDisc;
+
+            // Gợi ý 2: Dùng điểm tối đa 50% bill
+            int     pts2  = Math.Min(diemHienCo, (int)Math.Floor(maxDisc / 1000m));
+            decimal disc2 = pts2 * 1000m;
+            bool    ok2   = pts2 > 0 && disc2 != disc1; // không hiện 2 nút giống nhau
+
+            // Label giới thiệu
+            pnlGoiYDiem.Controls.Add(new Label
+            {
+                Text = "Gợi ý:", AutoSize = false, Size = new Size(50, 28),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
+                Margin = new Padding(3, 2, 0, 2)
+            });
+
+            if (ok1)
+            {
+                var btn1 = new Button
+                {
+                    Text = $"-{pts1}đ → {bill - disc1:N0}đ",
+                    Size = new Size(120, 28), FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.LightGreen, Font = new Font("Segoe UI", 7.5F),
+                    Margin = new Padding(2), Tag = new object[] { pts1, disc1 }
+                };
+                btn1.Click += BtnGoiY_Click;
+                pnlGoiYDiem.Controls.Add(btn1);
+            }
+
+            if (ok2)
+            {
+                var btn2 = new Button
+                {
+                    Text = $"Max -{pts2}đ → {bill - disc2:N0}đ",
+                    Size = new Size(145, 28), FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.Gold, Font = new Font("Segoe UI", 7.5F),
+                    Margin = new Padding(2), Tag = new object[] { pts2, disc2 }
+                };
+                btn2.Click += BtnGoiY_Click;
+                pnlGoiYDiem.Controls.Add(btn2);
+            }
+
+            if (!ok1 && !ok2)
+            {
+                pnlGoiYDiem.Controls.Add(new Label
+                {
+                    Text = "Không đủ điểm hoặc bill quá nhỏ",
+                    AutoSize = false, Size = new Size(220, 28),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Font = new Font("Segoe UI", 7.5F), ForeColor = Color.Gray,
+                    Margin = new Padding(3, 2, 0, 2)
+                });
+            }
+
+            pnlGoiYDiem.Visible = true;
+        }
+
+        // Khi nhân viên nhấp chọn một gợi ý đổi điểm
+        private void BtnGoiY_Click(object sender, EventArgs e)
+        {
+            if (sender is not Button btn || btn.Tag is not object[] tag) return;
+
+            int     pts      = (int)tag[0];
+            decimal tienGiam = (decimal)tag[1];
+
+            _diemSuDungThucTe     = pts;
+            _tienGiamTuDiemThucTe = tienGiam;
+
+            // Refresh giá hiển thị ngay: lblGiamGia và lblTongCong sẽ cập nhật
+            CapNhatTongTien();
+
+            // Cập nhật điểm còn lại của khách
+            lblDiemKH.Text      = $"{_currentKhachHang.DiemTichLuy - pts}★";
+            lblDiemKH.ForeColor = Color.DarkOrange;
+
+            // Ẩn panel + nút (áp dụng rồi không cần nữa)
+            pnlGoiYDiem.Visible = false;
+            btnDoiDiem.Visible  = false;
         }
 
         #endregion
 
         // Paint event trống (placeholder)
-        private void flpLoaiSP_Paint(object sender, PaintEventArgs e) {
+        private void flpLoaiSP_Paint(object sender, PaintEventArgs e)
+        {
 
         }
     }
