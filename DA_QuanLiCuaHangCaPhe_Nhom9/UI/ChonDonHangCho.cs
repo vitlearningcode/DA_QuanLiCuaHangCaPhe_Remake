@@ -1,4 +1,4 @@
-﻿
+
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
@@ -46,12 +46,11 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
                 var donHang = _dichVuThanhToan.LayChiTietDonHangGoc(maDHCanThanhToan);
 
                 if (donHang != null && donHang.ChiTietDonHangs != null) {
-                    // Tính tổng gốc (dùng foreach)
-                    foreach (var ct in donHang.ChiTietDonHangs) {
-                        tongGoc += (ct.DonGia * ct.SoLuong);
-                    }
+                    // LINQ Sum thay cho foreach cộng dồn tongGoc
+                    tongGoc = donHang.ChiTietDonHangs
+                        .Sum(ct => ct.DonGia * ct.SoLuong);
                     thanhTienCuoi = donHang.TongTien ?? tongGoc;
-                    soTienGiam = tongGoc - thanhTienCuoi;
+                    soTienGiam    = tongGoc - thanhTienCuoi;
                 }
             }
             catch (Exception ex) {

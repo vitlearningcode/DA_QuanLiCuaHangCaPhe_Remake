@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;   // import các lớp trong folder function_Main (GioHang, KhoTruyVanMainForm, DichVuDonHang,...)
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;                   // import các entity model EF Core (SanPham, DonHang, ...)
 using global::System.Globalization;                         // import CultureInfo/formatting dùng khi parse/format số/ngày
@@ -191,6 +191,20 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
                 // 3. Nếu ok -> cập nhật listview và tổng tiền
                 CapNhatGiaoDienGioHang();
                 CapNhatTongTien();
+
+                // 4. Cảnh báo nếu vừa thêm ly cuối cùng còn có thể phục vụ
+                if (ketQua.LaCuoiCung) {
+                    MessageBox.Show(
+                        $"⚠️ Lưu ý: [{spDuocChon.TenSp}] vừa đạt giới hạn tồn kho!\n\n" +
+                        $"Đây là lần thêm cuối cùng có thể phục vụ.\n" +
+                        $"Nếu cần thêm, vui lòng nhập kho trước.",
+                        "Cảnh báo nguyên liệu sắp hết",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                    // Tải lại nút sản phẩm để cập nhật trạng thái màu (HếtHàng)
+                    TaiSanPham(_currentMaLoai);
+                }
             }
             else {
                 // Nếu thất bại (ví dụ hết nguyên liệu) -> báo cho người dùng
@@ -240,14 +254,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
                     if (donHangGoc != null && donHangGoc.ChiTietDonHangs != null)
                     {
-                        decimal tongGocMoi = 0;
-
-                        // 3. Tính lại Tiền trước giảm (tổng gốc)
+                        // 3. Tính lại Tiền trước giảm bằng LINQ Sum
                         // (ThucHienLuuTam đã lưu DonGiaGoc vào ct.DonGia)
-                        foreach (var ct in donHangGoc.ChiTietDonHangs)
-                        {
-                            tongGocMoi += (ct.DonGia * ct.SoLuong);
-                        }
+                        decimal tongGocMoi = donHangGoc.ChiTietDonHangs
+                            .Sum(ct => ct.DonGia * ct.SoLuong);
 
                         // 4. Lấy Thành tiền (tổng cuối) đã lưu trong đơn
                         decimal tongCuoi = donHangGoc.TongTien ?? 0;

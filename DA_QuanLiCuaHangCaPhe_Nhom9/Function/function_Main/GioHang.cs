@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
@@ -16,15 +16,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         public int SoLuong { get; set; }
 
         // Giá gốc của sản phẩm (trước khi áp dụng khuyến mãi)
-        public decimal DonGiaGoc { get; set; } // Giá gốc (chưa KM)
+        public decimal DonGiaGoc { get; set; }
 
-        // Thành tiền tính theo DonGiaGoc * SoLuong (lưu để không phải tính lại nhiều lần)
-        public decimal ThanhTienGoc { get; set; } // SoLuong * DonGiaGoc
+        // Thành tiền tính theo DonGiaGoc * SoLuong
+        public decimal ThanhTienGoc { get; set; }
     }
 
 
     /// Quản lý logic nghiệp vụ của giỏ hàng.
     /// Không tương tác trực tiếp với UI (ListView).
+    /// Dùng LINQ to Objects vì _items là List in-memory, không phải EF DbSet.
 
     public class GioHang {
         // Danh sách các món đang có trong giỏ
@@ -35,106 +36,71 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
         // Constructor nhận DichVuDonHang để thực hiện kiểm tra nghiệp vụ
         public GioHang(DichVuDonHang dichVu) {
-            _items = new List<GioHangItem>(); // Khởi tạo list rỗng
-            _dichVuDonHang = dichVu; // Lưu tham chiếu đến dịch vụ kiểm kho
+            _items = new List<GioHangItem>();
+            _dichVuDonHang = dichVu;
         }
 
 
         /// Thêm một sản phẩm vào giỏ hoặc tăng số lượng.
-
-        /// <returns>Một tuple (bool Success, string Message). 
-        /// True nếu thành công, False và kèm thông báo lỗi nếu thất bại.
-        /// </returns>
+        /// <returns>Tuple (bool Success, string Message).</returns>
         public (bool Success, string Message) ThemMon(SanPham sp) {
-            // Tìm xem đã có item này trong giỏ chưa (so sánh theo MaSp)
-            GioHangItem itemCoSan = null;
-            foreach (var item in _items) {
-                if (item.MaSp == sp.MaSp) {
-                    itemCoSan = item; // nếu tìm thấy thì gán itemCoSan
-                    break;
-                }
-            }
+            // LINQ to Objects: tìm item đã có trong giỏ theo MaSp
+            var itemCoSan = _items.FirstOrDefault(item => item.MaSp == sp.MaSp);
 
             if (itemCoSan != null) {
-                // Nếu đã có, dự kiến tăng 1 đơn vị
                 int soLuongMoi = itemCoSan.SoLuong + 1;
 
-                // Kiểm tra kho thực tế qua DichVuDonHang
                 var kiemTra = _dichVuDonHang.KiemTraSoLuongTonThucTe(sp.MaSp, soLuongMoi);
-                if (kiemTra.DuHang == false) {
-                    // Không đủ nguyên liệu -> trả về lỗi để UI hiển thị
+                if (!kiemTra.DuHang) {
                     return (false, kiemTra.ThongBao);
                 }
 
-                // Cập nhật số lượng và thành tiền của item đã có
-                itemCoSan.SoLuong = soLuongMoi;
+                itemCoSan.SoLuong      = soLuongMoi;
                 itemCoSan.ThanhTienGoc = soLuongMoi * itemCoSan.DonGiaGoc;
             }
             else {
-                // Nếu chưa có item trong giỏ -> kiểm tra kho cho 1 món
                 var kiemTra = _dichVuDonHang.KiemTraSoLuongTonThucTe(sp.MaSp, 1);
-                if (kiemTra.DuHang == false) {
-                    // Không có đủ nguyên liệu cho 1 món -> trả về lỗi
+                if (!kiemTra.DuHang) {
                     return (false, kiemTra.ThongBao);
                 }
 
-                // Tạo GioHangItem mới và add vào danh sách
                 _items.Add(new GioHangItem {
-                    MaSp = sp.MaSp,
-                    TenSp = sp.TenSp,
-                    SoLuong = 1,
-                    DonGiaGoc = sp.DonGia, // Lưu giá gốc từ model SanPham
-                    ThanhTienGoc = sp.DonGia // initial thành tiền = 1 * DonGia
+                    MaSp         = sp.MaSp,
+                    TenSp        = sp.TenSp,
+                    SoLuong      = 1,
+                    DonGiaGoc    = sp.DonGia,
+                    ThanhTienGoc = sp.DonGia
                 });
             }
 
-            // Trả về thành công nếu vượt qua các kiểm tra
             return (true, "OK");
         }
 
 
         /// Giảm số lượng của một món.
-
         /// <returns>True nếu món bị xóa (SL=0), False nếu chỉ giảm.</returns>
         public bool GiamSoLuong(int maSp) {
-            // Tìm item trong danh sách theo mã
-            GioHangItem itemCanGiam = null;
-            foreach (var item in _items) {
-                if (item.MaSp == maSp) {
-                    itemCanGiam = item;
-                    break;
-                }
-            }
+            // LINQ to Objects: tìm item cần giảm
+            var itemCanGiam = _items.FirstOrDefault(item => item.MaSp == maSp);
 
-            // Nếu không tìm thấy, không làm gì và trả false
             if (itemCanGiam == null) return false;
 
             if (itemCanGiam.SoLuong > 1) {
-                // Giảm số lượng và cập nhật thành tiền
                 itemCanGiam.SoLuong--;
                 itemCanGiam.ThanhTienGoc = itemCanGiam.SoLuong * itemCanGiam.DonGiaGoc;
-                return false; // Chỉ giảm, không xóa
+                return false;
             }
             else {
-                // Nếu số lượng chỉ có 1 -> xóa hoàn toàn item khỏi giỏ
                 _items.Remove(itemCanGiam);
-                return true; // đã xóa
+                return true;
             }
         }
 
 
         /// Xóa hoàn toàn một món khỏi giỏ, bất kể số lượng.
-
         public void XoaMon(int maSp) {
-            // Tìm item tương ứng và remove khỏi danh sách nếu tồn tại
-            GioHangItem itemCanXoa = null;
-            foreach (var item in _items) {
-                if (item.MaSp == maSp) {
-                    itemCanXoa = item;
-                    break;
-                }
-            }
-
+            // LINQ to Objects: tìm và xóa item
+            var itemCanXoa = _items.FirstOrDefault(item => item.MaSp == maSp);
             if (itemCanXoa != null) {
                 _items.Remove(itemCanXoa);
             }
@@ -142,35 +108,25 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
 
         /// Xóa sạch giỏ hàng.
-
         public void XoaTatCa() {
-            // Clear danh sách item
             _items.Clear();
         }
 
 
         /// Lấy danh sách tất cả các món trong giỏ để hiển thị.
-
         public List<GioHangItem> LayTatCaMon() {
-            // Trả về tham chiếu list (read-only handling ở caller nếu cần)
             return _items;
         }
 
 
-        /// Lấy tổng tiền (chưa tính KM).
-
+        /// Lấy tổng tiền (chưa tính KM) bằng LINQ Sum.
         public decimal LayTongTienGoc() {
-            decimal tong = 0;
-            // Cộng dồn thành tiền gốc của từng item
-            foreach (var item in _items) {
-                tong += item.ThanhTienGoc;
-            }
-            return tong;
+            // LINQ to Objects: Sum thay cho foreach cộng dồn
+            return _items.Sum(item => item.ThanhTienGoc);
         }
 
 
-        /// Đếm số lượng mục (khác với tổng số lượng đơn vị) trong giỏ.
-
+        /// Đếm số lượng dòng (loại mặt hàng) trong giỏ.
         public int LaySoLuongMon() {
             return _items.Count;
         }

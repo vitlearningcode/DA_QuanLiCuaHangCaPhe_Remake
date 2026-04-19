@@ -61,7 +61,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             ApplicationConfiguration.Initialize();
 
             // Chạy Form đăng nhập trực tiếp
-            Application.Run(new QuanLi("1"));
+            Application.Run(new MainForm("1"));
         }
     }
 }

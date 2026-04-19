@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
 
@@ -12,119 +12,83 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
     }
 
 
-    /// Dùng để chuyển thông tin giỏ hàng từ
-    /// MainForm sang KhoTruyVan
+    /// Dùng để chuyển thông tin giỏ hàng từ MainForm sang KhoTruyVan
 
     public class ChiTietGioHang {
-        public int MaSP { get; set; }   // mã sản phẩm
-        public int SoLuong { get; set; } // số lượng
-        public decimal DonGia { get; set; } // giá gốc lưu vào CSDL
+        public int MaSP { get; set; }
+        public int SoLuong { get; set; }
+        public decimal DonGia { get; set; }
     }
-
 
 
     /// Lớp này chịu trách nhiệm truy vấn CSDL
     /// cho các nhu cầu của MainForm.
-    /// (ĐÃ VIẾT LẠI BẰNG FOREACH)
+    /// Đã chuyển sang LINQ EF Core.
 
     public class KhoTruyVanMainForm {
 
-        /// Lấy danh sách tên các Loại Sản Phẩm (dùng foreach)
+        /// Lấy danh sách tên các Loại Sản Phẩm (không trùng lặp) bằng LINQ
 
         public List<string> TaiLoaiSanPham() {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
-                    // Lấy tất cả sản phẩm từ DB (underlying ToList tải ra bộ nhớ)
-                    var tatCaSanPham = db.SanPhams.ToList();
-                    var cacLoaiSPTam = new List<string>();
-
-                    // Thu thập các LoaiSp không null/empty
-                    foreach (var sp in tatCaSanPham) {
-                        if (sp.LoaiSp != null && sp.LoaiSp != "") {
-                            cacLoaiSPTam.Add(sp.LoaiSp);
-                        }
-                    }
-
-                    // Loại bỏ trùng lặp theo cách thủ công
-                    var ketQua = new List<string>();
-                    foreach (var loai in cacLoaiSPTam) {
-                        if (!ketQua.Contains(loai)) {
-                            ketQua.Add(loai);
-                        }
-                    }
-                    return ketQua;
+                    // Where lọc null/empty, Select lấy tên, Distinct loại bỏ trùng
+                    return db.SanPhams
+                        .Where(sp => sp.LoaiSp != null && sp.LoaiSp != "")
+                        .Select(sp => sp.LoaiSp)
+                        .Distinct()
+                        .ToList();
                 }
             }
             catch (Exception ex) {
-                // Log lỗi và trả list rỗng để UI không crash
                 Console.WriteLine("Lỗi khi tải loại sản phẩm: " + ex.InnerException?.Message ?? ex.Message);
                 return new List<string>();
             }
         }
 
 
-        /// Lấy tất cả dữ liệu thô cần thiết để hiển thị sản phẩm (dùng foreach)
+        /// Lấy tất cả dữ liệu thô cần thiết để hiển thị sản phẩm bằng LINQ
 
         public DuLieuSanPham LayDuLieuSanPham() {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
-                    // Tải toàn bộ bảng cần thiết một lần để giảm số lần truy vấn
-                    var tatCaSanPham_raw = db.SanPhams.ToList();
-                    var tatCaNguyenLieu_raw = db.NguyenLieus.ToList();
+                    // Lọc trực tiếp trên DB, không tải toàn bộ bảng rồi lọc sau
+                    var tatCaSanPham = db.SanPhams
+                        .Where(sp => sp.TrangThai == "Còn bán")
+                        .ToList();
+
+                    var allNguyenLieu = db.NguyenLieus
+                        .Where(nl => nl.TrangThai == "Đang kinh doanh")
+                        .ToList();
+
                     var allDinhLuong = db.DinhLuongs.ToList();
 
-                    // Lọc sản phẩm đang kinh doanh
-                    var tatCaSanPham_filter = new List<SanPham>();
-                    var allNguyenLieu_filter = new List<NguyenLieu>();
-
-                    // Lọc chỉ những SP đang kinh doanh
-                    foreach (var sp in tatCaSanPham_raw) {
-                        if (sp.TrangThai == "Còn bán") {
-                            tatCaSanPham_filter.Add(sp);
-                        }
-                    }
-
-                    // Lọc nguyên liệu đang kinh doanh
-                    foreach (var nl in tatCaNguyenLieu_raw) {
-                        if (nl.TrangThai == "Đang kinh doanh") {
-                            allNguyenLieu_filter.Add(nl);
-                        }
-                    }
-
-                    // Trả về container chứa 3 danh sách để MainForm dùng
                     return new DuLieuSanPham {
-                        TatCaSanPham = tatCaSanPham_filter,
-                        AllDinhLuong = allDinhLuong,
-                        AllNguyenLieu = allNguyenLieu_filter
+                        TatCaSanPham  = tatCaSanPham,
+                        AllDinhLuong  = allDinhLuong,
+                        AllNguyenLieu = allNguyenLieu
                     };
                 }
             }
             catch (Exception ex) {
-                // Nếu lỗi, trả về container rỗng để UI xử lý an toàn
                 Console.WriteLine("Lỗi khi tải dữ liệu sản phẩm: " + ex.Message);
                 return new DuLieuSanPham {
-                    TatCaSanPham = new List<SanPham>(),
-                    AllDinhLuong = new List<DinhLuong>(),
+                    TatCaSanPham  = new List<SanPham>(),
+                    AllDinhLuong  = new List<DinhLuong>(),
                     AllNguyenLieu = new List<NguyenLieu>()
                 };
             }
         }
 
 
-        /// Tìm một khách hàng bằng SĐT (dùng foreach)
+        /// Tìm một khách hàng bằng SĐT bằng LINQ
 
         public KhachHang SearchKhachHangBySDT(string sdt) {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
-                    var tatCaKhachHang = db.KhachHangs.ToList();
-
-                    // Duyệt từng khách hàng và so sánh số điện thoại
-                    foreach (var kh in tatCaKhachHang) {
-                        if (kh.SoDienThoai == sdt) {
-                            return kh; // trả về khi tìm thấy
-                        }
-                    }
-                    return null; // không tìm thấy
+                    // FirstOrDefault thay cho foreach + if + break
+                    return db.KhachHangs
+                        .FirstOrDefault(kh => kh.SoDienThoai == sdt);
                 }
             }
             catch (Exception ex) {
@@ -134,27 +98,21 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         }
 
 
-        /// Lấy KM Hóa Đơn tốt nhất (Logic foreach gốc của bạn)
+        /// Lấy KM Hóa Đơn tốt nhất bằng LINQ
 
         public KhuyenMai LayKhuyenMaiHoaDon() {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
                     DateOnly now = DateOnly.FromDateTime(DateTime.Now);
-                    var allKM = db.KhuyenMais.ToList();
-                    KhuyenMai kmHoaDon = null;
 
-                    // Duyệt tất cả khuyến mãi, chọn KM loại HoaDon đang áp dụng và có giá trị lớn nhất
-                    foreach (KhuyenMai km in allKM) {
-                        if (km.LoaiKm == "HoaDon" &&
-                            km.TrangThai == "Đang áp dụng" &&
-                            km.NgayBatDau <= now &&
-                            km.NgayKetThuc >= now) {
-                            if (kmHoaDon == null || km.GiaTri > kmHoaDon.GiaTri) {
-                                kmHoaDon = km;
-                            }
-                        }
-                    }
-                    return kmHoaDon;
+                    // Where lọc điều kiện, OrderByDescending chọn KM có GiaTri lớn nhất
+                    return db.KhuyenMais
+                        .Where(km => km.LoaiKm == "HoaDon" &&
+                                     km.TrangThai == "Đang áp dụng" &&
+                                     km.NgayBatDau <= now &&
+                                     km.NgayKetThuc >= now)
+                        .OrderByDescending(km => km.GiaTri)
+                        .FirstOrDefault();
                 }
             }
             catch (Exception ex) {
@@ -164,103 +122,83 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         }
 
 
-        /// Lưu đơn hàng tạm, trừ kho (Logic gốc từ ThucHienLuuTam, dùng foreach)
+        /// Lưu đơn hàng tạm, trừ kho nguyên liệu (trong transaction).
+        /// Trả về MaDH mới, hoặc -1 nếu lỗi.
 
-        /// <returns>MaDH mới, hoặc -1 nếu lỗi</returns>
         public int LuuDonHangTam(List<ChiTietGioHang> gioHang, decimal tongTien, string maNV, int? maKH) {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
                     using (var transaction = db.Database.BeginTransaction()) {
                         try {
-                            // Bước 1: Tạo DonHang mới (chưa lưu vào DB cho đến SaveChanges)
+                            // Bước 1: Tạo DonHang mới
                             var donHangMoi = new DonHang {
-                                NgayLap = DateTime.Now,
-                                MaNv = maNV,
+                                NgayLap  = DateTime.Now,
+                                MaNv     = maNV,
                                 TrangThai = "Đang xử lý",
-                                TongTien = tongTien,
-                                MaKh = maKH
+                                TongTien  = tongTien,
+                                MaKh      = maKH
                             };
 
-                            // Bước 2: Tạo danh sách ChiTietDonHang dựa trên input gioHang
-                            var listChiTiet = new List<ChiTietDonHang>();
-                            foreach (var item in gioHang) {
-                                var chiTiet = new ChiTietDonHang {
-                                    MaDhNavigation = donHangMoi, // Gắn navigation để EF hiểu quan hệ
-                                    MaSp = item.MaSP,
-                                    SoLuong = item.SoLuong,
-                                    DonGia = item.DonGia
-                                };
-                                listChiTiet.Add(chiTiet);
-                            }
+                            // Bước 2: Tạo ChiTietDonHang bằng LINQ Select
+                            var listChiTiet = gioHang.Select(item => new ChiTietDonHang {
+                                MaDhNavigation = donHangMoi,
+                                MaSp           = item.MaSP,
+                                SoLuong        = item.SoLuong,
+                                DonGia         = item.DonGia
+                            }).ToList();
 
-                            // Bước 3: Tạo record ThanhToan liên quan (chưa thanh toán)
+                            // Bước 3: Tạo record ThanhToan
                             var thanhToanMoi = new Models.ThanhToan {
                                 MaDhNavigation = donHangMoi,
-                                HinhThuc = null,
-                                SoTien = tongTien,
-                                TrangThai = "Chưa thanh toán"
+                                HinhThuc       = null,
+                                SoTien         = tongTien,
+                                TrangThai      = "Chưa thanh toán"
                             };
 
-                            // Bước 4: Add vào DbContext (EF sẽ xử lý insert theo quan hệ)
+                            // Bước 4: Add vào DbContext
                             db.DonHangs.Add(donHangMoi);
                             db.ChiTietDonHangs.AddRange(listChiTiet);
                             db.ThanhToans.Add(thanhToanMoi);
 
-                            // Bước 5: Trừ kho: tải công thức và nguyên liệu 1 lần rồi xử lý
-                            var allCongThuc = db.DinhLuongs.ToList();
-                            var allNguyenLieu = db.NguyenLieus.ToList(); // Tải 1 lần
+                            // Bước 5: Trừ kho — tải 1 lần rồi dùng LINQ to Objects
+                            var allCongThuc   = db.DinhLuongs.ToList();
+                            var allNguyenLieu = db.NguyenLieus.ToList();
 
                             foreach (var monAn in listChiTiet) {
-                                // Tìm công thức của món (Danh sách DinhLuong có MaSp = monAn.MaSp)
-                                var congThuc_filter = new List<DinhLuong>();
-                                // Tìm các DinhLuong phù hợp với MaSp
-                                foreach (var dl in allCongThuc) {
-                                    if (dl.MaSp == monAn.MaSp) {
-                                        congThuc_filter.Add(dl);
-                                    }
-                                }
+                                // Lọc công thức của món bằng LINQ to Objects
+                                var congThucCuaMon = allCongThuc
+                                    .Where(dl => dl.MaSp == monAn.MaSp)
+                                    .ToList();
 
-                                if (congThuc_filter.Count > 0) {
-                                    // Với mỗi dòng công thức, tìm nguyên liệu tương ứng và trừ SoLuongTon
-                                    foreach (var nguyenLieuCan in congThuc_filter) {
-                                        NguyenLieu nguyenLieuTrongKho = null;
-                                        // Tìm nguyên liệu tương ứng trong kho
-                                        foreach (var nl in allNguyenLieu) // Tìm trong list đã tải
-                                        {
-                                            if (nl.MaNl == nguyenLieuCan.MaNl) {
-                                                nguyenLieuTrongKho = nl;
-                                                break;
-                                            }
-                                        }
+                                foreach (var nguyenLieuCan in congThucCuaMon) {
+                                    // Tìm nguyên liệu trong kho bằng LINQ to Objects
+                                    var nguyenLieuTrongKho = allNguyenLieu
+                                        .FirstOrDefault(nl => nl.MaNl == nguyenLieuCan.MaNl);
 
-                                        if (nguyenLieuTrongKho != null) {
-                                            // Trừ số lượng cần thiết (SoLuongCan * số lượng món)
-                                            decimal luongCanTru = nguyenLieuCan.SoLuongCan * monAn.SoLuong;
-                                            nguyenLieuTrongKho.SoLuongTon -= luongCanTru;
-                                            db.Update(nguyenLieuTrongKho); // Đánh dấu entity đã thay đổi
-                                        }
+                                    if (nguyenLieuTrongKho != null) {
+                                        decimal luongCanTru = nguyenLieuCan.SoLuongCan * monAn.SoLuong;
+                                        nguyenLieuTrongKho.SoLuongTon -= luongCanTru;
+                                        db.Update(nguyenLieuTrongKho);
                                     }
                                 }
                             }
 
-                            // Bước 6: Lưu CSDL và commit transaction
+                            // Bước 6: Lưu và commit
                             db.SaveChanges();
                             transaction.Commit();
 
-                            // Bước 7: Sau SaveChanges, donHangMoi.MaDh được EF gán -> trả về MaDH mới
+                            // Bước 7: Trả về MaDH mới (EF đã gán sau SaveChanges)
                             return donHangMoi.MaDh;
                         }
                         catch (Exception ex_inner) {
-                            // Nếu xảy ra lỗi trong transaction -> rollback và trả -1
                             Console.WriteLine("Lỗi trong transaction LuuDonHangTam: " + ex_inner.Message);
-                            transaction.Rollback(); // Hoàn tác nếu có lỗi
+                            transaction.Rollback();
                             return -1;
                         }
                     }
                 }
             }
             catch (Exception ex) {
-                // Lỗi không mong muốn khi mở DB/transaction -> log và trả -1
                 Console.WriteLine("Lỗi khi lưu tạm đơn hàng: " + ex.InnerException?.Message ?? ex.Message);
                 return -1;
             }
@@ -273,8 +211,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         public bool ThemKhachHangMoi(KhachHang khachHangMoi) {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
-                    db.KhachHangs.Add(khachHangMoi); // thêm entity mới
-                    db.SaveChanges(); // lưu vào DB
+                    db.KhachHangs.Add(khachHangMoi);
+                    db.SaveChanges();
                     return true;
                 }
             }
