@@ -65,6 +65,9 @@
     <None Update="Report\rptDoanhThu.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Report\rptHoaDon.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

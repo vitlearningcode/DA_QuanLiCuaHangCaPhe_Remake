@@ -1,10 +1,12 @@
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using Microsoft.Reporting.WinForms;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9
 {
     public partial class ThanhToan : Form
     {
+        private ReportViewer rpvHoaDon;
         // Biến (fields) để lưu dữ liệu
         private decimal _tongTien;
         private int _maDonHangChon;
@@ -39,6 +41,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
 
         private void ThanhToan_Load(object sender, EventArgs e)
         {
+            rpvHoaDon = new ReportViewer();
             try
             {
                 // 1. Gọi Dịch Vụ để tải thông tin
@@ -141,28 +144,85 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
         }
         private void HienThiBillPreview(Panel panelBillPreview)
         {
-            while (panelBillPreview.Controls.Count > 0) { Control c = panelBillPreview.Controls[0]; if (c != pbQR_InBill) { panelBillPreview.Controls.Remove(c); c.Dispose(); } else { panelBillPreview.Controls.Remove(c); } }
-            int currentY = 10;
-            Label lblTenQuan = AddLabelToBill("COFFEE", currentY, 14, FontStyle.Bold);
-            currentY += lblTenQuan.Height + 2;
-            Label lblDiaChi = AddLabelToBill("Ung Van Khiem, Long Xuyen", currentY, 9);
-            currentY += lblDiaChi.Height;
-            Label lblSDT = AddLabelToBill("0814 585 526", currentY, 9);
-            currentY += lblSDT.Height + 5;
-            currentY += 20;
-            Label lblHoaDon = AddLabelToBill("HÓA ĐƠN", currentY, 12, FontStyle.Bold);
-            currentY += lblHoaDon.Height + 15;
-            AddLabelToBill("Tên món", currentY, 9, FontStyle.Regular, 40);
-            AddLabelToBill("SL", currentY, 9, FontStyle.Regular, 250);
-            AddLabelToBill("Dơn giá", currentY, 9, FontStyle.Regular, 320);
-            AddLabelToBill("Thành tiền", currentY, 9, FontStyle.Regular, 450); currentY += 30;
-            foreach (ListViewItem item in lvChiTietBill.Items) { string tenMon = item.SubItems[0].Text; string soLuong = item.SubItems[1].Text; string donGia = item.SubItems[2].Text; string thanhTien = item.SubItems[3].Text; AddLabelToBill(tenMon, currentY, 9, FontStyle.Regular, 40); AddLabelToBill(soLuong, currentY, 9, FontStyle.Regular, 250); AddLabelToBill(donGia, currentY, 9, FontStyle.Regular, 320); AddLabelToBill(thanhTien, currentY, 9, FontStyle.Regular, 450); currentY += 30; }
-            currentY += 15; AddLabelToBill("-----------------------------------", currentY, 9); currentY += 55;
-            AddLabelToBill("Tiền trước giảm:", currentY, 10, FontStyle.Regular, 40); AddLabelToBill(_tongTienGoc_passed.ToString("N0") + " đ", currentY, 14, FontStyle.Regular, 290); currentY += 55;
-            AddLabelToBill("Giảm giá:", currentY, 10, FontStyle.Regular, 40); AddLabelToBill("(-" + _soTienGiam_passed.ToString("N0") + " đ)", currentY, 14, FontStyle.Regular, 290); currentY += 55;
-            AddLabelToBill("Thành tiền:", currentY, 12, FontStyle.Bold, 40); AddLabelToBill(_tongTien.ToString("N0") + " đ", currentY, 14, FontStyle.Bold, 290); currentY += 55;
-            AddLabelToBill("Xin cảm ơn quý khách!", currentY, 9, FontStyle.Italic); currentY += 35; AddLabelToBill("Hẹn gặp lại quý khách!", currentY, 9, FontStyle.Italic); currentY += 25;
-            panelBillPreview.Controls.Add(pbQR_InBill); pbQR_InBill.Top = currentY + 15; pbQR_InBill.Left = (panelBillPreview.Width - pbQR_InBill.Width) / 2;
+            try
+            {
+
+                rpvHoaDon.Dock = DockStyle.Fill;
+                panelBillPreview.Controls.Clear();
+                panelBillPreview.Controls.Add(rpvHoaDon);
+                // 1. Chỉ định file RDLC (Nhớ kiểm tra lại đường dẫn xem đúng folder Report chưa nha)
+                // rpvHoaDon.LocalReport.ReportEmbeddedResource = "DA_QuanLiCuaHangCaPhe_Nhom9.Report.rptHoaDon.rdlc";
+                rpvHoaDon.LocalReport.DataSources.Clear();
+                string reportPath = Path.Combine(Application.StartupPath, @"Report\rptHoaDon.rdlc");
+                rpvHoaDon.LocalReport.ReportPath = reportPath;  
+
+
+                // CHO PHÉP HIỂN THỊ ẢNH TỪ LINK EXTERNAL (Dành cho mã QR)
+                rpvHoaDon.LocalReport.EnableExternalImages = true;
+
+                // 2. Tạo DataTable ảo y chang cái DataSet fen đã nặn
+                System.Data.DataTable dt = new System.Data.DataTable();
+                dt.Columns.Add("TenMon", typeof(string));
+                dt.Columns.Add("SoLuong", typeof(int));
+                dt.Columns.Add("DonGia", typeof(decimal));
+                dt.Columns.Add("ThanhTien", typeof(decimal));
+
+                // 3. Đổ dữ liệu từ lưới ListView vào DataTable
+                foreach (ListViewItem item in lvChiTietBill.Items)
+                {
+                    dt.Rows.Add(
+                        item.SubItems[0].Text,
+                        int.Parse(item.SubItems[1].Text),
+                        decimal.Parse(item.SubItems[2].Text.Replace(",", "").Replace(".", "")),
+                        decimal.Parse(item.SubItems[3].Text.Replace(",", "").Replace(".", ""))
+                    );
+                }
+
+                // 4. Móc DataSource (Tên "HoaDon" phải ĐÚNG Y CHANG tên Dataset trong report nha)
+                ReportDataSource rds = new ReportDataSource("HoaDon", dt);
+                rpvHoaDon.LocalReport.DataSources.Add(rds);
+
+                // 5. Chuẩn bị số liệu cho Parameters
+                DateTime ngayLap = _donHangCanThanhToan.NgayLap ?? DateTime.Now;
+                string hinhThuc = rbTienMat.Checked ? "Tiền mặt" : "Chuyển khoản QR";
+
+                // Link QR (Chỉ tạo link nếu đang chọn QR)
+                // Link QR (Dùng ảnh trong suốt nếu không có QR để RDLC không bị crash)
+string qrUrl = rbQR.Checked
+    ? $"https://api.vietqr.io/image/970436-0909090909-snt03N5.jpg?accountName=TEST&amount={_tongTien}"
+    : "https://upload.wikimedia.org/wikipedia/commons/c/ce/Transparent.gif";
+
+                // 6. Bơm toàn bộ Parameters vào Report theo đúng tên fen đã đặt
+                ReportParameter[] p = new ReportParameter[] {
+            new ReportParameter("p_SoHoaDon", _donHangCanThanhToan.MaDh.ToString()),
+            new ReportParameter("p_MaHoaDon", "HD" + _donHangCanThanhToan.MaDh.ToString("D5")), // Thêm HD cho ngầu
+            new ReportParameter("p_NhanVien", _donHangCanThanhToan.MaNv ?? "N/A"),
+            new ReportParameter("p_Gio", ngayLap.ToString("HH:mm")),
+            new ReportParameter("p_Ngay", ngayLap.ToString("dd/MM/yyyy")),
+            new ReportParameter("p_TienGiam", _soTienGiam_passed.ToString("N0") + " đ"),
+            new ReportParameter("p_TongTien", _tongTien.ToString("N0") + " đ"),
+            new ReportParameter("p_HinhThucThanhToan", hinhThuc),
+            new ReportParameter("p_QR", qrUrl)
+        };
+                rpvHoaDon.LocalReport.SetParameters(p);
+
+                // 7. Refresh để xuất hóa đơn!
+                rpvHoaDon.RefreshReport();
+            }
+            catch (Exception ex)
+            {
+                string loiChiTiet = ex.Message;
+                Exception inner = ex.InnerException;
+
+                // Vòng lặp này sẽ lột trần mọi lớp lỗi cho đến tận cùng
+                while (inner != null)
+                {
+                    loiChiTiet += "\n-> Lớp trong: " + inner.Message;
+                    inner = inner.InnerException;
+                }
+
+                MessageBox.Show("Tìm Lỗi Tận Gốc:\n" + loiChiTiet, "Kính Hiển Vi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         #endregion
 
@@ -182,17 +242,19 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
         {
             if (rbQR.Checked)
             {
-                pbQR_InBill.Visible = true;
                 txtKhachDua.Enabled = false;
                 lblTienDu.Text = "0 đ";
-                try { pbQR_InBill.ImageLocation = $"https://api.vietqr.io/image/970436-0909090909-snt03N5.jpg?accountName=TEST&amount={_tongTien}"; }
-                catch (Exception) { MessageBox.Show("Lỗi khi tải mã QR. Vui lòng kiểm tra kết nối internet."); }
             }
             else if (rbTienMat.Checked)
             {
-                pbQR_InBill.Visible = false;
                 txtKhachDua.Enabled = true;
                 txtKhachDua_TextChanged(sender, e);
+            }
+
+            // --- CẬP NHẬT LẠI BILL ĐỂ HIỆN/ẨN MÃ QR ---
+            if (this.Controls.Find("panelBillPreview", true).FirstOrDefault() is Panel panelBillPreview)
+            {
+                HienThiBillPreview(panelBillPreview);
             }
         }
 
