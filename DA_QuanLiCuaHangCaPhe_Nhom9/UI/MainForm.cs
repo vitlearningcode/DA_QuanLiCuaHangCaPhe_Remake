@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;   // import các lớp trong folder function_Main (GioHang, KhoTruyVanMainForm, DichVuDonHang,...)
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;                   // import các entity model EF Core (SanPham, DonHang, ...)
 using global::System.Globalization;                         // import CultureInfo/formatting dùng khi parse/format số/ngày
@@ -244,10 +244,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
                         // 3. Tính lại Tiền trước giảm (tổng gốc)
                         // (ThucHienLuuTam đã lưu DonGiaGoc vào ct.DonGia)
-                        foreach (var ct in donHangGoc.ChiTietDonHangs)
-                        {
-                            tongGocMoi += (ct.DonGia * ct.SoLuong);
-                        }
+                        // LINQ Sum thay foreach cộng dồn (kết quả hoàn toàn giống nhau)
+                        tongGocMoi = donHangGoc.ChiTietDonHangs
+                            .Sum(ct => ct.DonGia * ct.SoLuong);
 
                         // 4. Lấy Thành tiền (tổng cuối) đã lưu trong đơn
                         decimal tongCuoi = donHangGoc.TongTien ?? 0;

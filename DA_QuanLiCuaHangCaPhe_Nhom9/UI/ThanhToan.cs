@@ -1,4 +1,4 @@
-﻿
+
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
@@ -68,20 +68,12 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
                 foreach (var ct in chiTietDonHang)
                 {
                     string tenSP = "Không tìm thấy SP";
-                    foreach (var sp in allSanPham) // Join thủ công
-                    {
-                        if (sp.MaSp == ct.MaSp)
-                        {
-                            tenSP = sp.TenSp;
-                            break;
-                        }
-                    }
+                    // LINQ to Objects: FirstOrDefault thay nested foreach (Join thủ công)
+                    var spTimDuoc = allSanPham.FirstOrDefault(sp => sp.MaSp == ct.MaSp);
+                    if (spTimDuoc != null) tenSP = spTimDuoc.TenSp;
 
                     // Tính thành tiền của món này (ct.DonGia là giá gốc)
                     decimal thanhTienGoc = ct.SoLuong * ct.DonGia;
-
-                    // Cộng dồn vào tổng gốc mới
-                    tongGocMoi += thanhTienGoc; // <-- Sẽ tính ra 45.000
 
                     ListViewItem lvi = new ListViewItem(tenSP);
                     lvi.SubItems.Add(ct.SoLuong.ToString());
@@ -89,6 +81,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
                     lvi.SubItems.Add(thanhTienGoc.ToString("N0"));
                     lvChiTietBill.Items.Add(lvi);
                 }
+
+                // Cộng dồn vào tổng gốc mới bằng LINQ Sum (thay foreach riêng)
+                tongGocMoi = chiTietDonHang.Sum(ct => ct.SoLuong * ct.DonGia); // <-- Sẽ tính ra 45.000
 
                 // 6. GHI ĐÈ CÁC BIẾN _passed BẰNG GIÁ TRỊ ĐÃ TÍNH LẠI
                 _tongTienGoc_passed = tongGocMoi; // <-- Ghi đè thành 45.000
