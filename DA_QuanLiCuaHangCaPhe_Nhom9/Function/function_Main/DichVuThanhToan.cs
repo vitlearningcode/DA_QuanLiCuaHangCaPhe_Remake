@@ -153,6 +153,32 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main
             }
         }
 
+        /// Chỉ trừ điểm khi Khách đổi điểm nhưng đơn được Lưu Tạm (chưa thanh toán ngay).
+        /// Không cộng điểm mới vì chưa thu tiền; điểm sẽ được cộng khi XacNhanThanhToan.
+        public bool TruDiemKhachHangLuuTam(int maKhachHang, int diemTru)
+        {
+            if (diemTru <= 0) return true; // không có gì để trừ
+            try
+            {
+                using (DataSqlContext db = new DataSqlContext())
+                {
+                    var kh = db.KhachHangs.FirstOrDefault(k => k.MaKh == maKhachHang);
+                    if (kh != null)
+                    {
+                        kh.DiemTichLuy -= diemTru;
+                        if (kh.DiemTichLuy < 0) kh.DiemTichLuy = 0;
+                        db.SaveChanges();
+                    }
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khi trừ điểm (lưu tạm): " + ex.Message);
+                return false;
+            }
+        }
+
         // --- LOGIC CHO CHONDONHANGCHO.CS ---
 
 

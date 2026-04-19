@@ -421,6 +421,14 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
             int maDonHangMoi = ThucHienLuuTam();
             if (maDonHangMoi > 0)
             {
+                // Nếu khách đã chọn đổi điểm -> trừ ngay khi lưu tạm
+                // (discount đã được baked vào TongTien lưu DB; XacNhanThanhToan sau đó truyền diemSuDung=0)
+                if (_diemSuDungThucTe > 0 && _currentMaKH.HasValue)
+                {
+                    var dv = new DichVuThanhToan();
+                    dv.TruDiemKhachHangLuuTam(_currentMaKH.Value, _diemSuDungThucTe);
+                }
+
                 MessageBox.Show($"Đã lưu tạm đơn hàng {maDonHangMoi}", "Lưu tạm thành công");
                 ResetMainForm(); // reset giao diện sau khi lưu
             }

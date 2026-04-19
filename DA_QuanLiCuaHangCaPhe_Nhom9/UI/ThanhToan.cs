@@ -12,7 +12,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
         private int _maDonHangChon;
         private DonHang _donHangCanThanhToan;
         private Models.ThanhToan _thanhToanCanCapNhat;
-
+        private string _tenKhachHang = "Khách vãng lai";
         private decimal _tongTienGoc_passed;
         private decimal _soTienGiam_passed;
 
@@ -60,6 +60,11 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
                 _donHangCanThanhToan = ketQua.DonHang;
                 _thanhToanCanCapNhat = ketQua.ThanhToan;
                 _tongTien = _donHangCanThanhToan.TongTien ?? 0; // <-- Lấy 36.000 (ĐÚNG)
+
+                if (ketQua.KhachHang != null)
+                {
+                    _tenKhachHang = ketQua.KhachHang.TenKh;
+                }
 
                 var chiTietDonHang = ketQua.ChiTiet;
                 var allSanPham = ketQua.SanPhams;
@@ -196,6 +201,7 @@ string qrUrl = rbQR.Checked
                 ReportParameter[] p = new ReportParameter[] {
             new ReportParameter("p_SoHoaDon", _donHangCanThanhToan.MaDh.ToString()),
             new ReportParameter("p_MaHoaDon", "HD" + _donHangCanThanhToan.MaDh.ToString("D5")), // Thêm HD cho ngầu
+            new ReportParameter("p_KhachHang", _tenKhachHang),
             new ReportParameter("p_NhanVien", _donHangCanThanhToan.MaNv ?? "N/A"),
             new ReportParameter("p_Gio", ngayLap.ToString("HH:mm")),
             new ReportParameter("p_Ngay", ngayLap.ToString("dd/MM/yyyy")),

@@ -527,7 +527,7 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>HoaDon</DataSetName>
-            <Top>4.03139cm</Top>
+            <Top>4.74289cm</Top>
             <Left>0.61595cm</Left>
             <Height>2.3715cm</Height>
             <Width>11.41778cm</Width>
@@ -610,7 +610,8 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=Parameters!p_MaHoaDon.Value</Value>
+                    <Label>Mã HD</Label>
+                    <Value>="MaxHD: "&amp;Parameters!p_MaHoaDon.Value</Value>
                     <Style />
                   </TextRun>
                 </TextRuns>
@@ -618,7 +619,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_MaHoaDon</rd:DefaultName>
-            <Top>2.47862cm</Top>
+            <Top>2.41373cm</Top>
             <Left>0.61595cm</Left>
             <Height>0.6cm</Height>
             <Width>4.59562cm</Width>
@@ -640,7 +641,8 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=Parameters!p_Gio.Value</Value>
+                    <Label>Giờ</Label>
+                    <Value>="Giờ: " &amp;Parameters!p_Gio.Value</Value>
                     <Style />
                   </TextRun>
                 </TextRuns>
@@ -648,7 +650,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_Gio</rd:DefaultName>
-            <Top>3.25501cm</Top>
+            <Top>3.96651cm</Top>
             <Left>0.61595cm</Left>
             <Height>0.6cm</Height>
             <Width>4.59562cm</Width>
@@ -670,7 +672,8 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=Parameters!p_NhanVien.Value</Value>
+                    <Label>Nhân viên</Label>
+                    <Value>="Nhân Viên: "&amp;Parameters!p_NhanVien.Value</Value>
                     <Style />
                   </TextRun>
                 </TextRuns>
@@ -678,7 +681,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_NhanVien</rd:DefaultName>
-            <Top>2.47862cm</Top>
+            <Top>3.19012cm</Top>
             <Left>6.99432cm</Left>
             <Height>0.6cm</Height>
             <Width>5.0394cm</Width>
@@ -700,7 +703,8 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=Parameters!p_Ngay.Value</Value>
+                    <Label>Ngày</Label>
+                    <Value>="Ngày: "&amp;Parameters!p_Ngay.Value</Value>
                     <Style />
                   </TextRun>
                 </TextRuns>
@@ -708,7 +712,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_Ngay</rd:DefaultName>
-            <Top>3.25501cm</Top>
+            <Top>3.96651cm</Top>
             <Left>6.99432cm</Left>
             <Height>0.6cm</Height>
             <Width>5.0394cm</Width>
@@ -738,7 +742,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>Textbox24</rd:DefaultName>
-            <Top>6.93912cm</Top>
+            <Top>7.65062cm</Top>
             <Left>0.61595cm</Left>
             <Height>0.6cm</Height>
             <Width>2.5cm</Width>
@@ -754,7 +758,7 @@
             </Style>
           </Textbox>
           <Line Name="Line1">
-            <Top>7.65062cm</Top>
+            <Top>8.36212cm</Top>
             <Left>11.93508cm</Left>
             <Height>0cm</Height>
             <Width>-11.32939cm</Width>
@@ -784,7 +788,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_TienGiam</rd:DefaultName>
-            <Top>6.93912cm</Top>
+            <Top>7.65062cm</Top>
             <Left>9.07819cm</Left>
             <Height>0.6cm</Height>
             <Width>2.96737cm</Width>
@@ -816,7 +820,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>Textbox26</rd:DefaultName>
-            <Top>7.82701cm</Top>
+            <Top>8.53851cm</Top>
             <Left>0.61595cm</Left>
             <Height>0.6cm</Height>
             <Width>2.5cm</Width>
@@ -851,7 +855,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_TongTien</rd:DefaultName>
-            <Top>7.82701cm</Top>
+            <Top>8.53851cm</Top>
             <Left>9.07819cm</Left>
             <Height>0.6cm</Height>
             <Width>2.96737cm</Width>
@@ -881,7 +885,7 @@
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>p_HinhThucThanhToan</rd:DefaultName>
-            <Top>8.56812cm</Top>
+            <Top>9.27962cm</Top>
             <Left>0.60568cm</Left>
             <Height>0.6cm</Height>
             <Width>4.60589cm</Width>
@@ -896,8 +900,38 @@
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
+          <Textbox Name="p_KhachHang">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Label>Khách hàng</Label>
+                    <Value>="KH: "&amp;Parameters!p_KhachHang.Value</Value>
+                    <Style />
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <Top>3.19012cm</Top>
+            <Left>0.60568cm</Left>
+            <Height>0.6cm</Height>
+            <Width>4.60589cm</Width>
+            <ZIndex>13</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
         </ReportItems>
-        <Height>3.69733in</Height>
+        <Height>4.03066in</Height>
         <Style />
       </Body>
       <Width>4.99167in</Width>
@@ -921,12 +955,14 @@
                       </Style>
                     </TextRun>
                   </TextRuns>
-                  <Style />
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox4</rd:DefaultName>
               <Top>0.40076cm</Top>
-              <Left>7.49037cm</Left>
+              <Left>4.71806cm</Left>
               <Height>0.6cm</Height>
               <Width>3.24612cm</Width>
               <Style>
@@ -950,12 +986,14 @@
                       <Style />
                     </TextRun>
                   </TextRuns>
-                  <Style />
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox5</rd:DefaultName>
               <Top>1.14187cm</Top>
-              <Left>6.18131cm</Left>
+              <Left>3.409cm</Left>
               <Height>0.6cm</Height>
               <Width>5.86425cm</Width>
               <ZIndex>1</ZIndex>
@@ -980,12 +1018,14 @@
                       <Style />
                     </TextRun>
                   </TextRuns>
-                  <Style />
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox6</rd:DefaultName>
               <Top>1.88298cm</Top>
-              <Left>7.2496cm</Left>
+              <Left>4.47729cm</Left>
               <Height>0.6cm</Height>
               <Width>3.72767cm</Width>
               <ZIndex>2</ZIndex>
@@ -1050,7 +1090,7 @@
             <Image Name="Image1">
               <Source>External</Source>
               <Value>=Parameters!p_QR.Value</Value>
-              <Sizing>FitProportional</Sizing>
+              <Sizing>Fit</Sizing>
               <Top>0.03528cm</Top>
               <Left>5.61622cm</Left>
               <Height>1.5cm</Height>
@@ -1117,8 +1157,69 @@
       <DataType>String</DataType>
       <Prompt>ReportParameter1</Prompt>
     </ReportParameter>
+    <ReportParameter Name="p_KhachHang">
+      <DataType>String</DataType>
+      <Prompt>ReportParameter1</Prompt>
+    </ReportParameter>
   </ReportParameters>
-
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>2</NumberOfColumns>
+      <NumberOfRows>5</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>p_SoHoaDon</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>p_MaHoaDon</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>p_Gio</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>p_NhanVien</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>p_Ngay</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>p_TienGiam</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>p_TongTien</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>p_QR</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>p_HinhThucThanhToan</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>p_KhachHang</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
   <rd:ReportID>1c59792a-c99d-4c2d-92c9-fe1d8414e533</rd:ReportID>
 </Report>
