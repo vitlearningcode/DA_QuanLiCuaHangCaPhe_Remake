@@ -91,7 +91,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             else if (btn.Name == "btnBaoCao")
             {
                 // Sẽ nạp UC_QL_BaoCao vào Turn sau
-                pnlContent.Controls.Clear();
+                LoadUserControl(new UC_QL_BaoCao());
             }
         }
 
