@@ -9,7 +9,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
     public partial class MainForm : Form {
         // === KHAI BÁO CÁC BIẾN ===
         // _currentMaNV: id nhân viên hiện tại, được truyền từ Loginform.
-        private int _currentMaNV = 3;
+        private string _currentMaNV = "3";
         // _currentMaKH: id khách hàng (nullable) nếu tìm thấy qua SĐT.
         private int? _currentMaKH = null;
         // _currentMaLoai: bộ lọc loại sản phẩm hiện tại ("TatCa" mặc định).
@@ -64,7 +64,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9 { // namespace của project
 
         #region Hàm khởi tạo và tải form
         // Constructor: nhận MaNV từ Loginform, khởi tạo các service và khởi đăng ký notification
-        public MainForm(int MaNV) {
+        public MainForm(string MaNV) {
             InitializeComponent();          // phương thức auto-generated khởi tạo control
             _currentMaNV = MaNV;            // gán id nhân viên hiện tại
 

@@ -389,7 +389,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                             GhiChu = $"Thanh toán cho phiếu nhập kho số: {maPhieu}",
                             MaPhieu = maPhieu,
                             MaCongNo = congNo.MaCongNo,
-                            MaNv = 1 // Mã nhân viên đang đăng nhập (tạm fix cứng)
+                            MaNv = "1" // Mã nhân viên đang đăng nhập (tạm fix cứng)
                         };
                         db.PhieuChis.Add(phieuChi);
 

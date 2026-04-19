@@ -167,7 +167,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main {
         /// Lưu đơn hàng tạm, trừ kho (Logic gốc từ ThucHienLuuTam, dùng foreach)
 
         /// <returns>MaDH mới, hoặc -1 nếu lỗi</returns>
-        public int LuuDonHangTam(List<ChiTietGioHang> gioHang, decimal tongTien, int maNV, int? maKH) {
+        public int LuuDonHangTam(List<ChiTietGioHang> gioHang, decimal tongTien, string maNV, int? maKH) {
             try {
                 using (DataSqlContext db = new DataSqlContext()) {
                     using (var transaction = db.Database.BeginTransaction()) {

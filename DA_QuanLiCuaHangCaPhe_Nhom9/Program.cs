@@ -51,7 +51,7 @@ using Microsoft.Extensions.Hosting;
 
 // Có thể xóa bớt các using không dùng như Microsoft.Extensions.Hosting, Microsoft.Extensions.DependencyInjection...
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
 {
     internal static class Program
     {        
@@ -61,7 +61,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             ApplicationConfiguration.Initialize();
 
             // Chạy Form đăng nhập trực tiếp
-            Application.Run(new Admin());
+            Application.Run(new QuanLi("1"));
         }
     }
 }

@@ -15,6 +15,8 @@ public partial class DataSqlContext : DbContext
     {
     }
 
+    public virtual DbSet<CaLamViec> CaLamViecs { get; set; }
+
     public virtual DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
 
     public virtual DbSet<ChiTietPhieuKho> ChiTietPhieuKhos { get; set; }
@@ -28,6 +30,8 @@ public partial class DataSqlContext : DbContext
     public virtual DbSet<KhachHang> KhachHangs { get; set; }
 
     public virtual DbSet<KhuyenMai> KhuyenMais { get; set; }
+
+    public virtual DbSet<LichLamViec> LichLamViecs { get; set; }
 
     public virtual DbSet<NguyenLieu> NguyenLieus { get; set; }
 
@@ -53,6 +57,16 @@ public partial class DataSqlContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CaLamViec>(entity =>
+        {
+            entity.HasKey(e => e.MaCa).HasName("PK__CaLamVie__27258E7B7E5AA9DC");
+
+            entity.ToTable("CaLamViec");
+
+            entity.Property(e => e.LuongTheoCa).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TenCa).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<ChiTietDonHang>(entity =>
         {
             entity.HasKey(e => new { e.MaDh, e.MaSp }).HasName("PK__ChiTietD__F557D6E0F67EA2F8");
@@ -231,6 +245,30 @@ public partial class DataSqlContext : DbContext
                         j.IndexerProperty<int>("MaKm").HasColumnName("MaKM");
                         j.IndexerProperty<int>("MaSp").HasColumnName("MaSP");
                     });
+        });
+
+        modelBuilder.Entity<LichLamViec>(entity =>
+        {
+            entity.HasKey(e => e.MaLich).HasName("PK__LichLamV__728A9AE98A951F99");
+
+            entity.ToTable("LichLamViec");
+
+            entity.Property(e => e.MaNv)
+                .HasMaxLength(20)
+                .HasColumnName("MaNV");
+            entity.Property(e => e.TrangThai)
+                .HasMaxLength(50)
+                .HasDefaultValue("Chưa làm");
+
+            entity.HasOne(d => d.MaCaNavigation).WithMany(p => p.LichLamViecs)
+                .HasForeignKey(d => d.MaCa)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LichLamViec_CaLamViec");
+
+            entity.HasOne(d => d.MaNvNavigation).WithMany(p => p.LichLamViecs)
+                .HasForeignKey(d => d.MaNv)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LichLamViec_NhanVien");
         });
 
         modelBuilder.Entity<NguyenLieu>(entity =>

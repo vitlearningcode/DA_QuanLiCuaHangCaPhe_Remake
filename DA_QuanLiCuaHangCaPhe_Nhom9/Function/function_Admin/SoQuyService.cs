@@ -67,7 +67,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                     SoTien = soTien,
                     HinhThuc = hinhThuc,
                     GhiChu = ghiChu,
-                    MaNv = maNVLap
+                    MaNv = maNVLap.ToString(),
                 };
                 db.PhieuChis.Add(pc);
                 db.SaveChanges();

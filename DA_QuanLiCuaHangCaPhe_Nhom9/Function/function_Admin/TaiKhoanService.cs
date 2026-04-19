@@ -17,18 +17,21 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
         }
 
         // 1. Hàm TẠO TÀI KHOẢN (Cho trường hợp txtUsername.Enabled == true)
-        public bool TaoTaiKhoan(string username, string password, int maNV, int role)
+        public bool TaoTaiKhoan(string username, string password, string maNV, int role)
         {
             using (var db = new DataSqlContext())
             {
-                // Kiểm tra trùng tên đăng nhập
-                if (db.TaiKhoans.Any(t => t.TenDangNhap == username)) { MessageBox.Show("Tên đăng nhập đã tồn tại!", "Thông báo"); return false; }
+                if (db.TaiKhoans.Any(t => t.TenDangNhap == username))
+                {
+                    MessageBox.Show("Tên đăng nhập đã tồn tại!", "Thông báo");
+                    return false;
+                }
 
                 var tk = new TaiKhoan
                 {
                     TenDangNhap = username,
-                    MatKhau = password,     // Lưu ý: Nên mã hóa MD5/SHA256 sau này
-                    MaNv = maNV,
+                    MatKhau = password,
+                    MaNv = maNV, // Gán string bình thường
                     MaVaiTro = role,
                     TrangThai = true
                 };
@@ -79,7 +82,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        public TaiKhoan LayTaiKhoanTheoMaNV(int maNV)
+        public TaiKhoan LayTaiKhoanTheoMaNV(string maNV)
         {
             using (var db = new DataSqlContext())
             {
