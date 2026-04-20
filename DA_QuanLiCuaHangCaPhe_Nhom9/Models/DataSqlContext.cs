@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
@@ -52,9 +53,28 @@ public partial class DataSqlContext : DbContext
     public virtual DbSet<VaiTro> VaiTros { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=oioioi\\sqlexpress;Initial Catalog=DA_QuanLiBanCaPhe;Integrated Security=True;TrustServerCertificate=True");
+    // => optionsBuilder.UseSqlServer("Server=EMBOU;Database=DATA_SQL;Trusted_Connection=True;TrustServerCertificate=True");
+    // => optionsBuilder.UseSqlServer("Server=KenG_Kanowaki\\LEMINHDUCSQL;Database=DATA_SQL;Trusted_Connection=True;TrustServerCertificate=True");
+    // => optionsBuilder.UseSqlServer("Server=LAPTOP-2Q4VT418\\SQLEXPRESS;Database=DA_QuanLiBanCaPhe;Trusted_Connection=True;TrustServerCertificate=True");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            // 1. Xây dựng đối tượng Configuration
 
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory()) // Lấy thư mục chạy (bin/Debug)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true); // Đọc file json
+
+            var configuration = configBuilder.Build();
+
+            // 2. Lấy chuỗi kết nối từ file json
+            //    ("MyDatabase" là tên bạn đặt trong file json)
+            string connString = configuration.GetConnectionString("MyDatabase");
+
+            // 3. Sử dụng chuỗi kết nối đó
+            optionsBuilder.UseSqlServer(connString);
+        }
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CaLamViec>(entity =>

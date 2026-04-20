@@ -90,19 +90,52 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             }
             else if (btn.Name == "btnBaoCao")
             {
-                // Sẽ nạp UC_QL_BaoCao vào Turn sau
-                LoadUserControl(new UC_QL_BaoCao());
+                // 1. Khởi tạo tên mặc định phòng trường hợp lỗi
+                string tenNhanVien = "Quản Lí";
+
+                // 2. Lấy tên thật của nhân viên từ CSDL dựa vào _currentMaNV
+                if (!string.IsNullOrEmpty(_currentMaNV))
+                {
+                    try
+                    {
+                        using (var db = new DA_QuanLiCuaHangCaPhe_Nhom9.Models.DataSqlContext())
+                        {
+                            // Tìm nhân viên có mã khớp với mã đang đăng nhập
+                            var nv = db.NhanViens.FirstOrDefault(n => n.MaNv == _currentMaNV);
+                            if (nv != null)
+                            {
+                                tenNhanVien = nv.TenNv; // Lấy tên thật
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Lỗi kết nối thì cứ để mặc định là "Admin", không làm crash app
+                    }
+                }
+
+                // 3. Nạp UC_QL_BaoCao và truyền cái tên xịn xò vào!
+                LoadUserControl(new UC_QL_BaoCao(tenNhanVien));
             }
         }
 
         private void BtnTrangOrder_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Mở màn hình POS Thu ngân!\nNhân sự trực ca: " + _currentMaNV, "Thông báo chuyển trang");
+            MessageBox.Show("Mở màn hình POS Thu ngân!", "Thông báo chuyển trang");
 
-            // TODO: Mở comment đoạn này khi bro ghép xong Form Bán Hàng
-            // FormBanHang frm = new FormBanHang(_currentMaNV);
-            // frm.Show();
-            // this.Hide();
+            this.Hide();
+
+            // 2. Khởi tạo form Bán Hàng (MainForm)
+            MainForm mf = new MainForm(_currentMaNV);
+
+            // 3. Đăng ký sự kiện "Lắng nghe": Khi nào mf bị đóng (bấm nút X), thì chạy đoạn code bên trong
+            mf.FormClosed += (s, args) =>
+            {
+                this.Show(); // Hiện lại form Quản Lý
+            };
+
+            // 4. Hiển thị form Bán Hàng (Dùng Show thay vì ShowDialog để luồng app chạy mượt hơn)
+            mf.Show();
         }
     }
 } 

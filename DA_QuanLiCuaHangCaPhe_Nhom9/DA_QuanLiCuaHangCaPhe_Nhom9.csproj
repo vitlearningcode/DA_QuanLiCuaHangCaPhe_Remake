@@ -8,6 +8,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Report\rptDoanhThu_QL.rdlc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Report\rptDoanhThu_QL.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
   
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
@@ -31,6 +41,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="Report\DoanhThuDataSet.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DoanhThuDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Update="Report\dsBaoCao.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -53,6 +68,10 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Report\DoanhThuDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DoanhThuDataSet.Designer.cs</LastGenOutput>
     </None>
     <None Update="Report\dsBaoCao.xsd">
       <Generator>MSDataSetGenerator</Generator>
