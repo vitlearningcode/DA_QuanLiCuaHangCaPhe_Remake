@@ -1,138 +1,158 @@
-//using DA_QuanLiCuaHangCaPhe_Nhom9.Function;
-//// *** THAY ĐỔI: Trỏ đến function_Login ***
-//using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login;
-//using Microsoft.Win32;
-//// Thêm global:: cho các thư viện System
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Login;
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang;
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS;
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi;
 
-//namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
-//    public partial class Loginform : Form {
-//        // Khai báo Kho Truy Vấn
-//        private readonly KhoTruyVanDangNhap _khoDangNhap;
+namespace DA_QuanLiCuaHangCaPhe_Nhom9
+{
+    public partial class Loginform : Form
+    {
+        private readonly KhoTruyVanDangNhap _loginService = new KhoTruyVanDangNhap();
 
-//        public Loginform() {
-//            InitializeComponent();
+        // ── Kéo form không border ──
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
-//            // Khởi tạo Kho Truy Vấn
-//            _khoDangNhap = new KhoTruyVanDangNhap();
-//        }
+        public Loginform()
+        {
+            InitializeComponent();
+        }
 
-//        // (Các hàm thông báo Toast giữ nguyên)
-//        private void OnNotificationRaised(NotificationCenter.Notification note) {
-//            try { if (note.Type == NotificationCenter.NotificationType.NhanVienInactive) { ShowToast(note.Message); } } catch { }
-//        }
-//        private void ShowToast(string message) {
-//            if (this.InvokeRequired) { this.BeginInvoke(new Action(() => ShowToast(message))); return; }
-//            Form toast = new Form(); toast.FormBorderStyle = FormBorderStyle.None; toast.StartPosition = FormStartPosition.Manual; toast.BackColor = Color.FromArgb(45, 45, 48); toast.Size = new Size(300, 80); var screen = Screen.PrimaryScreen.WorkingArea; toast.Location = new Point(screen.Right - toast.Width - 10, screen.Bottom - toast.Height - 10); Label lbl = new Label(); lbl.Text = message; lbl.ForeColor = Color.White; lbl.Dock = DockStyle.Fill; lbl.Padding = new Padding(8); toast.Controls.Add(lbl); System.Windows.Forms.Timer t = new System.Windows.Forms.Timer(); t.Interval = 6000; t.Tick += (s, e) => { t.Stop(); toast.Close(); }; t.Start(); toast.Show();
-//        }
-//        private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) {
-//            if (!IsDisposed && !Disposing) { BeginInvoke(new Action(() => CenterToScreen())); }
-//        }
-//        protected override void OnFormClosed(FormClosedEventArgs e) {
-//            base.OnFormClosed(e);
-//            SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
-//            NotificationCenter.NotificationRaised -= OnNotificationRaised;
-//        }
+        private void Loginform_Load(object sender, EventArgs e)
+        {
+            // Hover effects cho nút đăng nhập
+            btnDangNhap.MouseEnter += (s, _) =>
+                btnDangNhap.BackColor = Color.FromArgb(230, 148, 0);
+            btnDangNhap.MouseLeave += (s, _) =>
+                btnDangNhap.BackColor = Color.FromArgb(255, 165, 0);
 
-//        // (Các hàm sự kiện TextChanged giữ nguyên)
-//        private void textBox1_TextChanged(object? sender, EventArgs e) {
-//            UpdateLoginButtonState();
-//        }
-//        private void textBox2_TextChanged(object? sender, EventArgs e) {
-//            UpdateLoginButtonState();
-//        }
+            // Focus vào ô username khi mở
+            txtUser.Focus();
+        }
 
-//        // *** ĐÃ THAY ĐỔI: Gọi KhoTruyVan ***
-//        private void btnDangnhap_Click(object? sender, EventArgs e) {
-//            string username = txtUser.Text.Trim();
-//            string password = txtPass.Text;
+        // ── Kéo form ──
+        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, 0x2, 0);
+            }
+        }
 
+        private void BtnClose_Click(object sender, EventArgs e) => Application.Exit();
 
+        // ── Hiện / ẩn mật khẩu ──
+        private void ChkShowPass_CheckedChanged(object sender, EventArgs e)
+        {
+            txtPass.UseSystemPasswordChar = !chkShowPass.Checked;
+        }
 
-//            if (string.IsNullOrWhiteSpace(username)) {
-//                MessageBox.Show("Vui lòng nhập tên đăng nhập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-//                txtUser.Focus(); return;
-//            }
-//            if (string.IsNullOrWhiteSpace(password)) {
-//                MessageBox.Show("Vui lòng nhập mật khẩu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-//                txtPass.Focus(); return;
-//            }
+        // ── Enter → đăng nhập ──
+        private void TxtPass_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) BtnDangNhap_Click(sender, e);
+        }
 
-//            try {
-//                //MessageBox.Show(_khoDangNhap.GetDatabaseName());
-//                // *** THAY ĐỔI: Gọi KhoTruyVan ***
-//                var account = _khoDangNhap.XacThuc(username);
+        // ── Xử lý đăng nhập chính ──
+        private void BtnDangNhap_Click(object sender, EventArgs e)
+        {
+            string username = txtUser.Text.Trim();
+            string password = txtPass.Text;
 
-//                if (account == null) {
-//                    MessageBox.Show("Tên đăng nhập không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
-//                    txtPass.Clear(); txtUser.Focus(); return;
-//                }
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                HienThiLoi("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
 
-//                if (account.MatKhau.Trim() != password) {
-//                    MessageBox.Show("Mật khẩu không đúng!", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
-//                    txtPass.Clear(); txtUser.Focus(); return;
-//                }
+            btnDangNhap.Enabled = false;
+            btnDangNhap.Text    = "Đang xác thực...";
 
-//                if (account.TrangThai.HasValue && account.TrangThai.Value == false) {
-//                    MessageBox.Show("Tài khoản đã bị vô hiệu hóa.", "Tài khoản bị khóa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-//                    return;
-//                }
+            try
+            {
+                var tk = _loginService.XacThuc(username, password);
 
-//                txtUser.Clear();
-//                txtPass.Clear();
-//                this.txtUser.Focus();
+                if (tk == null)
+                {
+                    HienThiLoi("❌  Tên đăng nhập hoặc mật khẩu không đúng!");
+                    txtPass.Clear();
+                    txtPass.Focus();
+                    return;
+                }
 
-//                // Điều hướng (Giữ nguyên)
-//                if (account.TenVaiTro == "Chủ cửa hàng") {
-//                    //Admin adminForm = new Admin();
-//                    //adminForm.FormClosed += (s, args) => { this.Show(); txtUser.Focus(); UpdateLoginButtonState(); };
-//                    //adminForm.Show();
-//                }
-//                else if (account.TenVaiTro == "Quản lý") {
-//                    QuanLi ql = new QuanLi(account.MaNv);
-//                    ql.FormClosed += (s, args) => { this.Show(); txtUser.Focus(); UpdateLoginButtonState(); };
-//                    ql.Show();
-//                }
-//                else if (account.TenVaiTro == "Nhân viên") {
-//                    MainForm mainForm = new MainForm(account.MaNv);
-//                    mainForm.FormClosed += (s, args) => { this.Show(); txtUser.Focus(); UpdateLoginButtonState(); };
-//                    mainForm.Show();
-//                }
-//                else {
-//                    MessageBox.Show($"Vai trò '{account.TenVaiTro}' không được hỗ trợ!", "Lỗi vai trò", MessageBoxButtons.OK, MessageBoxIcon.Error);
-//                    this.Show();
-//                    txtUser.Focus();
-//                }
-//            }
-//            catch (Exception ex) {
-//                MessageBox.Show($"Lỗi kết nối cơ sở dữ liệu:\n{ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-//            }
-//        }
+                // Đăng nhập thành công — routing theo vai trò
+                this.Hide();
+                DiChuyenTới(tk.TenVaiTro, tk.MaNv);
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi("Lỗi kết nối CSDL: " + ex.Message);
+            }
+            finally
+            {
+                btnDangNhap.Enabled = true;
+                btnDangNhap.Text    = "ĐĂNG NHẬP";
+            }
+        }
 
-//        // (Các hàm còn lại giữ nguyên)
-//        private void btnHuy_Click(object? sender, EventArgs e) {
-//            var result = MessageBox.Show("Bạn có chắc muốn thoát?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-//            if (result == DialogResult.Yes) {
-//                Application.Exit();
-//            }
-//        }
+        // ── Routing theo vai trò ──
+        private void DiChuyenTới(string tenVaiTro, string maNv)
+        {
+            Form nextForm;
 
-//        private void UpdateLoginButtonState() {
-//            btnOK.Enabled = !string.IsNullOrWhiteSpace(txtUser.Text) && !string.IsNullOrWhiteSpace(txtPass.Text);
-//        }
+            switch (tenVaiTro)
+            {
+                case "Chủ cửa hàng":
+                    nextForm = new Admin();
+                    break;
 
-//        private void Loginform_Load(object sender, EventArgs e) {
-//            StartPosition = FormStartPosition.CenterScreen;
-//            CenterToScreen();
-//            this.Text = "Coffee Shop Login";
-//            txtPass.UseSystemPasswordChar = true;
-//            txtUser.TabIndex = 0;
-//            txtPass.TabIndex = 1;
-//            btnOK.TabIndex = 2;
-//            btnThoat.TabIndex = 3;
-//            this.AcceptButton = btnOK;
-//            SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-//            UpdateLoginButtonState();
-//            NotificationCenter.NotificationRaised += OnNotificationRaised;
-//        }
-//    }
-//}
+                case "Quản lý":
+                    nextForm = new QuanLi(maNv);
+                    break;
+
+                case "Nhân viên":
+                default:
+                    nextForm = new MainForm(maNv);
+                    break;
+            }
+
+            // Khi đóng form con → hiện lại form đăng nhập (reset)
+            nextForm.FormClosed += (s, args) =>
+            {
+                txtUser.Clear();
+                txtPass.Clear();
+                lblError.Visible = false;
+                txtUser.Focus();
+                this.Show();
+            };
+
+            nextForm.Show();
+        }
+
+        private void HienThiLoi(string msg)
+        {
+            lblError.Text    = msg;
+            lblError.Visible = true;
+            // Shake animation nhẹ
+            ShakeForm();
+        }
+
+        private async void ShakeForm()
+        {
+            int originX = this.Location.X;
+            int[] offsets = { -8, 8, -6, 6, -4, 4, 0 };
+            foreach (int offset in offsets)
+            {
+                this.Location = new Point(originX + offset, this.Location.Y);
+                await System.Threading.Tasks.Task.Delay(30);
+            }
+        }
+    }
+}

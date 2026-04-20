@@ -1,179 +1,226 @@
-﻿//namespace DA_QuanLiCuaHangCaPhe_Nhom9
-//{
-//    partial class Loginform
-//    {
-//        /// <summary>
-//        ///  Required designer variable.
-//        /// </summary>
-//        private System.ComponentModel.IContainer components = null;
+namespace DA_QuanLiCuaHangCaPhe_Nhom9
+{
+    partial class Loginform
+    {
+        private System.ComponentModel.IContainer components = null;
 
-//        /// <summary>
-//        ///  Clean up any resources being used.
-//        /// </summary>
-//        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-//        protected override void Dispose(bool disposing)
-//        {
-//            if (disposing && (components != null))
-//            {
-//                components.Dispose();
-//            }
-//            base.Dispose(disposing);
-//        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null)) components.Dispose();
+            base.Dispose(disposing);
+        }
 
-//        #region Windows Form Designer generated code
+        #region Windows Form Designer generated code
+        private void InitializeComponent()
+        {
+            pnlTitleBar  = new System.Windows.Forms.Panel();
+            btnClose     = new System.Windows.Forms.Button();
+            lblFormTitle = new System.Windows.Forms.Label();
+            pnlLeft      = new System.Windows.Forms.Panel();
+            lblCup       = new System.Windows.Forms.Label();
+            lblAppName   = new System.Windows.Forms.Label();
+            lblSlogan    = new System.Windows.Forms.Label();
+            pnlRight     = new System.Windows.Forms.Panel();
+            lblTitle     = new System.Windows.Forms.Label();
+            lblUser      = new System.Windows.Forms.Label();
+            txtUser      = new System.Windows.Forms.TextBox();
+            lblPass      = new System.Windows.Forms.Label();
+            txtPass      = new System.Windows.Forms.TextBox();
+            chkShowPass  = new System.Windows.Forms.CheckBox();
+            lblError     = new System.Windows.Forms.Label();
+            btnDangNhap  = new System.Windows.Forms.Button();
+            btnThoat     = new System.Windows.Forms.Button();
 
-//        /// <summary>
-//        ///  Required method for Designer support - do not modify
-//        ///  the contents of this method with the code editor.
-//        /// </summary>
-//        private void InitializeComponent() {
-//            txtPass = new TextBox();
-//            txtUser = new TextBox();
-//            btnOK = new Button();
-//            label3 = new Label();
-//            label2 = new Label();
-//            label1 = new Label();
-//            pictureBox1 = new PictureBox();
-//            btnThoat = new Button();
-//            label4 = new Label();
-//            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-//            SuspendLayout();
-//            // 
-//            // txtPass
-//            // 
-//            txtPass.Location = new Point(128, 228);
-//            txtPass.Margin = new Padding(1);
-//            txtPass.Name = "txtPass";
-//            txtPass.Size = new Size(155, 27);
-//            txtPass.TabIndex = 13;
-//            txtPass.TextChanged += textBox2_TextChanged;
-//            // 
-//            // txtUser
-//            // 
-//            txtUser.Location = new Point(128, 184);
-//            txtUser.Margin = new Padding(1);
-//            txtUser.Name = "txtUser";
-//            txtUser.Size = new Size(155, 27);
-//            txtUser.TabIndex = 14;
-//            txtUser.TextChanged += textBox1_TextChanged;
-//            // 
-//            // btnOK
-//            // 
-//            btnOK.BackColor = Color.Lime;
-//            btnOK.Location = new Point(60, 271);
-//            btnOK.Margin = new Padding(1);
-//            btnOK.Name = "btnOK";
-//            btnOK.Size = new Size(106, 28);
-//            btnOK.TabIndex = 12;
-//            btnOK.Text = "Đăng nhập";
-//            btnOK.UseVisualStyleBackColor = false;
-//            btnOK.Click += btnDangnhap_Click;
-//            // 
-//            // label3
-//            // 
-//            label3.AutoSize = true;
-//            label3.BorderStyle = BorderStyle.Fixed3D;
-//            label3.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold);
-//            label3.Location = new Point(25, 229);
-//            label3.Margin = new Padding(1, 0, 1, 0);
-//            label3.Name = "label3";
-//            label3.Size = new Size(87, 25);
-//            label3.TabIndex = 9;
-//            label3.Text = "Mật Khẩu";
-//            // 
-//            // label2
-//            // 
-//            label2.AutoSize = true;
-//            label2.BorderStyle = BorderStyle.Fixed3D;
-//            label2.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold);
-//            label2.Location = new Point(26, 186);
-//            label2.Margin = new Padding(1, 0, 1, 0);
-//            label2.Name = "label2";
-//            label2.Size = new Size(86, 25);
-//            label2.TabIndex = 10;
-//            label2.Text = "Tài Khoản";
-//            // 
-//            // label1
-//            // 
-//            label1.AutoSize = true;
-//            label1.Font = new Font("Segoe UI", 19.8000011F, FontStyle.Bold, GraphicsUnit.Point, 163);
-//            label1.Location = new Point(177, 22);
-//            label1.Margin = new Padding(1, 0, 1, 0);
-//            label1.Name = "label1";
-//            label1.Size = new Size(194, 46);
-//            label1.TabIndex = 11;
-//            label1.Text = "Đăng nhập";
-//            // 
-//            // pictureBox1
-//            // 
-//            pictureBox1.BorderStyle = BorderStyle.Fixed3D;
-//            pictureBox1.Image = MyResources.Properties.Resources.download;
-//            pictureBox1.Location = new Point(298, 95);
-//            pictureBox1.Name = "pictureBox1";
-//            pictureBox1.Size = new Size(237, 202);
-//            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-//            pictureBox1.TabIndex = 15;
-//            pictureBox1.TabStop = false;
-//            // 
-//            // btnThoat
-//            // 
-//            btnThoat.BackColor = Color.Red;
-//            btnThoat.Location = new Point(195, 269);
-//            btnThoat.Margin = new Padding(1);
-//            btnThoat.Name = "btnThoat";
-//            btnThoat.Size = new Size(88, 28);
-//            btnThoat.TabIndex = 13;
-//            btnThoat.Text = "Hủy";
-//            btnThoat.UseVisualStyleBackColor = false;
-//            btnThoat.Click += btnHuy_Click;
-//            // 
-//            // label4
-//            // 
-//            label4.AutoSize = true;
-//            label4.BorderStyle = BorderStyle.Fixed3D;
-//            label4.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 163);
-//            label4.ForeColor = SystemColors.ActiveCaptionText;
-//            label4.Location = new Point(42, 105);
-//            label4.Name = "label4";
-//            label4.Size = new Size(223, 43);
-//            label4.TabIndex = 17;
-//            label4.Text = "COFFEE SHOP ";
-//            // 
-//            // Loginform
-//            // 
-//            AutoScaleDimensions = new SizeF(8F, 20F);
-//            AutoScaleMode = AutoScaleMode.Font;
-//            BackColor = Color.NavajoWhite;
-//            ClientSize = new Size(547, 309);
-//            Controls.Add(label4);
-//            Controls.Add(pictureBox1);
-//            Controls.Add(txtPass);
-//            Controls.Add(txtUser);
-//            Controls.Add(btnThoat);
-//            Controls.Add(btnOK);
-//            Controls.Add(label3);
-//            Controls.Add(label2);
-//            Controls.Add(label1);
-//            FormBorderStyle = FormBorderStyle.None;
-//            Margin = new Padding(1);
-//            Name = "Loginform";
-//            Text = "Loginform";
-//            Load += Loginform_Load;
-//            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-//            ResumeLayout(false);
-//            PerformLayout();
-//        }
+            pnlTitleBar.SuspendLayout();
+            pnlLeft.SuspendLayout();
+            pnlRight.SuspendLayout();
+            SuspendLayout();
 
-//        #endregion
+            // ── pnlTitleBar ──────────────────────────────────────
+            pnlTitleBar.BackColor = System.Drawing.Color.FromArgb(12, 12, 20);
+            pnlTitleBar.Dock      = System.Windows.Forms.DockStyle.Top;
+            pnlTitleBar.Height    = 36;
+            pnlTitleBar.Controls.Add(lblFormTitle);
+            pnlTitleBar.Controls.Add(btnClose);
+            pnlTitleBar.MouseDown += TitleBar_MouseDown;
 
-//        private TextBox txtPass;
-//        private TextBox txtUser;
-//        private Button btnOK;
-//        private Label label3;
-//        private Label label2;
-//        private Label label1;
-//        private PictureBox pictureBox1;
-//        private Button btnThoat;
-//        private Label label4;
-//    }
-//}
+            lblFormTitle.Text      = "Coffee Shop — Đăng Nhập";
+            lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(120, 120, 160);
+            lblFormTitle.Font      = new System.Drawing.Font("Segoe UI", 9F);
+            lblFormTitle.Location  = new System.Drawing.Point(12, 9);
+            lblFormTitle.AutoSize  = true;
+
+            btnClose.Text      = "✕";
+            btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.ForeColor = System.Drawing.Color.FromArgb(180, 80, 80);
+            btnClose.BackColor = System.Drawing.Color.Transparent;
+            btnClose.Font      = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            btnClose.Size      = new System.Drawing.Size(36, 36);
+            btnClose.Location  = new System.Drawing.Point(364, 0);
+            btnClose.Cursor    = System.Windows.Forms.Cursors.Hand;
+            btnClose.Click    += BtnClose_Click;
+
+            // ── pnlLeft (branding) ────────────────────────────────
+            pnlLeft.BackColor = System.Drawing.Color.FromArgb(24, 26, 42);
+            pnlLeft.Dock      = System.Windows.Forms.DockStyle.Left;
+            pnlLeft.Width     = 200;
+            pnlLeft.Controls.Add(lblCup);
+            pnlLeft.Controls.Add(lblAppName);
+            pnlLeft.Controls.Add(lblSlogan);
+
+            lblCup.Text      = "☕";
+            lblCup.Font      = new System.Drawing.Font("Segoe UI Emoji", 40F);
+            lblCup.ForeColor = System.Drawing.Color.White;
+            lblCup.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblCup.Dock      = System.Windows.Forms.DockStyle.None;
+            lblCup.Location  = new System.Drawing.Point(0, 100);
+            lblCup.Size      = new System.Drawing.Size(200, 70);
+
+            lblAppName.Text      = "COFFEE SHOP";
+            lblAppName.Font      = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            lblAppName.ForeColor = System.Drawing.Color.FromArgb(255, 180, 50);
+            lblAppName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblAppName.Location  = new System.Drawing.Point(0, 175);
+            lblAppName.Size      = new System.Drawing.Size(200, 34);
+
+            lblSlogan.Text      = "Hệ thống quản lý";
+            lblSlogan.Font      = new System.Drawing.Font("Segoe UI", 8.5F);
+            lblSlogan.ForeColor = System.Drawing.Color.FromArgb(130, 140, 170);
+            lblSlogan.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblSlogan.Location  = new System.Drawing.Point(0, 212);
+            lblSlogan.Size      = new System.Drawing.Size(200, 22);
+
+            // ── pnlRight (form nhập) ──────────────────────────────
+            pnlRight.BackColor = System.Drawing.Color.FromArgb(18, 18, 30);
+            pnlRight.Dock      = System.Windows.Forms.DockStyle.Fill;
+            pnlRight.Controls.Add(lblTitle);
+            pnlRight.Controls.Add(lblUser);
+            pnlRight.Controls.Add(txtUser);
+            pnlRight.Controls.Add(lblPass);
+            pnlRight.Controls.Add(txtPass);
+            pnlRight.Controls.Add(chkShowPass);
+            pnlRight.Controls.Add(lblError);
+            pnlRight.Controls.Add(btnDangNhap);
+            pnlRight.Controls.Add(btnThoat);
+
+            lblTitle.Text      = "Chào mừng trở lại!";
+            lblTitle.Font      = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            lblTitle.ForeColor = System.Drawing.Color.White;
+            lblTitle.Location  = new System.Drawing.Point(30, 50);
+            lblTitle.Size      = new System.Drawing.Size(240, 30);
+
+            lblUser.Text      = "Tên đăng nhập";
+            lblUser.Font      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblUser.ForeColor = System.Drawing.Color.FromArgb(140, 150, 180);
+            lblUser.Location  = new System.Drawing.Point(30, 100);
+            lblUser.Size      = new System.Drawing.Size(240, 18);
+
+            txtUser.BackColor   = System.Drawing.Color.FromArgb(30, 32, 50);
+            txtUser.ForeColor   = System.Drawing.Color.White;
+            txtUser.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            txtUser.Font        = new System.Drawing.Font("Segoe UI", 10F);
+            txtUser.Location    = new System.Drawing.Point(30, 122);
+            txtUser.Size        = new System.Drawing.Size(240, 27);
+            txtUser.Name        = "txtUser";
+            txtUser.TextChanged += (s, e) => lblError.Visible = false;
+
+            lblPass.Text      = "Mật khẩu";
+            lblPass.Font      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            lblPass.ForeColor = System.Drawing.Color.FromArgb(140, 150, 180);
+            lblPass.Location  = new System.Drawing.Point(30, 165);
+            lblPass.Size      = new System.Drawing.Size(240, 18);
+
+            txtPass.BackColor             = System.Drawing.Color.FromArgb(30, 32, 50);
+            txtPass.ForeColor             = System.Drawing.Color.White;
+            txtPass.BorderStyle           = System.Windows.Forms.BorderStyle.FixedSingle;
+            txtPass.Font                  = new System.Drawing.Font("Segoe UI", 10F);
+            txtPass.UseSystemPasswordChar = true;
+            txtPass.Location              = new System.Drawing.Point(30, 187);
+            txtPass.Size                  = new System.Drawing.Size(240, 27);
+            txtPass.Name                  = "txtPass";
+            txtPass.TextChanged          += (s, e) => lblError.Visible = false;
+            txtPass.KeyDown              += TxtPass_KeyDown;
+
+            chkShowPass.Text              = "Hiện mật khẩu";
+            chkShowPass.ForeColor         = System.Drawing.Color.FromArgb(130, 140, 170);
+            chkShowPass.Font              = new System.Drawing.Font("Segoe UI", 8.5F);
+            chkShowPass.Location          = new System.Drawing.Point(30, 220);
+            chkShowPass.Size              = new System.Drawing.Size(130, 20);
+            chkShowPass.CheckedChanged   += ChkShowPass_CheckedChanged;
+
+            lblError.Text      = "❌  Sai tên đăng nhập hoặc mật khẩu!";
+            lblError.ForeColor = System.Drawing.Color.FromArgb(220, 80, 80);
+            lblError.Font      = new System.Drawing.Font("Segoe UI", 8.5F);
+            lblError.Location  = new System.Drawing.Point(30, 246);
+            lblError.Size      = new System.Drawing.Size(240, 18);
+            lblError.Visible   = false;
+
+            btnDangNhap.Text      = "ĐĂNG NHẬP";
+            btnDangNhap.BackColor = System.Drawing.Color.FromArgb(255, 165, 0);
+            btnDangNhap.ForeColor = System.Drawing.Color.FromArgb(10, 10, 20);
+            btnDangNhap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnDangNhap.FlatAppearance.BorderSize = 0;
+            btnDangNhap.Font      = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            btnDangNhap.Location  = new System.Drawing.Point(30, 272);
+            btnDangNhap.Size      = new System.Drawing.Size(240, 38);
+            btnDangNhap.Cursor    = System.Windows.Forms.Cursors.Hand;
+            btnDangNhap.Click    += BtnDangNhap_Click;
+
+            btnThoat.Text      = "Thoát ứng dụng";
+            btnThoat.BackColor = System.Drawing.Color.FromArgb(40, 40, 60);
+            btnThoat.ForeColor = System.Drawing.Color.FromArgb(140, 140, 170);
+            btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnThoat.FlatAppearance.BorderSize = 0;
+            btnThoat.Font      = new System.Drawing.Font("Segoe UI", 9F);
+            btnThoat.Location  = new System.Drawing.Point(30, 320);
+            btnThoat.Size      = new System.Drawing.Size(240, 30);
+            btnThoat.Cursor    = System.Windows.Forms.Cursors.Hand;
+            btnThoat.Click    += (s, e) => System.Windows.Forms.Application.Exit();
+
+            // ── Form ─────────────────────────────────────────────
+            // QUAN TRỌNG: Thứ tự Add controls vào form ảnh hưởng DockStyle
+            // WinForms xử lý LIFO: control được add SAU sẽ dock TRƯỚC
+            // → Add pnlRight trước (Fill), rồi pnlLeft (Left), cuối cùng pnlTitleBar (Top)
+            Controls.Add(pnlRight);     // Fill - added first, docked last
+            Controls.Add(pnlLeft);      // Left - docked 2nd
+            Controls.Add(pnlTitleBar);  // Top  - added last → docked first (takes priority)
+
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);  // 96 DPI baseline
+            AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Dpi; // Scale theo DPI thực tế
+            BackColor           = System.Drawing.Color.FromArgb(18, 18, 30); // fallback nếu panel chưa render
+            ClientSize          = new System.Drawing.Size(600, 430);
+            FormBorderStyle     = System.Windows.Forms.FormBorderStyle.None;
+            StartPosition       = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Name                = "Loginform";
+            Text                = "Đăng nhập";
+            Load               += Loginform_Load;
+
+            pnlTitleBar.ResumeLayout(false);
+            pnlTitleBar.PerformLayout();
+            pnlLeft.ResumeLayout(false);
+            pnlRight.ResumeLayout(false);
+            pnlRight.PerformLayout();
+            ResumeLayout(false);
+        }
+        #endregion
+
+        private System.Windows.Forms.Panel    pnlTitleBar;
+        private System.Windows.Forms.Label    lblFormTitle;
+        private System.Windows.Forms.Button   btnClose;
+        private System.Windows.Forms.Panel    pnlLeft;
+        private System.Windows.Forms.Label    lblCup;
+        private System.Windows.Forms.Label    lblAppName;
+        private System.Windows.Forms.Label    lblSlogan;
+        private System.Windows.Forms.Panel    pnlRight;
+        private System.Windows.Forms.Label    lblTitle;
+        private System.Windows.Forms.Label    lblUser;
+        private System.Windows.Forms.TextBox  txtUser;
+        private System.Windows.Forms.Label    lblPass;
+        private System.Windows.Forms.TextBox  txtPass;
+        private System.Windows.Forms.CheckBox chkShowPass;
+        private System.Windows.Forms.Label    lblError;
+        private System.Windows.Forms.Button   btnDangNhap;
+        private System.Windows.Forms.Button   btnThoat;
+    }
+}
