@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang;
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -71,6 +71,18 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         private void btnKhachHang_Click(object sender, EventArgs e)
         {
             OpenChildControl(new UC_KhachHang());
+        }
+
+        private void btnDangXuat_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "Bạn có chắc muốn đăng xuất?",
+                "Xác nhận đăng xuất",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.Yes)
+                this.Close(); // Loginform sẽ tự hiện lại qua FormClosed event
         }
     }
 }

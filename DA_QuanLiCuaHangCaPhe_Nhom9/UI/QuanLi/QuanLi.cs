@@ -139,5 +139,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             // 4. Hiển thị form Bán Hàng (Dùng Show thay vì ShowDialog để luồng app chạy mượt hơn)
             mf.Show();
         }
+
+        private void btnDangXuat_Click(object sender, EventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "Bạn có chắc muốn đăng xuất?",
+                "Xác nhận đăng xuất",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.Yes)
+                this.Close();
+        }
     }
 } 

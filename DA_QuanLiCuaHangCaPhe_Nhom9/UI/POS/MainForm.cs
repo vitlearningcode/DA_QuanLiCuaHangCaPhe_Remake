@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function;                 // import namespace chứa các dịch vụ nghiệp vụ chung
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;   // import các lớp trong folder function_Main (GioHang, KhoTruyVanMainForm, DichVuDonHang,...)
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;                   // import các entity model EF Core (SanPham, DonHang, ...)
 using global::System.Globalization;                         // import CultureInfo/formatting dùng khi parse/format số/ngày
@@ -12,6 +12,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
         // === KHAI BÁO CÁC BIẾN ===
         // _currentMaNV: id nhân viên hiện tại, được truyền từ Loginform.
         private string _currentMaNV = "3";
+        // _isDirectLogin: true nếu MainForm được mở từ Login (Nhân viên), false nếu từ Quản lí.
+        public bool IsDirectLogin { get; set; } = false;
         // _currentMaKH: id khách hàng (nullable) nếu tìm thấy qua SĐT.
         private int? _currentMaKH = null;
         // _currentMaLoai: bộ lọc loại sản phẩm hiện tại ("TatCa" mặc định).
@@ -94,10 +96,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
             // Cấu hình hiển thị ListView lvDonHang
             lvDonHang.View = View.Details;
             lvDonHang.Columns.Clear();
-            lvDonHang.Columns.Add("Tên SP", 200);
-            lvDonHang.Columns.Add("SL", 40);
-            lvDonHang.Columns.Add("Đơn Giá", 80);
-            lvDonHang.Columns.Add("Thành Tiền", 100);
+            lvDonHang.Columns.Add("Tên SP", 384);
+            lvDonHang.Columns.Add("SL", 96);
+            lvDonHang.Columns.Add("Đơn Giá", 280);
+            lvDonHang.Columns.Add("Thành Tiền", 280);
 
             // Tải danh sách loại sản phẩm và các nút sản phẩm
             TaiLoaiSanPham();
@@ -120,7 +122,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
             {
                 var cacLoaiSP = _khoTruyVan.TaiLoaiSanPham(); // Lấy danh sách tên loại
                 // Tạo nút "Tất Cả"
-                Button btnTatCa = new Button { Text = "Tất Cả", Tag = "TatCa", Width = flpLoaiSP.Width, Height = 45, Margin = new Padding(5), Font = new Font("Segoe UI", 9F, FontStyle.Bold), BackColor = Color.LightGray, };
+                Button btnTatCa = new Button { Text = "Tất Cả", Tag = "TatCa", Width = flpLoaiSP.Width, Height = 50, Margin = new Padding(5), Font = new Font("Segoe UI", 9F, FontStyle.Bold), BackColor = Color.LightGray, };
                 btnTatCa.Click += BtnLoai_Click;
                 flpLoaiSP.Controls.Add(btnTatCa);
                 // Tạo nút cho từng loại trả về
@@ -156,8 +158,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
                     if (maLoai != "TatCa" && sp.LoaiSp != maLoai) continue;
                     if (!string.IsNullOrEmpty(searchText) && !sp.TenSp.ToLower().Contains(searchText)) continue;
 
+                    //140   100
                     // Tạo nút hiển thị tên và giá
-                    Button btn = new Button { Text = $"{sp.TenSp}\n{sp.DonGia:N0} đ", Tag = sp, Width = 140, Height = 100, Margin = new Padding(5), BackColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = Color.Black };
+                    Button btn = new Button { Text = $"{sp.TenSp}\n{sp.DonGia:N0} đ", Tag = sp, Width = 285, Height = 160, Margin = new Padding(5), BackColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 9F, FontStyle.Bold), ForeColor = Color.Black };
                     btn.FlatAppearance.BorderSize = 1; btn.FlatAppearance.BorderColor = Color.Gainsboro; // style đơn giản
 
                     // Kiểm tra trạng thái kho cho món (DuHang/SapHet/HetHang) bằng DichVuDonHang
@@ -724,7 +727,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
             // Label giới thiệu
             pnlGoiYDiem.Controls.Add(new Label
             {
-                Text = "Gợi ý:", AutoSize = false, Size = new Size(50, 28),
+                Text = "Gợi ý:", AutoSize = false, Size = new Size(66, 35),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
                 Margin = new Padding(3, 2, 0, 2)
@@ -800,6 +803,21 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
         private void flpLoaiSP_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        // Đóng form (nút X hoặc ESC) — chỉ hỏi xác nhận khi mở từ Login trực tiếp
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!IsDirectLogin) return;
+
+            var confirm = MessageBox.Show(
+                "Bạn có chắc muốn đăng xuất?",
+                "Xác nhận đăng xuất",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.No)
+                e.Cancel = true;
         }
     }
 }

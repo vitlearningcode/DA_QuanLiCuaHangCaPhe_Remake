@@ -1,4 +1,4 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     partial class Admin
     {
@@ -26,6 +26,7 @@
             this.btnNhanVien = new System.Windows.Forms.Button();
             this.btnKho = new System.Windows.Forms.Button();
             this.btnSanPham = new System.Windows.Forms.Button();
+            this.btnDangXuat = new System.Windows.Forms.Button();
             this.pnlLogo = new System.Windows.Forms.Panel();
             this.lblStoreName = new System.Windows.Forms.Label();
             this.lblIcon = new System.Windows.Forms.Label();
@@ -46,6 +47,7 @@
             this.pnlMenu.Controls.Add(this.btnNhanVien);
             this.pnlMenu.Controls.Add(this.btnKho);
             this.pnlMenu.Controls.Add(this.btnSanPham);
+            this.pnlMenu.Controls.Add(this.btnDangXuat); // Nút đăng xuất - Dock Bottom
             this.pnlMenu.Controls.Add(this.pnlLogo); // Logo phải add cuối cùng để nó nổi lên trên cùng (Top)
             this.pnlMenu.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlMenu.Location = new System.Drawing.Point(0, 0);
@@ -188,6 +190,24 @@
             this.btnSanPham.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnSanPham.UseVisualStyleBackColor = true;
             this.btnSanPham.Click += new System.EventHandler(this.btnSanPham_Click);
+            //
+            // btnDangXuat
+            //
+            this.btnDangXuat.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnDangXuat.FlatAppearance.BorderSize = 0;
+            this.btnDangXuat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDangXuat.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnDangXuat.ForeColor = System.Drawing.Color.FromArgb(220, 100, 100);
+            this.btnDangXuat.BackColor = System.Drawing.Color.FromArgb(50, 40, 40);
+            this.btnDangXuat.Location = new System.Drawing.Point(0, 790);
+            this.btnDangXuat.Name = "btnDangXuat";
+            this.btnDangXuat.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnDangXuat.Size = new System.Drawing.Size(280, 60);
+            this.btnDangXuat.TabIndex = 9;
+            this.btnDangXuat.Text = "🔒  Đăng Xuất";
+            this.btnDangXuat.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnDangXuat.UseVisualStyleBackColor = false;
+            this.btnDangXuat.Click += new System.EventHandler(this.btnDangXuat_Click);
             // 
             // pnlLogo (Khu vực Logo của cửa hàng)
             // 
@@ -265,5 +285,6 @@
         private System.Windows.Forms.Button btnTongQuan;
         private System.Windows.Forms.Button btnSoQuy;
         private System.Windows.Forms.Button btnKhachHang;
+        private System.Windows.Forms.Button btnDangXuat;
     }
 }

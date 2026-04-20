@@ -1,4 +1,4 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 {
     partial class MainForm
     {
@@ -409,7 +409,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(-23, -12);
+            label1.Location = new Point(4, 4);   // Sửa từ (-23, -12) → (4, 4)
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(513, 62);
@@ -419,7 +419,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(-4, 88);
+            label2.Location = new Point(4, 86);  // Sửa từ (-4, 88) → (4, 86)
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(268, 62);
@@ -429,7 +429,7 @@
             // lbl_text_TT
             // 
             lbl_text_TT.AutoSize = true;
-            lbl_text_TT.Location = new Point(-4, 189);
+            lbl_text_TT.Location = new Point(4, 187);  // Sửa từ (-4, 189)
             lbl_text_TT.Margin = new Padding(4, 0, 4, 0);
             lbl_text_TT.Name = "lbl_text_TT";
             lbl_text_TT.Size = new Size(295, 62);
@@ -621,16 +621,17 @@
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(17F, 41F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.None;  // Tắt DPI auto-scale, dùng Dock/Percent layout
             ClientSize = new Size(1923, 1056);
             Controls.Add(tlpMain);
-            FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            FormBorderStyle = FormBorderStyle.Sizable;  // Có nút X để đóng bằng tay (màn cảm ứng POS)
             Margin = new Padding(4);
             Name = "MainForm";
             Text = "Order";
             WindowState = FormWindowState.Maximized;
             Load += MainForm_Load;
+            FormClosing += MainForm_FormClosing;
             tlpMain.ResumeLayout(false);
             panelCol1.ResumeLayout(false);
             panelCol1.PerformLayout();

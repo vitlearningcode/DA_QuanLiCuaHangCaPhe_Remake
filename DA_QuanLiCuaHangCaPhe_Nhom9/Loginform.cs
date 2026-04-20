@@ -119,7 +119,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
 
                 case "Nhân viên":
                 default:
-                    nextForm = new MainForm(maNv);
+                    var mf = new MainForm(maNv);
+                    mf.IsDirectLogin = true; // từ Login → hỏi confirm khi đóng
+                    nextForm = mf;
                     break;
             }
 
