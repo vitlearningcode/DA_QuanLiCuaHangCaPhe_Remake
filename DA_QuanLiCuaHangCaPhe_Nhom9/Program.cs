@@ -1,5 +1,6 @@
 ﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using DA_QuanLiCuaHangCaPhe_Nhom9.UI;
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +62,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             ApplicationConfiguration.Initialize();
 
             // Chạy Form đăng nhập trực tiếp
-            Application.Run(new QuanLi("1"));
+            Application.Run(new Admin());
         }
     }
 }

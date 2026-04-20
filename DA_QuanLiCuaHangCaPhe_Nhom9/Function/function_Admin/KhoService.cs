@@ -1,4 +1,5 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -7,6 +8,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
 {
     public class KhoService
     {
+        private readonly CoreLogic_Kho _core = new CoreLogic_Kho();
         // Lấy danh sách Nhà Cung Cấp (để chọn khi nhập)
         public List<NhaCungCap> LayDanhSachNhaCungCap()
         {
@@ -71,16 +73,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // 1. Lấy toàn bộ danh sách nguyên liệu (để hiện lên lưới)
+        // 1. Lấy danh sách nguyên liệu đang kinh doanh (delegate sang CoreLogic_Kho)
         public List<NguyenLieu> LayDanhSachNguyenLieu()
         {
-            using (var db = new DataSqlContext())
-            {
-                // Chỉ lấy những cái đang kinh doanh
-                return db.NguyenLieus.Where(nl => nl.TrangThai == "Đang kinh doanh")
-                                     .OrderBy(nl => nl.TenNl)
-                                     .ToList();
-            }
+            return _core.LayNguyenLieuDangKinhDoanh();
         }
 
         public bool ThemNguyenLieu(string ten, string donVi)
@@ -298,20 +294,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // Hàm tự động tìm Giá Nhập gần nhất của 1 nguyên liệu
+        // Tìm Giá Nhập gần nhất (delegate sang CoreLogic_Kho)
         public decimal LayGiaNhapGanNhat(int maNL)
         {
-            using (var db = new DataSqlContext())
-            {
-                // Tìm trong chi tiết phiếu kho, lấy phiếu mới nhất của mã NL này
-                var chiTiet = db.ChiTietPhieuKhos
-                                .Where(ct => ct.MaNl == maNL)
-                                .OrderByDescending(ct => ct.MaPhieu) // Phiếu tạo sau mã sẽ lớn hơn
-                                .FirstOrDefault();
-
-                // Nếu tìm thấy thì trả về giá đó, nếu chưa từng nhập bao giờ thì trả về 0
-                return (decimal)(chiTiet != null ? chiTiet.GiaNhap : 0);
-            }
+            return _core.LayGiaNhapGanNhat(maNL);
         }
 
         // --- 1. HÀM KIỂM TRA TÌNH TRẠNG NỢ CỦA PHIẾU ---

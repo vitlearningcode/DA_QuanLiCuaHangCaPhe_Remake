@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using System;
 using System.Collections.Generic;
@@ -94,7 +94,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 
             // Xóa Trạng thái vì nó sẽ tự động tính
             cboTrangThai_KM.Text = "Đang áp dụng";
-            cboDoiTuong.Text = "Tất cả"; // Đặt mặc định
+            cboDoiTuong.Text = "Tất cả"; // Mặc định
             cboLoaiKM.Text = "Hóa Đơn"; // Khớp với Database của bro
 
             cboLoaiKM_SelectedIndexChanged(null, null);
@@ -130,7 +130,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     dtpNgayBatDau.Value = kmChon.NgayBatDau.ToDateTime(TimeOnly.MinValue);
                     dtpNgayKetThuc.Value = kmChon.NgayKetThuc.ToDateTime(TimeOnly.MinValue);
                     cboTrangThai_KM.Text = kmChon.TrangThai ?? "Đang áp dụng";
-                    cboDoiTuong.Text = kmChon.DoiTuongApDung ?? "Tất cả";
+                    // Map giá trị DB (“Thuong”) sang hiển thị UI (“Thường”)
+                    cboDoiTuong.Text = MapDbToDisplay(kmChon.DoiTuongApDung);
 
                     for (int i = 0; i < clbSanPham.Items.Count; i++)
                     {
@@ -179,7 +180,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             bool isSuccess = false;
             string loaiKmDb = cboLoaiKM.Text;
             string trangThai = cboTrangThai_KM.Text;
-            string cboDT = cboDoiTuong.Text;
+            // Map hiển thị UI (“Thường”) về giá trị DB (“Thuong”)
+            string cboDT = MapDisplayToDb(cboDoiTuong.Text);
 
             if (btnLuu.Tag == null) // THÊM MỚI
             {
@@ -237,6 +239,24 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                     LamMoiGiaoDien();
                 }
             }
+        }
+        // --- HELPER: Map 2 chiều giữa DB và UI cho Đối Tượng Áp Dụng ---
+        private string MapDbToDisplay(string dbValue)
+        {
+            return dbValue switch
+            {
+                "Thuong" => "Thường",
+                _ => dbValue ?? "Tất cả"
+            };
+        }
+
+        private string MapDisplayToDb(string displayValue)
+        {
+            return displayValue switch
+            {
+                "Thường" => "Thuong",
+                _ => displayValue ?? "Tất cả"
+            };
         }
     }
 }

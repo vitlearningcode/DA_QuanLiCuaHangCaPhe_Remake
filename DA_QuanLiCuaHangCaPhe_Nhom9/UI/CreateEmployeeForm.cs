@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using System.Linq;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9
 {
@@ -13,6 +14,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
         public string Position { get; private set; } = string.Empty;
         public string PhoneNumber { get; private set; } = string.Empty;
         public bool IsManager { get; private set; }
+
+        private readonly CoreLogic_NhanVien _coreNhanVien = new CoreLogic_NhanVien();
 
         public CreateEmployeeForm()
         {
@@ -203,17 +206,22 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9
                 var selectedVaiTro = cb_Vaitro.SelectedItem as VaiTro;
                 string chucVu = cb_Chucvu.SelectedItem?.ToString() ?? string.Empty;
 
+                // Sinh mã NV tự động (NV001, NV002...)
+                string maNvMoi = _coreNhanVien.SinhMaNhanVienTuDong();
+
                 // Create new NhanVien
                 var nhanVien = new NhanVien
                 {
+                    MaNv = maNvMoi,
                     TenNv = txtFullName.Text.Trim(),
                     ChucVu = chucVu,
                     SoDienThoai = txtPhoneNumber.Text.Trim(),
-                    NgayVaoLam = DateOnly.FromDateTime(DateTime.Now)
+                    NgayVaoLam = DateOnly.FromDateTime(DateTime.Now),
+                    TrangThai = "Đang làm việc"
                 };
 
                 db.NhanViens.Add(nhanVien);
-                db.SaveChanges(); // Save to get MaNv
+                db.SaveChanges(); // Save to get MaNv confirmed
 
                 // Get role ID
                 int maVaiTro = selectedVaiTro!.MaVaiTro;

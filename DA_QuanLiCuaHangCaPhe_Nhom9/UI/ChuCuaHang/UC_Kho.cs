@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
@@ -102,7 +102,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             }
         }
 
-        // --- TÍNH NĂNG 3: Hiển thị list tạ
+        // --- TÍNH NĂNG 3: Hiển thị list tạm
         private void HienThiListTam()
         {
             using (var db = new DataSqlContext())
@@ -114,10 +114,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                               {
                                   TenNL = nl.TenNl,
                                   SoLuong = ct.SoLuong,
-                                  GiaNhap = ct.GiaNhap, // <--- ĐÃ SỬA
-                                  ThanhTien = ct.SoLuong * ct.GiaNhap // <--- ĐÃ SỬA
+                                  GiaNhap = ct.GiaNhap,
+                                  ThanhTien = ct.SoLuong * ct.GiaNhap
                               };
                 dgvChiTietNhap.DataSource = hienThi.ToList();
+
+                // Việt hóa tên cột giỏ tạm
+                if (dgvChiTietNhap.Columns["TenNL"] != null)    dgvChiTietNhap.Columns["TenNL"].HeaderText    = "Nguyên Liệu";
+                if (dgvChiTietNhap.Columns["SoLuong"] != null)  dgvChiTietNhap.Columns["SoLuong"].HeaderText  = "Số Lượng";
+                if (dgvChiTietNhap.Columns["GiaNhap"] != null)  dgvChiTietNhap.Columns["GiaNhap"].HeaderText  = "Giá Nhập";
+                if (dgvChiTietNhap.Columns["ThanhTien"] != null) dgvChiTietNhap.Columns["ThanhTien"].HeaderText = "Thành Tiền";
 
                 // Định dạng lại cột hiển thị tiền tệ cho đẹp (nếu cần)
                 dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
@@ -141,9 +147,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         {
             dgvDanhSachPhieu.DataSource = _service.LayDanhSachPhieuNhap();
 
-            dgvDanhSachPhieu.Columns["TrangThai"].HeaderText = "Trạng Thái";
-                        
-            dgvDanhSachPhieu.Columns["TongTien"].DefaultCellStyle.Format = "N0";
+            // Việt hóa tên cột bảng Danh Sách
+            if (dgvDanhSachPhieu.Columns["MaPhieu"] != null)   dgvDanhSachPhieu.Columns["MaPhieu"].HeaderText  = "Mã Phiếu";
+            if (dgvDanhSachPhieu.Columns["LoaiPhieu"] != null) dgvDanhSachPhieu.Columns["LoaiPhieu"].HeaderText = "Loại";
+            if (dgvDanhSachPhieu.Columns["NgayLap"] != null)   dgvDanhSachPhieu.Columns["NgayLap"].HeaderText   = "Ngày Lập";
+            if (dgvDanhSachPhieu.Columns["TenNcc"] != null)    dgvDanhSachPhieu.Columns["TenNcc"].HeaderText    = "Nhà Cung Cấp";
+            if (dgvDanhSachPhieu.Columns["TrangThai"] != null) dgvDanhSachPhieu.Columns["TrangThai"].HeaderText = "Trạng Thái";
+            if (dgvDanhSachPhieu.Columns["TongTien"] != null)  dgvDanhSachPhieu.Columns["TongTien"].HeaderText  = "Tổng Tiền";
+
+            if (dgvDanhSachPhieu.Columns["TongTien"] != null)
+                dgvDanhSachPhieu.Columns["TongTien"].DefaultCellStyle.Format = "N0";
 
             // làm màu:
             dgvDanhSachPhieu.CellFormatting += (s, e) => {
