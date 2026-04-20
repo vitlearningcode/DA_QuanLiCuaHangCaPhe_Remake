@@ -1,17 +1,26 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-// THÊM DÒNG NÀY ĐỂ FORM CHA THẤY ĐƯỢC CÁC USER CONTROL CỦA QUẢN LÝ
+// UC của module QuanLi
 using DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi;
-// Tham chiếu tới MainForm đã chuyển vào UI/POS
+// MainForm nằm trong UI/POS sau khi tái cấu trúc thư mục
 using DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
 {
     public partial class QuanLi : Form
     {
-        private string _currentMaNV; // Khớp với kiểu string NVARCHAR(20)
+        #region Khai báo biến
+
+        // Mã nhân viên đang đăng nhập (kiểu string NVARCHAR(20) — ví dụ: "NV001")
+        private string _currentMaNV;
+
+        // Nút menu đang được kích hoạt (để toggle màu active/inactive)
         private Button _currentButton;
+
+        #endregion
+
+        #region Khởi tạo & Đăng ký sự kiện
 
         public QuanLi(string maNv = "")
         {
@@ -20,126 +29,140 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             DangKySuKien();
         }
 
+        // Đăng ký click handler cho tất cả nút menu một lần duy nhất trong constructor
         private void DangKySuKien()
         {
-            // Bắt sự kiện Click cho 4 nút Menu
-            btnKho.Click += BtnMenu_Click;
-            btnSanPham.Click += BtnMenu_Click;
-            btnNhanVienCaLam.Click += BtnMenu_Click;
-            btnBaoCao.Click += BtnMenu_Click;
+            // 4 nút menu điều hướng dùng chung handler BtnMenu_Click
+            btnKho.Click             += BtnMenu_Click;
+            btnSanPham.Click         += BtnMenu_Click;
+            btnNhanVienCaLam.Click   += BtnMenu_Click;
+            btnBaoCao.Click          += BtnMenu_Click;
 
-            // Nút mở trang POS Bán hàng
-            btnTrangOrder.Click += BtnTrangOrder_Click;
+            // Nút đặc biệt: chuyển sang màn hình POS bán hàng
+            btnTrangOrder.Click      += BtnTrangOrder_Click;
         }
 
-        // ================= HIỆU ỨNG MENU CYBER DARK =================
+        #endregion
+
+        #region Hiệu ứng nút menu — Active / Inactive (Cyber Dark style)
+
+        // Kích hoạt nút đang được chọn: đổi màu sang Lime nổi bật trên nền đen
         private void ActivateButton(object btnSender)
         {
-            if (btnSender != null)
+            if (btnSender == null) return;
+
+            if (_currentButton != (Button)btnSender)
             {
-                if (_currentButton != (Button)btnSender)
-                {
-                    DisableButton();
-                    _currentButton = (Button)btnSender;
-                    _currentButton.BackColor = Color.FromArgb(6, 12, 17); // Nền Đen sâu hòa vào Content
-                    _currentButton.ForeColor = Color.FromArgb(140, 223, 37); // Chữ chuyển sang Lime nổi bật
-                }
+                DisableButton(); // Tắt màu active của nút cũ trước
+                _currentButton = (Button)btnSender;
+                _currentButton.BackColor = Color.FromArgb(6, 12, 17);     // Đen sâu (hoà vào pnlContent)
+                _currentButton.ForeColor = Color.FromArgb(140, 223, 37);  // Lime nổi bật = đang chọn
             }
         }
 
+        // Reset tất cả nút menu về màu mặc định (Rêu + Teal)
         private void DisableButton()
         {
-            foreach (Control previousBtn in pnlMenu.Controls)
+            foreach (Control ctrl in pnlMenu.Controls)
             {
-                // Bỏ qua nút Trang Order vì nó có màu Lime mặc định sẵn rồi
-                if (previousBtn.GetType() == typeof(Button) && previousBtn.Name != "btnTrangOrder")
+                // Bỏ qua nút "Vào Bán Hàng" vì nó có màu Lime mặc định riêng
+                if (ctrl is Button btn && btn.Name != "btnTrangOrder" && btn.Name != "btnDangXuat")
                 {
-                    previousBtn.BackColor = Color.FromArgb(39, 65, 60); // Trả về nền Rêu
-                    previousBtn.ForeColor = Color.FromArgb(25, 166, 146); // Trả về chữ Teal
+                    btn.BackColor = Color.FromArgb(39, 65, 60);   // Nền Rêu đậm
+                    btn.ForeColor = Color.FromArgb(25, 166, 146); // Chữ Teal
                 }
             }
         }
 
-        // ================= HÀM NẠP USER CONTROL =================
+        #endregion
+
+        #region Hàm nội bộ — Nạp UserControl vào pnlContent
+
+        // Xóa nội dung cũ và nạp UserControl mới vào khung hiển thị bên phải
         private void LoadUserControl(UserControl uc)
         {
-            uc.Dock = DockStyle.Fill;
-            pnlContent.Controls.Clear();
+            uc.Dock = DockStyle.Fill;    // UC lấp đầy toàn bộ khung
+            pnlContent.Controls.Clear(); // Xóa UC cũ
             pnlContent.Controls.Add(uc);
-            uc.BringToFront();
+            uc.BringToFront();           // Đảm bảo UC mới hiển thị trên cùng
         }
 
-        // ================= ĐIỀU HƯỚNG TỪNG TRANG =================
+        #endregion
+
+        #region Điều hướng menu — Sự kiện BtnMenu_Click
+
+        // Handler chung cho 4 nút menu, phân loại bằng btn.Name
         private void BtnMenu_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
-            ActivateButton(btn);
+            ActivateButton(btn); // Đổi màu nút đang chọn
 
             if (btn.Name == "btnNhanVienCaLam")
             {
-                // ĐÃ MỞ KHÓA: Gọi UC Nhân sự & Xếp Ca lên màn hình
+                // Màn hình phân ca và quản lý nhân sự theo ca làm
                 LoadUserControl(new UC_QL_NhanVienCaLam());
             }
             else if (btn.Name == "btnKho")
             {
-                // Sẽ nạp UC_QL_Kho vào Turn sau
+                // Màn hình kiểm kê và nhập xuất kho (truyền mã NV để ghi phiếu)
                 LoadUserControl(new UC_QL_Kho(_currentMaNV));
             }
             else if (btn.Name == "btnSanPham")
             {
-                // Sẽ nạp UC_QL_SanPham vào Turn sau
+                // Màn hình xem menu sản phẩm (chỉ view, không sửa)
                 LoadUserControl(new UC_QL_SanPham());
             }
             else if (btn.Name == "btnBaoCao")
             {
-                // 1. Khởi tạo tên mặc định phòng trường hợp lỗi
-                string tenNhanVien = "Quản Lí";
-
-                // 2. Lấy tên thật của nhân viên từ CSDL dựa vào _currentMaNV
-                if (!string.IsNullOrEmpty(_currentMaNV))
-                {
-                    try
-                    {
-                        using (var db = new DA_QuanLiCuaHangCaPhe_Nhom9.Models.DataSqlContext())
-                        {
-                            // Tìm nhân viên có mã khớp với mã đang đăng nhập
-                            var nv = db.NhanViens.FirstOrDefault(n => n.MaNv == _currentMaNV);
-                            if (nv != null)
-                            {
-                                tenNhanVien = nv.TenNv; // Lấy tên thật
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Lỗi kết nối thì cứ để mặc định là "Admin", không làm crash app
-                    }
-                }
-
-                // 3. Nạp UC_QL_BaoCao và truyền cái tên xịn xò vào!
+                // Màn hình lập báo cáo doanh thu — cần tên NV để in tiêu đề
+                string tenNhanVien = LayTenNhanVien();
                 LoadUserControl(new UC_QL_BaoCao(tenNhanVien));
             }
         }
 
+        // Truy vấn tên nhân viên từ CSDL theo mã hiện tại (dùng cho báo cáo)
+        private string LayTenNhanVien()
+        {
+            string tenNhanVien = "Quản Lí"; // Giá trị mặc định nếu không tìm thấy
+
+            if (string.IsNullOrEmpty(_currentMaNV)) return tenNhanVien;
+
+            try
+            {
+                using var db = new DA_QuanLiCuaHangCaPhe_Nhom9.Models.DataSqlContext();
+                var nv = db.NhanViens.FirstOrDefault(n => n.MaNv == _currentMaNV);
+                if (nv != null) tenNhanVien = nv.TenNv;
+            }
+            catch
+            {
+                // Lỗi CSDL → dùng tên mặc định, không làm crash app
+            }
+
+            return tenNhanVien;
+        }
+
+        #endregion
+
+        #region Chuyển sang màn hình POS (Bán hàng)
+
+        // Ẩn QuanLi form, mở MainForm POS với cùng mã NV.
+        // Khi MainForm đóng → QuanLi tự hiện lại (IsDirectLogin = false → không hỏi confirm)
         private void BtnTrangOrder_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Mở màn hình POS Thu ngân!", "Thông báo chuyển trang");
+            this.Hide(); // Ẩn form Quản Lý (không đóng, chỉ giấu)
 
-            this.Hide();
-
-            // 2. Khởi tạo form Bán Hàng (MainForm)
             MainForm mf = new MainForm(_currentMaNV);
+            // IsDirectLogin = false (mặc định) → đóng thẳng không hỏi confirm
 
-            // 3. Đăng ký sự kiện "Lắng nghe": Khi nào mf bị đóng (bấm nút X), thì chạy đoạn code bên trong
-            mf.FormClosed += (s, args) =>
-            {
-                this.Show(); // Hiện lại form Quản Lý
-            };
-
-            // 4. Hiển thị form Bán Hàng (Dùng Show thay vì ShowDialog để luồng app chạy mượt hơn)
+            mf.FormClosed += (s, args) => this.Show(); // Khi POS đóng → hiện lại QuanLi
             mf.Show();
         }
 
+        #endregion
+
+        #region Đăng xuất
+
+        // Hỏi xác nhận trước khi đóng — Loginform tự hiện lại qua FormClosed event (đăng ký ở Loginform)
         private void btnDangXuat_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
@@ -151,5 +174,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
             if (confirm == DialogResult.Yes)
                 this.Close();
         }
+
+        #endregion
     }
-} 
+}

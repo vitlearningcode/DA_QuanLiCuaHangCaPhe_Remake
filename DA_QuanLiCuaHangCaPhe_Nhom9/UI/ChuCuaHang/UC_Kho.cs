@@ -9,290 +9,180 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     public partial class UC_Kho : UserControl
     {
-        #region Setup
+        #region Khai báo service & biến trạng thái
+
+        // Service CRUD kho: nguyên liệu, phiếu nhập xuất, nhà cung cấp
         private readonly KhoService _service = new KhoService();
+
+        // Danh sách chi tiết phiếu đang xây dựng (giỏ tạm trước khi lưu)
         private List<ChiTietPhieuKho> _listChiTietTam = new List<ChiTietPhieuKho>();
-        private int _maNLDangChon = -1; // Biến lưu ID nguyên liệu đang chọn để sửa/xóa
+
+        // Mã nguyên liệu đang chọn trên lưới tab 1 (-1 = chưa chọn)
+        private int _maNLDangChon = -1;
+
+        #endregion
+
+        #region Khởi tạo & Load
 
         public UC_Kho()
         {
             InitializeComponent();
         }
 
-        // --- SỰ KIỆN LOAD FORM ---
+        // Load: tải tồn kho, danh sách phiếu nhập, cố định layout panel
         private void UC_Kho_Load(object sender, EventArgs e)
         {
             TaiDanhSachKho();
             LoadDanhSachPhieuNhap();
 
+            // Hai panel lấp đầy container cha, chuyển bằng Visible
             pnlQuanLyPhieu.Dock = DockStyle.Fill;
             pnlTaoPhieuMoi.Dock = DockStyle.Fill;
-            // Ép cái khung chứa 2 cái bảng neo chặt vào 4 góc màn hình
             splitContainerPhieu.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         }
+
         #endregion
 
-        #region LoadData
+        #region Hàm nội bộ — Tải dữ liệu
 
+        // Tải danh sách tồn kho tab 1 vào lưới + nạp ComboBox nguyên liệu & NCC
         private void TaiDanhSachKho()
         {
             var listNL = _service.LayDanhSachNguyenLieu();
             dgvNguyenLieu.DataSource = listNL;
 
-            // Định dạng lưới cho đẹp
             dgvNguyenLieu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            if (dgvNguyenLieu.Columns["MaNl"] != null) dgvNguyenLieu.Columns["MaNl"].Visible = false;
-            if (dgvNguyenLieu.Columns["TrangThai"] != null) dgvNguyenLieu.Columns["TrangThai"].Visible = false;
+            if (dgvNguyenLieu.Columns["MaNl"]      != null) dgvNguyenLieu.Columns["MaNl"].Visible      = false;
+            if (dgvNguyenLieu.Columns["TrangThai"] != null) dgvNguyenLieu.Columns["TrangThai"].Visible  = false;
 
-            // Đặt tên cột tiếng Việt
-            if (dgvNguyenLieu.Columns["TenNl"] != null) dgvNguyenLieu.Columns["TenNl"].HeaderText = "Tên Nguyên Liệu";
-            if (dgvNguyenLieu.Columns["SoLuongTon"] != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText = "Tồn Kho";
-            if (dgvNguyenLieu.Columns["DonViTinh"] != null) dgvNguyenLieu.Columns["DonViTinh"].HeaderText = "Đơn Vị";
+            // Việt hóa tiêu đề cột tồn kho
+            if (dgvNguyenLieu.Columns["TenNl"]       != null) dgvNguyenLieu.Columns["TenNl"].HeaderText       = "Tên Nguyên Liệu";
+            if (dgvNguyenLieu.Columns["SoLuongTon"]  != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText  = "Tồn Kho";
+            if (dgvNguyenLieu.Columns["DonViTinh"]   != null) dgvNguyenLieu.Columns["DonViTinh"].HeaderText   = "Đơn Vị";
 
-            cboChonNL_Tab2.DataSource = listNL;
-            cboChonNL_Tab2.DisplayMember = "TenNl"; // Hiện tên
-            cboChonNL_Tab2.ValueMember = "MaNl";
+            // Nạp ComboBox chọn nguyên liệu khi lập phiếu
+            cboChonNL_Tab2.DataSource    = listNL;
+            cboChonNL_Tab2.DisplayMember = "TenNl";
+            cboChonNL_Tab2.ValueMember   = "MaNl";
 
-            // Load Nhà Cung Cấp
-            cboNhaCungCap.DataSource = _service.LayDanhSachNhaCungCap();
+            // Nạp ComboBox nhà cung cấp
+            cboNhaCungCap.DataSource    = _service.LayDanhSachNhaCungCap();
             cboNhaCungCap.DisplayMember = "TenNcc";
-            cboNhaCungCap.ValueMember = "MaNcc";
+            cboNhaCungCap.ValueMember   = "MaNcc";
         }
 
-
-        #endregion
-
-        #region TinhNang
-        // --- TÍNH NĂNG 1: TÔ MÀU CẢNH BÁO SẮP HẾT HÀNG ---
-        // (nhớ chọn dgvNguyenLieu -> Events -> CellFormatting để gắn hàm này)
-        private void dgvNguyenLieu_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            // Kiểm tra cột "SoLuongTon"
-            if (dgvNguyenLieu.Columns[e.ColumnIndex].Name == "SoLuongTon" && e.Value != null)
-            {
-                decimal tonKho;
-                if (decimal.TryParse(e.Value.ToString(), out tonKho))
-                {
-                    if (tonKho < 5) // NGƯỠNG CẢNH BÁO: Dưới 5 là báo động
-                    {
-                        // Tô màu nền đỏ, chữ trắng cho cả dòng
-                        dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Salmon;
-                        dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White;
-                    }
-                }
-            }
-        }
-
-        // --- TÍNH NĂNG 2: BẤM VÀO LƯỚI -> HIỆN LÊN Ô NHẬP ---
-        private void dgvNguyenLieu_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                DataGridViewRow row = dgvNguyenLieu.Rows[e.RowIndex];
-
-                // Lấy dữ liệu từ dòng chọn
-                _maNLDangChon = Convert.ToInt32(row.Cells["MaNl"].Value);
-                txtTenNL.Text = row.Cells["TenNl"].Value.ToString();
-                txtDonVi.Text = row.Cells["DonViTinh"].Value.ToString();
-
-                // Đổi trạng thái nút
-                btnThemNL.Enabled = false; // Đang chọn sửa thì khóa nút thêm
-                btnSuaNL.Enabled = true;
-                btnXoaNL.Enabled = true;
-            }
-        }
-
-        // --- TÍNH NĂNG 3: Hiển thị list tạm
-        private void HienThiListTam()
-        {
-            using (var db = new DataSqlContext())
-            {
-                // Join để lấy tên hiển thị
-                var hienThi = from ct in _listChiTietTam
-                              join nl in db.NguyenLieus on ct.MaNl equals nl.MaNl
-                              select new
-                              {
-                                  TenNL = nl.TenNl,
-                                  SoLuong = ct.SoLuong,
-                                  GiaNhap = ct.GiaNhap,
-                                  ThanhTien = ct.SoLuong * ct.GiaNhap
-                              };
-                dgvChiTietNhap.DataSource = hienThi.ToList();
-
-                // Việt hóa tên cột giỏ tạm
-                if (dgvChiTietNhap.Columns["TenNL"] != null)    dgvChiTietNhap.Columns["TenNL"].HeaderText    = "Nguyên Liệu";
-                if (dgvChiTietNhap.Columns["SoLuong"] != null)  dgvChiTietNhap.Columns["SoLuong"].HeaderText  = "Số Lượng";
-                if (dgvChiTietNhap.Columns["GiaNhap"] != null)  dgvChiTietNhap.Columns["GiaNhap"].HeaderText  = "Giá Nhập";
-                if (dgvChiTietNhap.Columns["ThanhTien"] != null) dgvChiTietNhap.Columns["ThanhTien"].HeaderText = "Thành Tiền";
-
-                // Định dạng lại cột hiển thị tiền tệ cho đẹp (nếu cần)
-                dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
-                dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
-            }
-        }
-
-        //reset
-        private void ResetInput()
-        {
-            txtTenNL.Clear();
-            txtDonVi.Clear();
-            _maNLDangChon = -1;
-            btnThemNL.Enabled = true;
-            btnSuaNL.Enabled = false;
-            btnXoaNL.Enabled = false;
-            TaiDanhSachKho();
-        }
-
+        // Tải danh sách phiếu nhập/xuất vào lưới tab 2 + đăng ký tô màu trạng thái
         private void LoadDanhSachPhieuNhap()
         {
             dgvDanhSachPhieu.DataSource = _service.LayDanhSachPhieuNhap();
 
-            // Việt hóa tên cột bảng Danh Sách
-            if (dgvDanhSachPhieu.Columns["MaPhieu"] != null)   dgvDanhSachPhieu.Columns["MaPhieu"].HeaderText  = "Mã Phiếu";
+            // Việt hóa tiêu đề cột phiếu
+            if (dgvDanhSachPhieu.Columns["MaPhieu"]   != null) dgvDanhSachPhieu.Columns["MaPhieu"].HeaderText   = "Mã Phiếu";
             if (dgvDanhSachPhieu.Columns["LoaiPhieu"] != null) dgvDanhSachPhieu.Columns["LoaiPhieu"].HeaderText = "Loại";
-            if (dgvDanhSachPhieu.Columns["NgayLap"] != null)   dgvDanhSachPhieu.Columns["NgayLap"].HeaderText   = "Ngày Lập";
-            if (dgvDanhSachPhieu.Columns["TenNcc"] != null)    dgvDanhSachPhieu.Columns["TenNcc"].HeaderText    = "Nhà Cung Cấp";
+            if (dgvDanhSachPhieu.Columns["NgayLap"]   != null) dgvDanhSachPhieu.Columns["NgayLap"].HeaderText   = "Ngày Lập";
+            if (dgvDanhSachPhieu.Columns["TenNcc"]    != null) dgvDanhSachPhieu.Columns["TenNcc"].HeaderText    = "Nhà Cung Cấp";
             if (dgvDanhSachPhieu.Columns["TrangThai"] != null) dgvDanhSachPhieu.Columns["TrangThai"].HeaderText = "Trạng Thái";
-            if (dgvDanhSachPhieu.Columns["TongTien"] != null)  dgvDanhSachPhieu.Columns["TongTien"].HeaderText  = "Tổng Tiền";
+            if (dgvDanhSachPhieu.Columns["TongTien"]  != null)
+            {
+                dgvDanhSachPhieu.Columns["TongTien"].HeaderText                    = "Tổng Tiền";
+                dgvDanhSachPhieu.Columns["TongTien"].DefaultCellStyle.Format       = "N0";
+            }
 
-            if (dgvDanhSachPhieu.Columns["TongTien"] != null)
-                dgvDanhSachPhieu.Columns["TongTien"].DefaultCellStyle.Format = "N0";
-
-            // làm màu:
-            dgvDanhSachPhieu.CellFormatting += (s, e) => {
+            // Tô màu trạng thái phiếu (Đã hủy = Đỏ, khác = Xanh)
+            dgvDanhSachPhieu.CellFormatting += (s, e) =>
+            {
                 if (dgvDanhSachPhieu.Columns[e.ColumnIndex].Name == "TrangThai" && e.Value != null)
                 {
-                    if (e.Value.ToString() == "Đã hủy")
-                    {
-                        e.CellStyle.ForeColor = Color.Red;
-                        e.CellStyle.Font = new Font(dgvDanhSachPhieu.Font, FontStyle.Bold);
-                    }
-                    else
-                    {
-                        e.CellStyle.ForeColor = Color.DarkGreen;
-                    }
+                    bool dahuy = e.Value.ToString() == "Đã hủy";
+                    e.CellStyle.ForeColor = dahuy ? Color.Red : Color.DarkGreen;
+                    if (dahuy) e.CellStyle.Font = new Font(dgvDanhSachPhieu.Font, FontStyle.Bold);
                 }
             };
-        
+        }
+
+        // Hiển thị giỏ tạm (danh sách chi tiết đang xây dựng) ra lưới dgvChiTietNhap
+        private void HienThiListTam()
+        {
+            using var db = new DataSqlContext();
+            var hienThi = from ct in _listChiTietTam
+                          join nl in db.NguyenLieus on ct.MaNl equals nl.MaNl
+                          select new
+                          {
+                              TenNL      = nl.TenNl,
+                              SoLuong    = ct.SoLuong,
+                              GiaNhap    = ct.GiaNhap,
+                              ThanhTien  = ct.SoLuong * ct.GiaNhap
+                          };
+
+            dgvChiTietNhap.DataSource = hienThi.ToList();
+
+            // Việt hóa và format tiền tệ
+            if (dgvChiTietNhap.Columns["TenNL"]     != null) dgvChiTietNhap.Columns["TenNL"].HeaderText     = "Nguyên Liệu";
+            if (dgvChiTietNhap.Columns["SoLuong"]   != null) dgvChiTietNhap.Columns["SoLuong"].HeaderText   = "Số Lượng";
+            if (dgvChiTietNhap.Columns["GiaNhap"]   != null)
+            {
+                dgvChiTietNhap.Columns["GiaNhap"].HeaderText                    = "Giá Nhập";
+                dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format       = "N0";
+            }
+            if (dgvChiTietNhap.Columns["ThanhTien"] != null)
+            {
+                dgvChiTietNhap.Columns["ThanhTien"].HeaderText                  = "Thành Tiền";
+                dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format     = "N0";
+            }
+        }
+
+        // Reset form tab CRUD nguyên liệu về trạng thái ban đầu
+        private void ResetInput()
+        {
+            txtTenNL.Clear();
+            txtDonVi.Clear();
+            _maNLDangChon     = -1;
+            btnThemNL.Enabled = true;
+            btnSuaNL.Enabled  = false;
+            btnXoaNL.Enabled  = false;
+            TaiDanhSachKho();
         }
 
         #endregion
 
-        #region Event
-        private void btnThemPhieuMoi_Click(object sender, EventArgs e)
-        {
-            // Chuyển màn hình
-            pnlQuanLyPhieu.Visible = false;
-            pnlTaoPhieuMoi.Visible = true;
-            pnlTaoPhieuMoi.Dock = DockStyle.Fill;
-            pnlTaoPhieuMoi.BringToFront();
-        }
+        #region Sự kiện Tab 1 — Tồn kho (CRUD nguyên liệu)
 
-        private void btnQuayLai_Click(object sender, EventArgs e)
+        // Tô đỏ dòng tồn kho dưới ngưỡng cảnh báo (< 5 đơn vị)
+        private void dgvNguyenLieu_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            // Quay lại màn hình danh sách
-            pnlTaoPhieuMoi.Visible = false;
-            pnlQuanLyPhieu.Visible = true;
-            LoadDanhSachPhieuNhap();
-        }
-
-        private void btnThemNCC_Click(object sender, EventArgs e)
-        {
-            // Tự động code vẽ ra 1 cái Form Mini cực ảo diệu
-            Form frmMini = new Form()
+            if (dgvNguyenLieu.Columns[e.ColumnIndex].Name == "SoLuongTon" && e.Value != null)
             {
-                Width = 350,
-                Height = 250,
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                Text = "Thêm Nhà Cung Cấp Mới",
-                StartPosition = FormStartPosition.CenterScreen
-            };
-
-            Label lblTen = new Label() { Left = 20, Top = 20, Text = "Tên NCC (*):" };
-            TextBox txtTen = new TextBox() { Left = 120, Top = 20, Width = 180 };
-
-            Label lblSdt = new Label() { Left = 20, Top = 60, Text = "SĐT:" };
-            TextBox txtSdt = new TextBox() { Left = 120, Top = 60, Width = 180 };
-
-            Label lblDiaChi = new Label() { Left = 20, Top = 100, Text = "Địa chỉ:" };
-            TextBox txtDiaChi = new TextBox() { Left = 120, Top = 100, Width = 180 };
-
-            Button btnLuu = new Button() { Text = "Lưu", Left = 120, Top = 150, Width = 80, DialogResult = DialogResult.OK, BackColor = Color.MediumSeaGreen, ForeColor = Color.White };
-
-            frmMini.Controls.Add(lblTen); frmMini.Controls.Add(txtTen);
-            frmMini.Controls.Add(lblSdt); frmMini.Controls.Add(txtSdt);
-            frmMini.Controls.Add(lblDiaChi); frmMini.Controls.Add(txtDiaChi);
-            frmMini.Controls.Add(btnLuu);
-            frmMini.AcceptButton = btnLuu; // Ấn Enter là lưu
-
-            // Khi người dùng bấm nút Lưu
-            if (frmMini.ShowDialog() == DialogResult.OK)
-            {
-                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                if (decimal.TryParse(e.Value.ToString(), out decimal ton) && ton < 5)
                 {
-                    MessageBox.Show("Tên Nhà cung cấp không được để trống!"); return;
-                }
-
-                // Gọi service lưu vào DB
-                int maMoi = _service.ThemNhaCungCapNhanh(txtTen.Text, txtSdt.Text, txtDiaChi.Text);
-
-                // Cập nhật lại ComboBox
-                cboNhaCungCap.DataSource = _service.LayDanhSachNhaCungCap();
-                cboNhaCungCap.SelectedValue = maMoi;
-                MessageBox.Show("Thêm Nhà cung cấp thành công!");
-            }
-        }
-
-        // Click vào 1 phiếu ở trên -> Hiện chi tiết ở dưới
-        private void dgvDanhSachPhieu_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.Rows[e.RowIndex].Cells["MaPhieu"].Value);
-                dgvChiTietPhieuCu.DataSource = _service.LayChiTietCuaPhieu(maPhieu);
-                dgvChiTietPhieuCu.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
-                dgvChiTietPhieuCu.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
-            }
-        }
-
-        private void btnXoaPhieu_Click(object sender, EventArgs e)
-        {
-            if (dgvDanhSachPhieu.CurrentRow == null)
-            {
-                MessageBox.Show("Vui lòng chọn 1 phiếu nhập để xóa!"); return;
-            }
-
-            int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.CurrentRow.Cells["MaPhieu"].Value);
-
-            if (MessageBox.Show("BẠN CÓ CHẮC CHẮN MUỐN XÓA PHIẾU NÀY?\n\nSố lượng nguyên liệu trong kho sẽ bị trừ đi tương ứng với phiếu nhập này!", "Cảnh báo nguy hiểm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                if (_service.HuyPhieuKhoVaLuiKho(maPhieu))
-                {
-                    MessageBox.Show("Đã xóa phiếu và thu hồi số lượng tồn kho thành công!");
-                    LoadDanhSachPhieuNhap();
-                    TaiDanhSachKho(); // Refresh lại tab 1
-                    dgvChiTietPhieuCu.DataSource = null;
-                }
-                else
-                {
-                    MessageBox.Show("Xóa thất bại!");
+                    dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Salmon;
+                    dgvNguyenLieu.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White;
                 }
             }
         }
 
-        // Nút LÀM MỚI (Để hủy chọn và nhập mới)
-        private void btnLamMoi_Click(object sender, EventArgs e)
+        // Click dòng lưới tồn kho → nạp thông tin vào ô nhập để sửa/xóa
+        private void dgvNguyenLieu_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            ResetInput();
+            if (e.RowIndex < 0) return;
+
+            var row         = dgvNguyenLieu.Rows[e.RowIndex];
+            _maNLDangChon   = Convert.ToInt32(row.Cells["MaNl"].Value);
+            txtTenNL.Text   = row.Cells["TenNl"].Value.ToString();
+            txtDonVi.Text   = row.Cells["DonViTinh"].Value.ToString();
+
+            // Khi đang chọn để sửa: tắt Thêm, bật Sửa/Xóa
+            btnThemNL.Enabled = false;
+            btnSuaNL.Enabled  = true;
+            btnXoaNL.Enabled  = true;
         }
 
-        // --- CÁC NÚT THAO TÁC (CRUD) ---
+        // LÀM MỚI → reset form nguyên liệu
+        private void btnLamMoi_Click(object sender, EventArgs e) => ResetInput();
+
+        // THÊM nguyên liệu mới vào danh mục kho
         private void btnThemNL_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTenNL.Text)) return;
-
-            //decimal giaNhap = 0;
-            //decimal.TryParse(txtDonGia.Text, out giaNhap);
 
             if (_service.ThemNguyenLieu(txtTenNL.Text, txtDonVi.Text))
             {
@@ -300,20 +190,19 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 ResetInput();
             }
             else
-            {
                 MessageBox.Show("Lỗi: Tên nguyên liệu có thể đã tồn tại!");
-            }
         }
 
+        // SỬA thông tin nguyên liệu đang chọn
         private void btnSuaNL_Click(object sender, EventArgs e)
         {
             if (_maNLDangChon == -1) return;
-
             _service.SuaNguyenLieu(_maNLDangChon, txtTenNL.Text, txtDonVi.Text);
             MessageBox.Show("Cập nhật thành công!");
             ResetInput();
         }
 
+        // XÓA nguyên liệu (hỏi xác nhận)
         private void btnXoaNL_Click(object sender, EventArgs e)
         {
             if (_maNLDangChon == -1) return;
@@ -326,198 +215,207 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             }
         }
 
-        private void btnThemVaoPhieu_Click(object sender, EventArgs e)
+        #endregion
+
+        #region Sự kiện Tab 2 — Phiếu nhập xuất
+
+        // Nút "Thêm Phiếu Mới" → ẩn danh sách, hiện form tạo phiếu
+        private void btnThemPhieuMoi_Click(object sender, EventArgs e)
         {
-            if (cboChonNL_Tab2.SelectedValue == null) return;
+            pnlQuanLyPhieu.Visible = false;
+            pnlTaoPhieuMoi.Visible = true;
+            pnlTaoPhieuMoi.Dock    = DockStyle.Fill;
+            pnlTaoPhieuMoi.BringToFront();
+        }
 
-            int maNL = (int)cboChonNL_Tab2.SelectedValue;
-            decimal soLuong, giaNhap = 0;
+        // Nút "Quay Lại" → ẩn form tạo, hiện lại danh sách phiếu
+        private void btnQuayLai_Click(object sender, EventArgs e)
+        {
+            pnlTaoPhieuMoi.Visible = false;
+            pnlQuanLyPhieu.Visible = true;
+            LoadDanhSachPhieuNhap();
+        }
 
-            // Validate số lượng
-            if (!decimal.TryParse(txtSoLuongNhap.Text, out soLuong) || soLuong <= 0)
-            {
-                MessageBox.Show("Số lượng phải lớn hơn 0"); return;
-            }
+        // Click dòng phiếu trên lưới → hiển thị chi tiết ở panel phía dưới
+        private void dgvDanhSachPhieu_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
 
-            // --- ĐOẠN LOGIC NÂNG CẤP XỊN SÒ NẰM Ở ĐÂY ---
-            if (cboLoaiPhieu.Text == "Xuất Hủy")
+            int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.Rows[e.RowIndex].Cells["MaPhieu"].Value);
+            dgvChiTietPhieuCu.DataSource = _service.LayChiTietCuaPhieu(maPhieu);
+            if (dgvChiTietPhieuCu.Columns["GiaNhap"]  != null) dgvChiTietPhieuCu.Columns["GiaNhap"].DefaultCellStyle.Format  = "N0";
+            if (dgvChiTietPhieuCu.Columns["ThanhTien"] != null) dgvChiTietPhieuCu.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
+        }
+
+        // Sự kiện placeholder (cần giữ để Designer không lỗi)
+        private void dgvDanhSachPhieu_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+
+        // HỦY PHIẾU: Trừ ngược tồn kho tương ứng, cần xác nhận kỹ
+        private void btnXoaPhieu_Click(object sender, EventArgs e)
+        {
+            if (dgvDanhSachPhieu.CurrentRow == null) { MessageBox.Show("Vui lòng chọn 1 phiếu nhập để xóa!"); return; }
+
+            int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.CurrentRow.Cells["MaPhieu"].Value);
+            if (MessageBox.Show(
+                "BẠN CÓ CHẮC CHẮN MUỐN XÓA PHIẾU NÀY?\n\nSố lượng tồn kho sẽ bị trừ lại tương ứng!",
+                "Cảnh báo nguy hiểm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                // Nếu là phiếu hủy -> Móc giá vốn từ Database lên, không bắt user gõ
-                giaNhap = _service.LayGiaNhapGanNhat(maNL);
-            }
-            else
-            {
-                // Nếu là phiếu Nhập kho -> Bắt user phải tự gõ vào ô txtDonGia
-                if (!decimal.TryParse(txtDonGia.Text, out giaNhap) || giaNhap < 0)
+                if (_service.HuyPhieuKhoVaLuiKho(maPhieu))
                 {
-                    MessageBox.Show("Giá nhập không hợp lệ"); return;
+                    MessageBox.Show("Đã xóa phiếu và thu hồi tồn kho thành công!");
+                    LoadDanhSachPhieuNhap();
+                    TaiDanhSachKho();
+                    dgvChiTietPhieuCu.DataSource = null;
                 }
-            }
-            // -------------------------------------------
-
-            var item = new ChiTietPhieuKho
-            {
-                MaNl = maNL,
-                SoLuong = soLuong,
-                GiaNhap = giaNhap // Gán cái giá đã được xử lý thông minh ở trên vào đây
-            };
-
-            _listChiTietTam.Add(item);
-            HienThiListTam();
-
-            // Reset ô nhập
-            txtSoLuongNhap.Clear();
-            txtDonGia.Clear();
-        }
-
-        private void btnLuuPhieu_Click(object sender, EventArgs e)
-        {
-            if (_listChiTietTam.Count == 0)
-            {
-                MessageBox.Show("Giỏ hàng đang trống! Vui lòng thêm nguyên liệu."); return;
-            }
-
-            int maPhieuTuTao = _service.TaoMaPhieuNhapMoi();
-
-            // LẤY LOẠI PHIẾU TỪ COMBOBOX NGƯỜI DÙNG CHỌN
-            string loai = cboLoaiPhieu.Text == "Xuất Hủy" ? "Xuat" : "Nhap";
-                   
-            int maNhaCungCap;
-            if (loai == "Xuat")
-                maNhaCungCap = _service.LayHoacTaoNccXuatHuy(); // Tự động lấy NCC nội bộ
-            else
-                maNhaCungCap = (int)cboNhaCungCap.SelectedValue; // Lấy từ ComboBox
-
-            PhieuKho phieu = new PhieuKho
-            {
-                MaPhieu = maPhieuTuTao,
-                NgayLap = dtpNgayNhap.Value,
-                MaNcc = maNhaCungCap,  // <--- CẬP NHẬT DÒNG NÀY (Bỏ cái (int) đi)
-                LoaiPhieu = loai,
-                MaNv = "1",
-                TrangThai = "Hoàn thành"
-            };
-
-            // Gọi hàm lưu như bình thường
-            if (_service.NhapKhoChinhThuc(phieu, _listChiTietTam))
-            {
-                MessageBox.Show("Đã lưu Phiếu " + cboLoaiPhieu.Text + " thành công!\nMã Phiếu: " + maPhieuTuTao);
-                _listChiTietTam.Clear();
-                dgvChiTietNhap.DataSource = null;
-                TaiDanhSachKho();
-                btnQuayLai_Click(null, null);
-            }
-            else
-            {
-                MessageBox.Show("Lỗi khi lưu phiếu! Vui lòng thử lại.");
+                else MessageBox.Show("Xóa thất bại!");
             }
         }
 
-        private void cboLoaiPhieu_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboLoaiPhieu.Text == "Xuất Hủy")
-            {
-                // Giấu các ô của Nhập hàng
-                label1.Visible = false; // Chữ "Nhà Cung Cấp"
-                cboNhaCungCap.Visible = false;
-                btnThemNCC.Visible = false;
-
-                lbl_GiaNhap.Visible = false;
-                txtDonGia.Visible = false;
-                txtDonGia.Text = "0"; // Tự ép giá bằng 0 để code không lỗi
-
-                // Đổi UI sang chế độ HỦY (Màu đỏ cảnh báo)
-                lbl_SoLuongNhap.Text = "Số Lượng Hủy:";
-                btnThemVaoPhieu.Text = "Thêm Vào Giỏ Hủy";
-                btnThemVaoPhieu.BackColor = Color.Salmon;
-
-                btnLuuPhieu.Text = "LƯU PHIẾU HỦY";
-                btnLuuPhieu.BackColor = Color.Red;
-                btnLuuPhieu.ForeColor = Color.White;
-            }
-            else // Mặc định là Nhập Kho
-            {
-                // Hiện lại toàn bộ
-                label1.Visible = true;
-                cboNhaCungCap.Visible = true;
-                btnThemNCC.Visible = true;
-
-                lbl_GiaNhap.Visible = true;
-                txtDonGia.Visible = true;
-                txtDonGia.Text = "";
-
-                // Đổi UI về chế độ NHẬP (Màu xanh/cam)
-                lbl_SoLuongNhap.Text = "Số Lượng:";
-                btnThemVaoPhieu.Text = "Thêm Vào Giỏ";
-                btnThemVaoPhieu.BackColor = Color.MediumSeaGreen;
-
-                btnLuuPhieu.Text = "LƯU PHIẾU NHẬP";
-                btnLuuPhieu.BackColor = Color.Orange;
-                btnLuuPhieu.ForeColor = Color.Black;
-            }
-        }
-
+        // THANH TOÁN PHIẾU: Kiểm tra còn nợ → mở form thanh toán → cập nhật DB
         private void btnThanhToan_Click(object sender, EventArgs e)
         {
-            // 1. Kiểm tra xem người dùng đã chọn phiếu nào trên lưới chưa
-            if (dgvDanhSachPhieu.CurrentRow == null)
-            {
-                MessageBox.Show("Vui lòng chọn 1 phiếu nhập để thanh toán!", "Nhắc nhở", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (dgvDanhSachPhieu.CurrentRow == null) { MessageBox.Show("Vui lòng chọn 1 phiếu nhập để thanh toán!", "Nhắc nhở", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
 
-            // 2. Chặn đứng không cho thanh toán các Phiếu Xuất Hủy
+            // Phiếu Xuất Hủy không phát sinh công nợ
             string loaiPhieu = dgvDanhSachPhieu.CurrentRow.Cells["LoaiPhieu"].Value?.ToString();
-            if (loaiPhieu != null && loaiPhieu.Contains("Hủy"))
-            {
-                MessageBox.Show("Phiếu Xuất Hủy không phát sinh công nợ để thanh toán!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            if (loaiPhieu != null && loaiPhieu.Contains("Hủy")) { MessageBox.Show("Phiếu Xuất Hủy không phát sinh công nợ để thanh toán!"); return; }
 
-            // 3. Lấy Mã Phiếu và gọi Service check nợ
-            int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.CurrentRow.Cells["MaPhieu"].Value);
-            var congNo = _service.LayThongTinCongNo(maPhieu);
+            int maPhieu    = Convert.ToInt32(dgvDanhSachPhieu.CurrentRow.Cells["MaPhieu"].Value);
+            var congNo     = _service.LayThongTinCongNo(maPhieu);
             if (congNo == null) return;
 
             decimal conNo = congNo.TongTien - congNo.DaTra;
+            if (conNo <= 0) { MessageBox.Show("Phiếu này đã được thanh toán dứt điểm, không còn nợ nần!"); return; }
 
-            // 4. Báo cáo Sếp nếu phiếu đã trả xong
-            if (conNo <= 0)
-            {
-                MessageBox.Show("Tuyệt vời! Phiếu này đã được thanh toán dứt điểm, không còn nợ nần gì nữa!", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // --- 5. GỌI FORM THANH TOÁN CHÍNH CHỦ CỦA BRO RA ---
+            // Mở form thanh toán con, lấy kết quả và ghi vào DB
             Frm_ThanhToanPhieuNhap frmTT = new Frm_ThanhToanPhieuNhap(congNo);
-
-            // Bắt sự kiện khi user bấm nút "XÁC NHẬN" bên Form con
             if (frmTT.ShowDialog() == DialogResult.OK)
             {
-                // Hứng dữ liệu từ Form con truyền về
-                decimal tienTra = frmTT.SoTienTra;
-                string hinhThuc = frmTT.HinhThucThanhToan;
-
-                // Đẩy xuống CSDL để thực hiện trừ nợ và lưu Phiếu Chi
-                if (_service.XuLyThanhToan(maPhieu, tienTra, hinhThuc))
+                if (_service.XuLyThanhToan(maPhieu, frmTT.SoTienTra, frmTT.HinhThucThanhToan))
                 {
-                    MessageBox.Show($"Thanh toán thành công {tienTra:N0} VNĐ!\nHệ thống đã tự động lưu Phiếu Chi và trừ công nợ.", "Giao dịch thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    // Refresh lại danh sách phiếu ngoài màn hình chính để cập nhật số liệu
+                    MessageBox.Show($"Thanh toán thành công {frmTT.SoTienTra:N0} VNĐ!\nHệ thống đã lưu Phiếu Chi và trừ công nợ.", "Giao dịch thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadDanhSachPhieuNhap();
                 }
-                else
-                {
-                    MessageBox.Show("Lỗi CSDL khi xử lý thanh toán! Giao dịch đã được hủy để bảo toàn dòng tiền.", "Lỗi nghiêm trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                else MessageBox.Show("Lỗi CSDL khi xử lý thanh toán! Giao dịch đã bị hủy.", "Lỗi nghiêm trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         #endregion
 
-        private void dgvDanhSachPhieu_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
+        #region Sự kiện form tạo phiếu mới — Thêm NCC & chọn loại phiếu
 
+        // Thêm nhà cung cấp nhanh qua mini-form tạo động (không cần Designer)
+        private void btnThemNCC_Click(object sender, EventArgs e)
+        {
+            Form frmMini = new Form { Width = 350, Height = 250, FormBorderStyle = FormBorderStyle.FixedDialog, Text = "Thêm Nhà Cung Cấp Mới", StartPosition = FormStartPosition.CenterScreen };
+
+            Label   lblTen    = new Label  { Left = 20, Top = 20,  Text = "Tên NCC (*):" };
+            TextBox txtTen    = new TextBox { Left = 120, Top = 20, Width = 180 };
+            Label   lblSdt    = new Label  { Left = 20, Top = 60,  Text = "SĐT:" };
+            TextBox txtSdt    = new TextBox { Left = 120, Top = 60, Width = 180 };
+            Label   lblDiaChi = new Label  { Left = 20, Top = 100, Text = "Địa chỉ:" };
+            TextBox txtDiaChi = new TextBox { Left = 120, Top = 100, Width = 180 };
+            Button  btnLuu    = new Button  { Text = "Lưu", Left = 120, Top = 150, Width = 80, DialogResult = DialogResult.OK, BackColor = Color.MediumSeaGreen, ForeColor = Color.White };
+
+            frmMini.Controls.AddRange(new Control[] { lblTen, txtTen, lblSdt, txtSdt, lblDiaChi, txtDiaChi, btnLuu });
+            frmMini.AcceptButton = btnLuu;
+
+            if (frmMini.ShowDialog() == DialogResult.OK)
+            {
+                if (string.IsNullOrWhiteSpace(txtTen.Text)) { MessageBox.Show("Tên NCC không được để trống!"); return; }
+                int maMoi = _service.ThemNhaCungCapNhanh(txtTen.Text, txtSdt.Text, txtDiaChi.Text);
+                cboNhaCungCap.DataSource  = _service.LayDanhSachNhaCungCap();
+                cboNhaCungCap.SelectedValue = maMoi;
+                MessageBox.Show("Thêm Nhà cung cấp thành công!");
+            }
         }
+
+        // Đổi loại phiếu (Nhập Kho / Xuất Hủy) → cập nhật UI tương ứng
+        private void cboLoaiPhieu_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bool laHuy = cboLoaiPhieu.Text == "Xuất Hủy";
+
+            // Ẩn/hiện nhà cung cấp và giá nhập tùy loại phiếu
+            label1.Visible          = !laHuy;
+            cboNhaCungCap.Visible   = !laHuy;
+            btnThemNCC.Visible      = !laHuy;
+            lbl_GiaNhap.Visible     = !laHuy;
+            txtDonGia.Visible       = !laHuy;
+
+            if (laHuy)
+            {
+                txtDonGia.Text              = "0"; // Giá vốn lấy tự động từ DB
+                lbl_SoLuongNhap.Text        = "Số Lượng Hủy:";
+                btnThemVaoPhieu.Text        = "Thêm Vào Giỏ Hủy";
+                btnThemVaoPhieu.BackColor   = Color.Salmon;
+                btnLuuPhieu.Text            = "LƯU PHIẾU HỦY";
+                btnLuuPhieu.BackColor       = Color.Red;
+                btnLuuPhieu.ForeColor       = Color.White;
+            }
+            else
+            {
+                txtDonGia.Text              = "";
+                lbl_SoLuongNhap.Text        = "Số Lượng:";
+                btnThemVaoPhieu.Text        = "Thêm Vào Giỏ";
+                btnThemVaoPhieu.BackColor   = Color.MediumSeaGreen;
+                btnLuuPhieu.Text            = "LƯU PHIẾU NHẬP";
+                btnLuuPhieu.BackColor       = Color.Orange;
+                btnLuuPhieu.ForeColor       = Color.Black;
+            }
+        }
+
+        // Thêm 1 dòng nguyên liệu vào giỏ tạm (validate số lượng và giá)
+        private void btnThemVaoPhieu_Click(object sender, EventArgs e)
+        {
+            if (cboChonNL_Tab2.SelectedValue == null) return;
+
+            int maNL = (int)cboChonNL_Tab2.SelectedValue;
+            if (!decimal.TryParse(txtSoLuongNhap.Text, out decimal soLuong) || soLuong <= 0) { MessageBox.Show("Số lượng phải lớn hơn 0"); return; }
+
+            decimal giaNhap;
+            if (cboLoaiPhieu.Text == "Xuất Hủy")
+                giaNhap = _service.LayGiaNhapGanNhat(maNL); // Tự động lấy giá vốn
+            else
+            {
+                if (!decimal.TryParse(txtDonGia.Text, out giaNhap) || giaNhap < 0) { MessageBox.Show("Giá nhập không hợp lệ"); return; }
+            }
+
+            _listChiTietTam.Add(new ChiTietPhieuKho { MaNl = maNL, SoLuong = soLuong, GiaNhap = giaNhap });
+            HienThiListTam();
+            txtSoLuongNhap.Clear();
+            txtDonGia.Clear();
+        }
+
+        // LƯU PHIẾU: Tạo phiếu kho chính thức, cập nhật tồn kho, quay về danh sách
+        private void btnLuuPhieu_Click(object sender, EventArgs e)
+        {
+            if (_listChiTietTam.Count == 0) { MessageBox.Show("Giỏ hàng đang trống! Vui lòng thêm nguyên liệu."); return; }
+
+            int    maPhieuTuTao  = _service.TaoMaPhieuNhapMoi();
+            string loai          = cboLoaiPhieu.Text == "Xuất Hủy" ? "Xuat" : "Nhap";
+            int    maNhaCungCap  = loai == "Xuat" ? _service.LayHoacTaoNccXuatHuy() : (int)cboNhaCungCap.SelectedValue;
+
+            PhieuKho phieu = new PhieuKho
+            {
+                MaPhieu   = maPhieuTuTao,
+                NgayLap   = dtpNgayNhap.Value,
+                MaNcc     = maNhaCungCap,
+                LoaiPhieu = loai,
+                MaNv      = "1",        // TODO: truyền mã NV đang đăng nhập
+                TrangThai = "Hoàn thành"
+            };
+
+            if (_service.NhapKhoChinhThuc(phieu, _listChiTietTam))
+            {
+                MessageBox.Show($"Đã lưu Phiếu {cboLoaiPhieu.Text} thành công!\nMã Phiếu: {maPhieuTuTao}");
+                _listChiTietTam.Clear();
+                dgvChiTietNhap.DataSource = null;
+                TaiDanhSachKho();
+                btnQuayLai_Click(null, null);
+            }
+            else MessageBox.Show("Lỗi khi lưu phiếu! Vui lòng thử lại.");
+        }
+
+        #endregion
     }
 }

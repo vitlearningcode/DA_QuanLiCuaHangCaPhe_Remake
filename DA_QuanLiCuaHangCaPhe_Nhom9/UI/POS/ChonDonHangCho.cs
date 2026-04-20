@@ -1,138 +1,112 @@
-﻿
+using System;
+using System.Windows.Forms;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS {
-    public partial class ChonDonHangCho : Form {
-        public int MaDonHangDaChon { get; private set; }
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
+{
+    public partial class ChonDonHangCho : Form
+    {
+        #region Khai báo service & thuộc tính
 
-        // *** THAY ĐỔI: Khai báo Dịch Vụ ***
+        // Service thanh toán — tải danh sách đơn chờ, hủy đơn
         private readonly DichVuThanhToan _dichVuThanhToan;
 
-        public ChonDonHangCho() {
-            InitializeComponent();
+        // Mã đơn hàng được chọn để trả về cho form gọi (nếu cần)
+        public int MaDonHangDaChon { get; private set; }
 
-            // *** THAY ĐỔI: Khởi tạo Dịch Vụ ***
+        #endregion
+
+        #region Khởi tạo & Load
+
+        public ChonDonHangCho()
+        {
+            InitializeComponent();
             _dichVuThanhToan = new DichVuThanhToan();
         }
 
-        private void ChonDonHangCho_Load(object sender, EventArgs e) {
-            TaiDanhSachDonHangCho();
-        }
+        // Load: tải ngay danh sách đơn đang chờ thanh toán
+        private void ChonDonHangCho_Load(object sender, EventArgs e) => TaiDanhSachDonHangCho();
 
-        private void btnTaiLai_Click(object sender, EventArgs e) {
-            TaiDanhSachDonHangCho();
-        }
+        #endregion
 
-        // *** ĐÃ THAY ĐỔI: Gọi DichVuThanhToan ***
-        private void btnChonThanhToan_Click(object sender, EventArgs e) {
-            if (lvDonHangCho.SelectedItems.Count == 0) {
-                MessageBox.Show("Vui lòng chọn một đơn hàng để thanh toán.");
-                return;
-            }
+        #region Hàm nội bộ — Tải danh sách đơn chờ
 
-            ListViewItem itemDaChon = lvDonHangCho.SelectedItems[0];
-            int maDHCanThanhToan = (int)itemDaChon.Tag;
-
-            // 1. Gán MaDonHang (Giữ nguyên)
-            this.MaDonHangDaChon = maDHCanThanhToan;
-
-            // 2. Tính toán tiền gốc và tiền giảm (*** THAY ĐỔI: Gọi Dịch Vụ ***)
-            decimal tongGoc = 0;
-            decimal soTienGiam = 0;
-            decimal thanhTienCuoi = 0;
-
-            try {
-                // Gọi Dịch Vụ để lấy chi tiết
-                var donHang = _dichVuThanhToan.LayChiTietDonHangGoc(maDHCanThanhToan);
-
-                if (donHang != null && donHang.ChiTietDonHangs != null) {
-                    // Tính tổng gốc (LINQ Sum thay foreach cộng dồn)
-                    tongGoc = donHang.ChiTietDonHangs
-                        .Sum(ct => ct.DonGia * ct.SoLuong);
-                    thanhTienCuoi = donHang.TongTien ?? tongGoc;
-                    soTienGiam = tongGoc - thanhTienCuoi;
-                }
-            }
-            catch (Exception ex) {
-                MessageBox.Show("Lỗi khi tải lại chi tiết đơn hàng: " + ex.Message);
-            }
-
-            // 3. Mở Form ThanhToan (Giữ nguyên)
-            ThanhToan frmThanhToan = new ThanhToan(maDHCanThanhToan, tongGoc, soTienGiam);
-            var result = frmThanhToan.ShowDialog();
-
-            // 4. Xử lý kết quả
-            if (result == DialogResult.OK) {
-                TaiDanhSachDonHangCho(); // Tải lại
-            }
-        }
-
-        // *** ĐÃ THAY ĐỔI: Gọi DichVuThanhToan ***
-        private void TaiDanhSachDonHangCho() {
+        // Lấy danh sách đơn chờ từ service → đổ vào ListView
+        private void TaiDanhSachDonHangCho()
+        {
             lvDonHangCho.Items.Clear();
-            try {
-                // 1. Gọi Dịch Vụ
+            try
+            {
                 var donHangCho = _dichVuThanhToan.TaiDanhSachDonHangCho();
-
-                // 2. Lặp qua kết quả và điền vào ListView
-                foreach (var dh in donHangCho) {
+                foreach (var dh in donHangCho)
+                {
                     ListViewItem lvi = new ListViewItem(dh.MaDh.ToString());
-                    lvi.Tag = dh.MaDh;
+                    lvi.Tag = dh.MaDh; // Lưu mã ẩn để dùng khi chọn/hủy
                     lvi.SubItems.Add(dh.TenKH);
                     lvi.SubItems.Add(dh.NgayLap.HasValue ? dh.NgayLap.Value.ToString("HH:mm dd/MM/yy") : "N/A");
-                    lvi.SubItems.Add(dh.TongTien.ToString("N0") + " đ");
-
+                    lvi.SubItems.Add($"{dh.TongTien:N0} đ");
                     lvDonHangCho.Items.Add(lvi);
                 }
             }
-            catch (Exception ex) {
-                MessageBox.Show("Lỗi khi tải danh sách đơn chờ: " + ex.Message);
-            }
+            catch (Exception ex) { MessageBox.Show("Lỗi khi tải danh sách đơn chờ: " + ex.Message); }
         }
 
-        // *** ĐÃ THAY ĐỔI: Gọi DichVuThanhToan ***
-        private void btnHuyDonCho_Click(object sender, EventArgs e) {
-            if (lvDonHangCho.SelectedItems.Count == 0) {
-                MessageBox.Show("Vui lòng chọn một đơn hàng để HỦY.");
-                return;
-            }
+        #endregion
 
-            ListViewItem itemDaChon = lvDonHangCho.SelectedItems[0];
-            int maDHCanHuy = (int)itemDaChon.Tag;
+        #region Sự kiện — Tải lại / Chọn thanh toán / Hủy đơn
 
-            var confirm = MessageBox.Show(
-                $"Bạn có chắc muốn HỦY đơn hàng [MaDH: {maDHCanHuy}] không?\n\nHÀNH ĐỘNG NÀY SẼ HOÀN TRẢ NGUYÊN LIỆU VỀ KHO.",
-                "Xác nhận Hủy Đơn",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+        // Nút Tải lại → refresh danh sách từ DB
+        private void btnTaiLai_Click(object sender, EventArgs e) => TaiDanhSachDonHangCho();
 
-            if (confirm == DialogResult.No) {
+        // Double-click vào dòng = tương đương bấm nút Chọn Thanh Toán
+        private void lvDonHangCho_MouseDoubleClick(object sender, MouseEventArgs e) => btnChonThanhToan_Click(sender, e);
 
-                return;
-            }
+        // CHỌN THANH TOÁN: Tính tiền gốc/giảm → mở form ThanhToan → reload nếu thành công
+        private void btnChonThanhToan_Click(object sender, EventArgs e)
+        {
+            if (lvDonHangCho.SelectedItems.Count == 0) { MessageBox.Show("Vui lòng chọn một đơn hàng để thanh toán."); return; }
 
-            // 4. Bắt đầu quá trình HỦY (*** THAY ĐỔI ***)
-            try {
-                // Gọi Dịch Vụ
-                bool success = _dichVuThanhToan.HuyDonHangCho(maDHCanHuy);
+            int maDH = (int)lvDonHangCho.SelectedItems[0].Tag;
+            this.MaDonHangDaChon = maDH;
 
-                if (success) {
-                    MessageBox.Show($"Đã hủy thành công đơn hàng {maDHCanHuy}. \nĐã hoàn trả nguyên liệu về kho.", "Thông báo");
-                    TaiDanhSachDonHangCho();
-
-                }
-                else {
-                    MessageBox.Show("Lỗi: Không tìm thấy đơn hàng hoặc thanh toán để hủy. Giao dịch đã được Rollback.", "Lỗi Hủy Đơn");
+            decimal tongGoc = 0, soTienGiam = 0;
+            try
+            {
+                // Lấy chi tiết đơn để tính tổng gốc và số tiền giảm
+                var dh = _dichVuThanhToan.LayChiTietDonHangGoc(maDH);
+                if (dh?.ChiTietDonHangs != null)
+                {
+                    tongGoc    = dh.ChiTietDonHangs.Sum(ct => ct.DonGia * ct.SoLuong);
+                    decimal tt = dh.TongTien ?? tongGoc;
+                    soTienGiam = tongGoc - tt;
                 }
             }
-            catch (Exception ex) {
-                MessageBox.Show("Lỗi nghiêm trọng khi hủy đơn hàng: " + ex.Message);
-            }
+            catch (Exception ex) { MessageBox.Show("Lỗi khi tải chi tiết đơn hàng: " + ex.Message); }
+
+            ThanhToan frmTT = new ThanhToan(maDH, tongGoc, soTienGiam);
+            if (frmTT.ShowDialog() == DialogResult.OK)
+                TaiDanhSachDonHangCho(); // Reload sau khi thanh toán thành công
         }
 
-        // (Giữ nguyên)
-        private void lvDonHangCho_MouseDoubleClick(object sender, MouseEventArgs e) {
-            btnChonThanhToan_Click(sender, e);
+        // HỦY ĐƠN CHỜ: Hỏi xác nhận → gọi service hoàn nguyên liệu → reload
+        private void btnHuyDonCho_Click(object sender, EventArgs e)
+        {
+            if (lvDonHangCho.SelectedItems.Count == 0) { MessageBox.Show("Vui lòng chọn một đơn hàng để HỦY."); return; }
+
+            int maDH = (int)lvDonHangCho.SelectedItems[0].Tag;
+            if (MessageBox.Show(
+                $"Bạn có chắc muốn HỦY đơn hàng [MaDH: {maDH}]?\n\nHÀNH ĐỘNG NÀY SẼ HOÀN TRẢ NGUYÊN LIỆU VỀ KHO.",
+                "Xác nhận Hủy Đơn", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
+
+            try
+            {
+                bool ok = _dichVuThanhToan.HuyDonHangCho(maDH);
+                if (ok) { MessageBox.Show($"Đã hủy thành công đơn hàng {maDH}.\nĐã hoàn trả nguyên liệu về kho.", "Thông báo"); TaiDanhSachDonHangCho(); }
+                else     MessageBox.Show("Lỗi: Không tìm thấy đơn hàng hoặc thanh toán để hủy. Giao dịch đã được Rollback.", "Lỗi Hủy Đơn");
+            }
+            catch (Exception ex) { MessageBox.Show("Lỗi nghiêm trọng khi hủy đơn hàng: " + ex.Message); }
         }
+
+        #endregion
     }
 }
