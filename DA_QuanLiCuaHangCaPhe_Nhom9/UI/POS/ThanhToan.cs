@@ -2,8 +2,11 @@ using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using Microsoft.Reporting.WinForms;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -212,6 +215,135 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 
         #endregion
 
+        #region In hóa đơn — Windows Print Dialog + RDLC
+
+        /// <summary>
+        /// Render RDLC thành chuỗi EMF (mỗi trang 1 stream) → mở Windows Print Dialog
+        /// → in qua PrintDocument. Cách này hoạt động với mọi máy in, kể cả máy in nhiệt.
+        /// </summary>
+        private void InHoaDon()
+        {
+            try
+            {
+                // 1. Chuẩn bị LocalReport độc lập (không cần ReportViewer hiển thị)
+                var report = new LocalReport();
+                report.ReportPath           = Path.Combine(Application.StartupPath, @"Report\rptHoaDon.rdlc");
+                report.EnableExternalImages = true;
+
+                // 2. Build DataTable khớp schema RDLC
+                var dt = new DataTable();
+                dt.Columns.Add("TenMon",    typeof(string));
+                dt.Columns.Add("SoLuong",   typeof(int));
+                dt.Columns.Add("DonGia",    typeof(decimal));
+                dt.Columns.Add("ThanhTien", typeof(decimal));
+
+                foreach (ListViewItem item in lvChiTietBill.Items)
+                {
+                    dt.Rows.Add(
+                        item.SubItems[0].Text,
+                        int.Parse(item.SubItems[1].Text),
+                        decimal.Parse(item.SubItems[2].Text.Replace(",", "").Replace(".", "")),
+                        decimal.Parse(item.SubItems[3].Text.Replace(",", "").Replace(".", "")));
+                }
+
+                report.DataSources.Add(new ReportDataSource("HoaDon", dt));
+
+                // 3. Đổ tham số — giống HienThiBillPreview
+                DateTime ngayLap = _donHangCanThanhToan.NgayLap ?? DateTime.Now;
+                string hinhThuc  = rbTienMat.Checked ? "Tiền mặt" : "Chuyển khoản QR";
+                string qrUrl     = rbQR.Checked
+                    ? $"https://api.vietqr.io/image/970436-0909090909-snt03N5.jpg?accountName=TEST&amount={_tongTien}"
+                    : "";
+
+                report.SetParameters(new ReportParameter[]
+                {
+                    new ReportParameter("p_SoHoaDon",           _donHangCanThanhToan.MaDh.ToString()),
+                    new ReportParameter("p_MaHoaDon",           "HD" + _donHangCanThanhToan.MaDh.ToString("D5")),
+                    new ReportParameter("p_KhachHang",          _tenKhachHang),
+                    new ReportParameter("p_NhanVien",           _tenNhanVien),
+                    new ReportParameter("p_Gio",                ngayLap.ToString("HH:mm")),
+                    new ReportParameter("p_Ngay",               ngayLap.ToString("dd/MM/yyyy")),
+                    new ReportParameter("p_TienGiam",           $"{_soTienGiam_passed:N0} đ"),
+                    new ReportParameter("p_TongTien",           $"{_tongTien:N0} đ"),
+                    new ReportParameter("p_HinhThucThanhToan",  hinhThuc),
+                    new ReportParameter("p_QR",                 qrUrl)
+                });
+
+                // 4. Render RDLC → EMF (Enhanced Metafile) — chất lượng cao, hỗ trợ đa trang
+                // 80mm × 297mm phù hợp máy in nhiệt; đổi thành 210×297 nếu in A4
+                const string deviceInfo = @"<DeviceInfo>
+  <OutputFormat>EMF</OutputFormat>
+  <PageWidth>80mm</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <MarginTop>5mm</MarginTop>
+  <MarginLeft>5mm</MarginLeft>
+  <MarginRight>5mm</MarginRight>
+  <MarginBottom>5mm</MarginBottom>
+  <DpiX>200</DpiX>
+  <DpiY>200</DpiY>
+</DeviceInfo>";
+
+                var pageStreams = new List<Stream>();
+
+                CreateStreamCallback createStream = (name, ext, encoding, mime, willSeek) =>
+                {
+                    var ms = new MemoryStream();
+                    pageStreams.Add(ms);
+                    return ms;
+                };
+
+                // Renderer tên là "IMAGE"; OutputFormat=EMF được chỉ định bên trong DeviceInfo
+                report.Render("IMAGE", deviceInfo, createStream, out Warning[] _);
+                foreach (var s in pageStreams) s.Position = 0;
+
+                if (pageStreams.Count == 0)
+                {
+                    MessageBox.Show("Không thể render hóa đơn để in.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 5. Mở Windows Print Dialog
+                using var dlg = new PrintDialog
+                {
+                    AllowSomePages   = false,
+                    AllowCurrentPage = false,
+                    AllowPrintToFile = true,
+                    UseEXDialog      = true  // Hộp thoại in hiện đại của Windows
+                };
+
+                if (dlg.ShowDialog(this) != DialogResult.OK)
+                    return; // User bấm Cancel
+
+                // 6. In từng trang qua PrintDocument
+                int trang = 0;
+                using var doc = new PrintDocument();
+                doc.PrinterSettings = dlg.PrinterSettings;
+                doc.DocumentName    = $"Hóa Đơn HD{_donHangCanThanhToan.MaDh:D5}";
+
+                doc.PrintPage += (s, ev) =>
+                {
+                    using var mf = new Metafile(pageStreams[trang]);
+                    ev.Graphics.DrawImage(mf, ev.PageBounds);
+                    trang++;
+                    ev.HasMorePages = (trang < pageStreams.Count);
+                };
+
+                doc.Print();
+
+                // 7. Giải phóng memory
+                foreach (var s in pageStreams) s.Dispose();
+            }
+            catch (Exception ex)
+            {
+                string msg   = ex.Message;
+                var    inner = ex.InnerException;
+                while (inner != null) { msg += "\n→ " + inner.Message; inner = inner.InnerException; }
+                MessageBox.Show("Lỗi khi in hóa đơn:\n" + msg, "Lỗi In", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #endregion
+
         #region Sự kiện UI — Tính tiền dư & đổi hình thức thanh toán
 
         // Tính tiền thừa khi khách đưa thay đổi
@@ -265,6 +397,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 
                 if (success)
                 {
+                    // Mở Windows Print Dialog → in RDLC hóa đơn
+                    InHoaDon();
+
                     MessageBox.Show($"Đã thanh toán thành công {_tongTien:N0} đ", "Thông báo");
                     this.DialogResult = DialogResult.OK;
                     this.Close();
