@@ -11,7 +11,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
     {
         // === KHAI BÁO CÁC BIẾN ===
         // _currentMaNV: id nhân viên hiện tại, được truyền từ Loginform.
-        private string _currentMaNV = "3";
+        private string _currentMaNV = "";   // Được ghi đè bởi constructor khi Loginform truyền MaNV vào
         // _isDirectLogin: true nếu MainForm được mở từ Login (Nhân viên), false nếu từ Quản lí.
         public bool IsDirectLogin { get; set; } = false;
         // _currentMaKH: id khách hàng (nullable) nếu tìm thấy qua SĐT.

@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Microsoft.EntityFrameworkCore;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 {
@@ -32,8 +33,9 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
         private readonly int     _diemSuDungThucTe;      // Điểm khách dùng để đổi (từ MainForm)
         private readonly decimal _tienGiamTuDiemThucTe;  // Tiền tương ứng với điểm đó
 
-        // Tên khách hàng để in lên hóa đơn (mặc định = "Khách vãng lai")
-        private string _tenKhachHang = "Khách vãng lai";
+        // Tên khách hàng và nhân viên để in lên hóa đơn
+        private string _tenKhachHang  = "Khách vãng lai";
+        private string _tenNhanVien   = "N/A";   // Sẽ lookup từ DB sau khi có MaNv
 
         #endregion
 
@@ -79,6 +81,14 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 
                 if (ketQua.KhachHang != null)
                     _tenKhachHang = ketQua.KhachHang.TenKh;
+
+                // Lookup tên nhân viên từ MaNv — không in mã thô lên hóa đơn
+                if (!string.IsNullOrEmpty(_donHangCanThanhToan.MaNv))
+                {
+                    using var db = new DataSqlContext();
+                    var nv = db.NhanViens.FirstOrDefault(n => n.MaNv == _donHangCanThanhToan.MaNv);
+                    _tenNhanVien = nv?.TenNv ?? _donHangCanThanhToan.MaNv; // Fallback: vẫn in mã nếu không tìm thấy
+                }
 
                 // 3. Đổ chi tiết vào ListView và tính lại tổng gốc chính xác
                 lvChiTietBill.Items.Clear();
@@ -168,17 +178,18 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
                 DateTime ngayLap  = _donHangCanThanhToan.NgayLap ?? DateTime.Now;
                 string hinhThuc   = rbTienMat.Checked ? "Tiền mặt" : "Chuyển khoản QR";
 
-                // URL QR thanh toán (dùng ảnh trong suốt nếu không chọn QR để tránh crash RDLC)
+                // URL QR từ VietQR — chỉ cần khi chọn chuyển khoản.
+                // Khi tiền mặt: RDLC tự ẩn Image1 qua Visibility nên truyền "" là an toàn.
                 string qrUrl = rbQR.Checked
                     ? $"https://api.vietqr.io/image/970436-0909090909-snt03N5.jpg?accountName=TEST&amount={_tongTien}"
-                    : "https://upload.wikimedia.org/wikipedia/commons/c/ce/Transparent.gif";
+                    : "";
 
                 rpvHoaDon.LocalReport.SetParameters(new ReportParameter[]
                 {
                     new ReportParameter("p_SoHoaDon",               _donHangCanThanhToan.MaDh.ToString()),
                     new ReportParameter("p_MaHoaDon",               "HD" + _donHangCanThanhToan.MaDh.ToString("D5")),
                     new ReportParameter("p_KhachHang",              _tenKhachHang),
-                    new ReportParameter("p_NhanVien",               _donHangCanThanhToan.MaNv ?? "N/A"),
+                    new ReportParameter("p_NhanVien",               _tenNhanVien),
                     new ReportParameter("p_Gio",                    ngayLap.ToString("HH:mm")),
                     new ReportParameter("p_Ngay",                   ngayLap.ToString("dd/MM/yyyy")),
                     new ReportParameter("p_TienGiam",               $"{_soTienGiam_passed:N0} đ"),

@@ -17,13 +17,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // Cache dữ liệu gốc để lọc phía client (tránh query DB nhiều lần)
         private List<GiaoDichThuChi> _dataGoc = new List<GiaoDichThuChi>();
 
+        // Mã NV đang mở sổ quỹ — ghi vào phiếu chi khi Admin thêm mới
+        private readonly string _maNVAdmin;
+
         #endregion
 
         #region Khởi tạo & Load
 
-        public UC_SoQuy()
+        public UC_SoQuy(string maNV = "")
         {
             InitializeComponent();
+            _maNVAdmin = maNV;
         }
 
         // Load: mặc định xem từ đầu tháng đến hôm nay, lọc "Tất cả"
@@ -114,7 +118,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // Mở form thêm phiếu chi → nếu lưu thành công thì reload lưới
         private void btnTaoPhieuChi_Click(object sender, EventArgs e)
         {
-            frm_ThemPhieuChi frm = new frm_ThemPhieuChi();
+            frm_ThemPhieuChi frm = new frm_ThemPhieuChi(_maNVAdmin);
             frm.ShowDialog();
             if (frm.IsSuccess) LoadData(); // Refresh sau khi thêm phiếu mới
         }

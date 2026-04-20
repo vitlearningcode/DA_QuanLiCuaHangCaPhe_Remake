@@ -15,9 +15,13 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
     {
         #region Khởi tạo & Load
 
-        public Admin()
+        // Mã NV Admin đang đăng nhập — nhận từ Loginform và truyền xuống các UC cần ghi nhận người lập phiếu
+        private readonly string _maNVAdmin;
+
+        public Admin(string maNV = "")
         {
             InitializeComponent();
+            _maNVAdmin = maNV;
         }
 
         // Load form: tự động mở trang Tổng Quan để có nội dung ngay khi khởi động
@@ -45,14 +49,15 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         #region Điều hướng menu — Click các nút bên trái
 
         // Mỗi nút menu tương ứng với một màn hình quản lý riêng
-        private void btnSanPham_Click(object sender, EventArgs e)   => OpenChildControl(new UC_SanPham());
-        private void btnKho_Click(object sender, EventArgs e)        => OpenChildControl(new UC_Kho());
-        private void btnNhanVien_Click(object sender, EventArgs e)   => OpenChildControl(new UC_NhanVien());
-        private void btnKhuyenMai_Click(object sender, EventArgs e)  => OpenChildControl(new UC_KhuyenMai());
-        private void button1_Click(object sender, EventArgs e)       => OpenChildControl(new UC_ThongKe()); // Thống kê - Báo cáo
-        private void btnTongQuan_Click(object sender, EventArgs e)   => OpenChildControl(new UC_TongQuan());
-        private void btnSoQuy_Click(object sender, EventArgs e)      => OpenChildControl(new UC_SoQuy());
-        private void btnKhachHang_Click(object sender, EventArgs e)  => OpenChildControl(new UC_KhachHang());
+        private void btnSanPham_Click(object sender, EventArgs e)        => OpenChildControl(new UC_SanPham());
+        private void btnKho_Click(object sender, EventArgs e)             => OpenChildControl(new UC_Kho(_maNVAdmin));
+        private void btnNhanVien_Click(object sender, EventArgs e)        => OpenChildControl(new UC_NhanVien());
+        private void btnKhuyenMai_Click(object sender, EventArgs e)       => OpenChildControl(new UC_KhuyenMai());
+        private void button1_Click(object sender, EventArgs e)            => OpenChildControl(new UC_ThongKe());
+        private void btnTongQuan_Click(object sender, EventArgs e)        => OpenChildControl(new UC_TongQuan());
+        private void btnSoQuy_Click(object sender, EventArgs e)           => OpenChildControl(new UC_SoQuy(_maNVAdmin));
+        private void btnKhachHang_Click(object sender, EventArgs e)       => OpenChildControl(new UC_KhachHang());
+        private void btnSaoLuuPhucHoi_Click(object sender, EventArgs e)   => OpenChildControl(new UC_SaoLuuPhucHoi());
 
         #endregion
 

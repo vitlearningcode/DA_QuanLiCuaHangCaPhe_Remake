@@ -20,13 +20,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // Mã nguyên liệu đang chọn trên lưới tab 1 (-1 = chưa chọn)
         private int _maNLDangChon = -1;
 
+        // Mã NV Admin đang lập phiếu — nhận từ Admin.cs để ghi vào phiếu kho
+        private readonly string _maNVLap;
+
         #endregion
 
         #region Khởi tạo & Load
 
-        public UC_Kho()
+        public UC_Kho(string maNV = "")
         {
             InitializeComponent();
+            _maNVLap = maNV;
         }
 
         // Load: tải tồn kho, danh sách phiếu nhập, cố định layout panel
@@ -291,7 +295,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             Frm_ThanhToanPhieuNhap frmTT = new Frm_ThanhToanPhieuNhap(congNo);
             if (frmTT.ShowDialog() == DialogResult.OK)
             {
-                if (_service.XuLyThanhToan(maPhieu, frmTT.SoTienTra, frmTT.HinhThucThanhToan))
+                if (_service.XuLyThanhToan(maPhieu, frmTT.SoTienTra, frmTT.HinhThucThanhToan, _maNVLap))
                 {
                     MessageBox.Show($"Thanh toán thành công {frmTT.SoTienTra:N0} VNĐ!\nHệ thống đã lưu Phiếu Chi và trừ công nợ.", "Giao dịch thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadDanhSachPhieuNhap();
@@ -401,7 +405,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 NgayLap   = dtpNgayNhap.Value,
                 MaNcc     = maNhaCungCap,
                 LoaiPhieu = loai,
-                MaNv      = "1",        // TODO: truyền mã NV đang đăng nhập
+                MaNv      = _maNVLap,   // Mã NV đăng nhập lúc mở Admin (nhận từ Admin.cs)
                 TrangThai = "Hoàn thành"
             };
 

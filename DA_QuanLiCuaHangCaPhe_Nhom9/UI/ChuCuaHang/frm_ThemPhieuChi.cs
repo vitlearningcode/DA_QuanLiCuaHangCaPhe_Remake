@@ -15,13 +15,17 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // true = lưu thành công → UC_SoQuy sẽ reload lưới
         public bool IsSuccess { get; private set; } = false;
 
+        // Mã NV lập phiếu — nhận từ UC_SoQuy (Admin đăng nhập)
+        private readonly string _maNVLap;
+
         #endregion
 
         #region Khởi tạo & Load
 
-        public frm_ThemPhieuChi()
+        public frm_ThemPhieuChi(string maNV = "")
         {
             InitializeComponent();
+            _maNVLap = maNV;
         }
 
         // Load: chọn sẵn hạng mục đầu tiên trong ComboBox
@@ -41,10 +45,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             if (string.IsNullOrWhiteSpace(txtSoTien.Text)) { MessageBox.Show("Vui lòng nhập số tiền chi!", "Thông báo"); return; }
             if (!decimal.TryParse(txtSoTien.Text, out decimal soTien) || soTien <= 0) { MessageBox.Show("Số tiền không hợp lệ!", "Thông báo"); return; }
 
-            // TODO: Truyền mã NV đang đăng nhập thay vì hardcode = 1 (mã Admin mặc định)
+            // TODO: nếu `_maNVLap` rỗng (chưa truyền) sẽ lưu cỗi nội bộ không gán NV — SERVICE xử lý null-safe
             try
             {
-                bool ok = _service.TaoPhieuChiThuCong(cboHạngMuc.Text, soTien, "Tiền mặt", txtGhiChu.Text, 1);
+                bool ok = _service.TaoPhieuChiThuCong(cboHạngMuc.Text, soTien, "Tiền mặt", txtGhiChu.Text, _maNVLap);
                 if (ok)
                 {
                     MessageBox.Show("Lập phiếu chi thành công!", "Thông báo");

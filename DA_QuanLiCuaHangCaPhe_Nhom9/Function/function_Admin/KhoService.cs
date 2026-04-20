@@ -327,7 +327,8 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
         }
 
         // --- 2. HÀM THỰC HIỆN THANH TOÁN & GHI LỊCH SỬ ---
-        public bool XuLyThanhToan(int maPhieu, decimal soTienTra, string hinhThuc)
+        // Mã NV thực hiện thanh toán công nợ — nhận từ UC_Kho (Admin đăng nhập)
+        public bool XuLyThanhToan(int maPhieu, decimal soTienTra, string hinhThuc, string maNV = "")
         {
             using (var db = new DataSqlContext())
             {
@@ -375,7 +376,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
                             GhiChu = $"Thanh toán cho phiếu nhập kho số: {maPhieu}",
                             MaPhieu = maPhieu,
                             MaCongNo = congNo.MaCongNo,
-                            MaNv = "1" // Mã nhân viên đang đăng nhập (tạm fix cứng)
+                            MaNv      = string.IsNullOrEmpty(maNV) ? null : maNV  // Mã NV thực thành toán
                         };
                         db.PhieuChis.Add(phieuChi);
 
