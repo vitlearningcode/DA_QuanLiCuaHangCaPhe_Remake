@@ -1,7 +1,7 @@
 ﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main; // Thêm
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS {
     public partial class ThemKhachHangMoi : Form {
         private string _soDienThoai;
         private readonly KhoTruyVanMainForm _khoTruyVan;

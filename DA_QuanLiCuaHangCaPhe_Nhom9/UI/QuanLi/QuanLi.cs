@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 // THÊM DÒNG NÀY ĐỂ FORM CHA THẤY ĐƯỢC CÁC USER CONTROL CỦA QUẢN LÝ
 using DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi;
+// Tham chiếu tới MainForm đã chuyển vào UI/POS
+using DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS;
 
 namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
 {

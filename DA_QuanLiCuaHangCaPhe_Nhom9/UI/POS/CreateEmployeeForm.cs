@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using System.Linq;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 {
     public partial class CreateEmployeeForm : Form
     {

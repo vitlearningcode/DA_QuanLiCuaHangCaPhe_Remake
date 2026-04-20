@@ -1,7 +1,7 @@
-
+﻿
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9 {
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS {
     public partial class ChonDonHangCho : Form {
         public int MaDonHangDaChon { get; private set; }
 

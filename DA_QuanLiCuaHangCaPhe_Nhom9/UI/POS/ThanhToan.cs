@@ -1,8 +1,8 @@
-using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
+﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Main;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using Microsoft.Reporting.WinForms;
 
-namespace DA_QuanLiCuaHangCaPhe_Nhom9
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 {
     public partial class ThanhToan : Form
     {
