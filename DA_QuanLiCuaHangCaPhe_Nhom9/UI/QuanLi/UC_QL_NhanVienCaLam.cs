@@ -71,6 +71,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
 
             pnlHoSo.Visible  = isHoSo;
             pnlXepCa.Visible = !isHoSo;
+            cboNhanVienXepCa.SelectedValue = -1;
         }
 
         #endregion

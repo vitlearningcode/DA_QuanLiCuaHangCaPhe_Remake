@@ -18,6 +18,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         private void InitializeComponent()
         {
             pnlMenu = new Panel();
+            btnDangXuat = new Button();
             btnSaoLuuPhucHoi = new Button();
             btnKhachHang = new Button();
             btnSoQuy = new Button();
@@ -27,7 +28,6 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnNhanVien = new Button();
             btnKho = new Button();
             btnSanPham = new Button();
-            btnDangXuat = new Button();
             pnlLogo = new Panel();
             lblStoreName = new Label();
             lblIcon = new Label();
@@ -39,16 +39,16 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             // pnlMenu
             // 
             pnlMenu.BackColor = Color.FromArgb(41, 53, 65);
+            pnlMenu.Controls.Add(btnDangXuat);
             pnlMenu.Controls.Add(btnSaoLuuPhucHoi);
-            pnlMenu.Controls.Add(btnKhachHang);
-            pnlMenu.Controls.Add(btnSoQuy);
-            pnlMenu.Controls.Add(btnTongQuan);
             pnlMenu.Controls.Add(button1);
+            pnlMenu.Controls.Add(btnSoQuy);
+            pnlMenu.Controls.Add(btnKhachHang);
             pnlMenu.Controls.Add(btnKhuyenMai);
-            pnlMenu.Controls.Add(btnNhanVien);
             pnlMenu.Controls.Add(btnKho);
             pnlMenu.Controls.Add(btnSanPham);
-            pnlMenu.Controls.Add(btnDangXuat);
+            pnlMenu.Controls.Add(btnNhanVien);
+            pnlMenu.Controls.Add(btnTongQuan);
             pnlMenu.Controls.Add(pnlLogo);
             pnlMenu.Dock = DockStyle.Left;
             pnlMenu.Location = new Point(0, 0);
@@ -56,6 +56,25 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             pnlMenu.Name = "pnlMenu";
             pnlMenu.Size = new Size(680, 1948);
             pnlMenu.TabIndex = 0;
+            // 
+            // btnDangXuat
+            // 
+            btnDangXuat.BackColor = Color.FromArgb(50, 40, 40);
+            btnDangXuat.Dock = DockStyle.Top;
+            btnDangXuat.FlatAppearance.BorderSize = 0;
+            btnDangXuat.FlatStyle = FlatStyle.Flat;
+            btnDangXuat.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            btnDangXuat.ForeColor = Color.FromArgb(220, 100, 100);
+            btnDangXuat.Location = new Point(0, 1805);
+            btnDangXuat.Margin = new Padding(7, 8, 7, 8);
+            btnDangXuat.Name = "btnDangXuat";
+            btnDangXuat.Padding = new Padding(49, 0, 0, 0);
+            btnDangXuat.Size = new Size(680, 154);
+            btnDangXuat.TabIndex = 9;
+            btnDangXuat.Text = "🔒  Đăng Xuất";
+            btnDangXuat.TextAlign = ContentAlignment.MiddleLeft;
+            btnDangXuat.UseVisualStyleBackColor = false;
+            btnDangXuat.Click += btnDangXuat_Click;
             // 
             // btnSaoLuuPhucHoi
             // 
@@ -68,7 +87,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnSaoLuuPhucHoi.Margin = new Padding(7, 8, 7, 8);
             btnSaoLuuPhucHoi.Name = "btnSaoLuuPhucHoi";
             btnSaoLuuPhucHoi.Padding = new Padding(49, 0, 0, 0);
-            btnSaoLuuPhucHoi.Size = new Size(680, 164);
+            btnSaoLuuPhucHoi.Size = new Size(680, 110);
             btnSaoLuuPhucHoi.TabIndex = 10;
             btnSaoLuuPhucHoi.Text = "🗄️  Sao Lưu & Phục Hồi";
             btnSaoLuuPhucHoi.TextAlign = ContentAlignment.MiddleLeft;
@@ -82,7 +101,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnKhachHang.FlatStyle = FlatStyle.Flat;
             btnKhachHang.Font = new Font("Segoe UI", 11F);
             btnKhachHang.ForeColor = Color.WhiteSmoke;
-            btnKhachHang.Location = new Point(0, 1531);
+            btnKhachHang.Location = new Point(0, 1203);
             btnKhachHang.Margin = new Padding(7, 8, 7, 8);
             btnKhachHang.Name = "btnKhachHang";
             btnKhachHang.Padding = new Padding(49, 0, 0, 0);
@@ -118,7 +137,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnTongQuan.FlatStyle = FlatStyle.Flat;
             btnTongQuan.Font = new Font("Segoe UI", 11F);
             btnTongQuan.ForeColor = Color.WhiteSmoke;
-            btnTongQuan.Location = new Point(0, 1203);
+            btnTongQuan.Location = new Point(0, 383);
             btnTongQuan.Margin = new Padding(7, 8, 7, 8);
             btnTongQuan.Name = "btnTongQuan";
             btnTongQuan.Padding = new Padding(49, 0, 0, 0);
@@ -136,7 +155,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             button1.FlatStyle = FlatStyle.Flat;
             button1.Font = new Font("Segoe UI", 11F);
             button1.ForeColor = Color.WhiteSmoke;
-            button1.Location = new Point(0, 1039);
+            button1.Location = new Point(0, 1531);
             button1.Margin = new Padding(7, 8, 7, 8);
             button1.Name = "button1";
             button1.Padding = new Padding(49, 0, 0, 0);
@@ -154,7 +173,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnKhuyenMai.FlatStyle = FlatStyle.Flat;
             btnKhuyenMai.Font = new Font("Segoe UI", 11F);
             btnKhuyenMai.ForeColor = Color.WhiteSmoke;
-            btnKhuyenMai.Location = new Point(0, 875);
+            btnKhuyenMai.Location = new Point(0, 1039);
             btnKhuyenMai.Margin = new Padding(7, 8, 7, 8);
             btnKhuyenMai.Name = "btnKhuyenMai";
             btnKhuyenMai.Padding = new Padding(49, 0, 0, 0);
@@ -172,7 +191,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnNhanVien.FlatStyle = FlatStyle.Flat;
             btnNhanVien.Font = new Font("Segoe UI", 11F);
             btnNhanVien.ForeColor = Color.WhiteSmoke;
-            btnNhanVien.Location = new Point(0, 711);
+            btnNhanVien.Location = new Point(0, 547);
             btnNhanVien.Margin = new Padding(7, 8, 7, 8);
             btnNhanVien.Name = "btnNhanVien";
             btnNhanVien.Padding = new Padding(49, 0, 0, 0);
@@ -190,7 +209,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnKho.FlatStyle = FlatStyle.Flat;
             btnKho.Font = new Font("Segoe UI", 11F);
             btnKho.ForeColor = Color.WhiteSmoke;
-            btnKho.Location = new Point(0, 547);
+            btnKho.Location = new Point(0, 875);
             btnKho.Margin = new Padding(7, 8, 7, 8);
             btnKho.Name = "btnKho";
             btnKho.Padding = new Padding(49, 0, 0, 0);
@@ -208,7 +227,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnSanPham.FlatStyle = FlatStyle.Flat;
             btnSanPham.Font = new Font("Segoe UI", 11F);
             btnSanPham.ForeColor = Color.WhiteSmoke;
-            btnSanPham.Location = new Point(0, 383);
+            btnSanPham.Location = new Point(0, 711);
             btnSanPham.Margin = new Padding(7, 8, 7, 8);
             btnSanPham.Name = "btnSanPham";
             btnSanPham.Padding = new Padding(49, 0, 0, 0);
@@ -218,25 +237,6 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             btnSanPham.TextAlign = ContentAlignment.MiddleLeft;
             btnSanPham.UseVisualStyleBackColor = true;
             btnSanPham.Click += btnSanPham_Click;
-            // 
-            // btnDangXuat
-            // 
-            btnDangXuat.BackColor = Color.FromArgb(50, 40, 40);
-            btnDangXuat.Dock = DockStyle.Bottom;
-            btnDangXuat.FlatAppearance.BorderSize = 0;
-            btnDangXuat.FlatStyle = FlatStyle.Flat;
-            btnDangXuat.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnDangXuat.ForeColor = Color.FromArgb(220, 100, 100);
-            btnDangXuat.Location = new Point(0, 1863);
-            btnDangXuat.Margin = new Padding(7, 8, 7, 8);
-            btnDangXuat.Name = "btnDangXuat";
-            btnDangXuat.Padding = new Padding(49, 0, 0, 0);
-            btnDangXuat.Size = new Size(680, 85);
-            btnDangXuat.TabIndex = 9;
-            btnDangXuat.Text = "🔒  Đăng Xuất";
-            btnDangXuat.TextAlign = ContentAlignment.MiddleLeft;
-            btnDangXuat.UseVisualStyleBackColor = false;
-            btnDangXuat.Click += btnDangXuat_Click;
             // 
             // pnlLogo
             // 

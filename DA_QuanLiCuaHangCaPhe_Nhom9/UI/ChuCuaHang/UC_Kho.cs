@@ -56,13 +56,18 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
             dgvNguyenLieu.DataSource = listNL;
 
             dgvNguyenLieu.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            if (dgvNguyenLieu.Columns["MaNl"]      != null) dgvNguyenLieu.Columns["MaNl"].Visible      = false;
-            if (dgvNguyenLieu.Columns["TrangThai"] != null) dgvNguyenLieu.Columns["TrangThai"].Visible  = false;
+
+            // Ẩn các cột không cần thiết
+            if (dgvNguyenLieu.Columns["MaNl"]              != null) dgvNguyenLieu.Columns["MaNl"].Visible              = false;
+            if (dgvNguyenLieu.Columns["TrangThai"]         != null) dgvNguyenLieu.Columns["TrangThai"].Visible          = false;
+            if (dgvNguyenLieu.Columns["NguongCanhBao"]     != null) dgvNguyenLieu.Columns["NguongCanhBao"].Visible      = false;
+            if (dgvNguyenLieu.Columns["ChiTietPhieuKhos"]  != null) dgvNguyenLieu.Columns["ChiTietPhieuKhos"].Visible   = false;
+            if (dgvNguyenLieu.Columns["DinhLuongs"]        != null) dgvNguyenLieu.Columns["DinhLuongs"].Visible         = false;
 
             // Việt hóa tiêu đề cột tồn kho
             if (dgvNguyenLieu.Columns["TenNl"]       != null) dgvNguyenLieu.Columns["TenNl"].HeaderText       = "Tên Nguyên Liệu";
-            if (dgvNguyenLieu.Columns["SoLuongTon"]  != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText  = "Tồn Kho";
             if (dgvNguyenLieu.Columns["DonViTinh"]   != null) dgvNguyenLieu.Columns["DonViTinh"].HeaderText   = "Đơn Vị";
+            if (dgvNguyenLieu.Columns["SoLuongTon"]  != null) dgvNguyenLieu.Columns["SoLuongTon"].HeaderText  = "Tồn Kho";
 
             // Nạp ComboBox chọn nguyên liệu khi lập phiếu
             cboChonNL_Tab2.DataSource    = listNL;
@@ -247,8 +252,20 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 
             int maPhieu = Convert.ToInt32(dgvDanhSachPhieu.Rows[e.RowIndex].Cells["MaPhieu"].Value);
             dgvChiTietPhieuCu.DataSource = _service.LayChiTietCuaPhieu(maPhieu);
-            if (dgvChiTietPhieuCu.Columns["GiaNhap"]  != null) dgvChiTietPhieuCu.Columns["GiaNhap"].DefaultCellStyle.Format  = "N0";
-            if (dgvChiTietPhieuCu.Columns["ThanhTien"] != null) dgvChiTietPhieuCu.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
+
+            // Việt hóa tiêu đề chi tiết phiếu
+            if (dgvChiTietPhieuCu.Columns["TenNL"]     != null) dgvChiTietPhieuCu.Columns["TenNL"].HeaderText     = "Nguyên Liệu";
+            if (dgvChiTietPhieuCu.Columns["SoLuong"]   != null) dgvChiTietPhieuCu.Columns["SoLuong"].HeaderText   = "Số Lượng";
+            if (dgvChiTietPhieuCu.Columns["GiaNhap"]   != null)
+            {
+                dgvChiTietPhieuCu.Columns["GiaNhap"].HeaderText                  = "Giá Nhập";
+                dgvChiTietPhieuCu.Columns["GiaNhap"].DefaultCellStyle.Format     = "N0";
+            }
+            if (dgvChiTietPhieuCu.Columns["ThanhTien"] != null)
+            {
+                dgvChiTietPhieuCu.Columns["ThanhTien"].HeaderText                = "Thành Tiền";
+                dgvChiTietPhieuCu.Columns["ThanhTien"].DefaultCellStyle.Format   = "N0";
+            }
         }
 
         // Sự kiện placeholder (cần giữ để Designer không lỗi)
