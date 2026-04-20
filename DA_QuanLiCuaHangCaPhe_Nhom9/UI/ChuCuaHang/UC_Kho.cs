@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
@@ -36,6 +37,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
         // Load: tải tồn kho, danh sách phiếu nhập, cố định layout panel
         private void UC_Kho_Load(object sender, EventArgs e)
         {
+            // Tab 1
             TaiDanhSachKho();
             LoadDanhSachPhieuNhap();
 
@@ -384,11 +386,62 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
                 btnLuuPhieu.ForeColor       = Color.Black;
             }
         }
+        #endregion
+
+        #region TAB 2: NHẬP HÀNG (Dùng EF Core Models)
 
         // Thêm 1 dòng nguyên liệu vào giỏ tạm (validate số lượng và giá)
         private void btnThemVaoPhieu_Click(object sender, EventArgs e)
         {
-            if (cboChonNL_Tab2.SelectedValue == null) return;
+            dgvChiTietNhap.Columns.Clear();
+            dgvChiTietNhap.AllowUserToAddRows = false;
+            dgvChiTietNhap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvChiTietNhap.Columns.Add("MaHang", "Mã Hàng");
+            dgvChiTietNhap.Columns["MaHang"].Visible = false;
+
+            dgvChiTietNhap.Columns.Add("TenHang", "Tên Hàng Hóa");
+            dgvChiTietNhap.Columns["TenHang"].ReadOnly = true;
+
+            dgvChiTietNhap.Columns.Add("DonVi", "Đơn Vị");
+            dgvChiTietNhap.Columns["DonVi"].ReadOnly = true;
+
+            dgvChiTietNhap.Columns.Add("SoLuong", "Số Lượng");
+            dgvChiTietNhap.Columns["SoLuong"].DefaultCellStyle.Format = "N2";
+            dgvChiTietNhap.Columns["SoLuong"].DefaultCellStyle.BackColor = Color.LightYellow;
+
+            dgvChiTietNhap.Columns.Add("GiaNhap", "Giá Nhập");
+            dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.Format = "N0";
+            dgvChiTietNhap.Columns["GiaNhap"].DefaultCellStyle.BackColor = Color.LightYellow;
+
+            dgvChiTietNhap.Columns.Add("ThanhTien", "Thành Tiền");
+            dgvChiTietNhap.Columns["ThanhTien"].ReadOnly = true;
+            dgvChiTietNhap.Columns["ThanhTien"].DefaultCellStyle.Format = "N0";
+        }
+
+        private void HienThiTatCaHangHoaLenPanel()
+        {
+            flpDanhSachHangHoa.Controls.Clear();
+
+            foreach (var item in _danhSachKhoGoc)
+            {
+                Button btn = new Button();
+                btn.Text = $"{item.TenNl}\n({item.DonViTinh})";
+                btn.Width = 110;
+                btn.Height = 80;
+                btn.BackColor = Color.WhiteSmoke;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderColor = Color.LightGray;
+                btn.Tag = item; // Tag lúc này chứa object NguyenLieu của EF Core
+                btn.Click += BtnHangHoa_Click;
+                flpDanhSachHangHoa.Controls.Add(btn);
+            }
+        }
+
+        private void BtnHangHoa_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            NguyenLieu monChon = (NguyenLieu)btn.Tag;
 
             int maNL = (int)cboChonNL_Tab2.SelectedValue;
             if (!decimal.TryParse(txtSoLuongNhap.Text, out decimal soLuong) || soLuong <= 0) { MessageBox.Show("Số lượng phải lớn hơn 0"); return; }
