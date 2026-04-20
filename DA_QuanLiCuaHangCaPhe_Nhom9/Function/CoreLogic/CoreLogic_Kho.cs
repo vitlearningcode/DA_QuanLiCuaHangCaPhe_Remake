@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +7,24 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic
 {
     public class CoreLogic_Kho
     {
+        // Lấy TẤT CẢ nguyên liệu (không lọc trạng thái) - dùng cho module Quản Lý Kho
         public List<NguyenLieu> LayDanhSachNguyenLieu()
         {
             using (var db = new DataSqlContext())
             {
                 return db.NguyenLieus.OrderByDescending(nl => nl.MaNl).ToList();
+            }
+        }
+
+        // Lấy nguyên liệu "Đang kinh doanh" - dùng chung cho Kho & Sản Phẩm (tránh duplicate)
+        public List<NguyenLieu> LayNguyenLieuDangKinhDoanh()
+        {
+            using (var db = new DataSqlContext())
+            {
+                return db.NguyenLieus
+                         .Where(nl => nl.TrangThai == "Đang kinh doanh")
+                         .OrderBy(nl => nl.TenNl)
+                         .ToList();
             }
         }
 

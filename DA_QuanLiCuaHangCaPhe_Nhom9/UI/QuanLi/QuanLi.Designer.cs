@@ -1,4 +1,4 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.QuanLi
 {
     partial class QuanLi
     {
@@ -16,6 +16,7 @@
         {
             this.pnlMenu = new System.Windows.Forms.Panel();
             this.btnTrangOrder = new System.Windows.Forms.Button();
+            this.btnDangXuat = new System.Windows.Forms.Button();
             this.btnBaoCao = new System.Windows.Forms.Button();
             this.btnNhanVienCaLam = new System.Windows.Forms.Button();
             this.btnSanPham = new System.Windows.Forms.Button();
@@ -36,6 +37,7 @@
             this.pnlMenu.Controls.Add(this.btnSanPham);
             this.pnlMenu.Controls.Add(this.btnKho);
             this.pnlMenu.Controls.Add(this.pnlLogo);
+            this.pnlMenu.Controls.Add(this.btnDangXuat); // Dock Bottom - hiện dưới btnTrangOrder
             this.pnlMenu.Controls.Add(this.btnTrangOrder);
             this.pnlMenu.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlMenu.Location = new System.Drawing.Point(0, 0);
@@ -45,18 +47,36 @@
             // 
             // btnTrangOrder (Nút Lime ở dưới cùng)
             // 
-            this.btnTrangOrder.BackColor = System.Drawing.Color.FromArgb(140, 223, 37); // Lime #8CDF25
+            this.btnTrangOrder.BackColor = System.Drawing.Color.FromArgb(140, 223, 37);
             this.btnTrangOrder.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnTrangOrder.FlatAppearance.BorderSize = 0;
             this.btnTrangOrder.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTrangOrder.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.btnTrangOrder.ForeColor = System.Drawing.Color.FromArgb(6, 12, 17); // Chữ đen cho nổi
-            this.btnTrangOrder.Location = new System.Drawing.Point(0, 770);
+            this.btnTrangOrder.ForeColor = System.Drawing.Color.FromArgb(6, 12, 17);
+            this.btnTrangOrder.Location = new System.Drawing.Point(0, 730);
             this.btnTrangOrder.Name = "btnTrangOrder";
             this.btnTrangOrder.Size = new System.Drawing.Size(260, 80);
             this.btnTrangOrder.TabIndex = 5;
             this.btnTrangOrder.Text = "🛒 VÀO MÀN HÌNH BÁN HÀNG";
             this.btnTrangOrder.UseVisualStyleBackColor = false;
+            //
+            // btnDangXuat
+            //
+            this.btnDangXuat.BackColor = System.Drawing.Color.FromArgb(50, 30, 30);
+            this.btnDangXuat.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnDangXuat.FlatAppearance.BorderSize = 0;
+            this.btnDangXuat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDangXuat.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.btnDangXuat.ForeColor = System.Drawing.Color.FromArgb(220, 100, 100);
+            this.btnDangXuat.Location = new System.Drawing.Point(0, 690);
+            this.btnDangXuat.Name = "btnDangXuat";
+            this.btnDangXuat.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.btnDangXuat.Size = new System.Drawing.Size(260, 40);
+            this.btnDangXuat.TabIndex = 6;
+            this.btnDangXuat.Text = "🔒  Đăng Xuất";
+            this.btnDangXuat.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnDangXuat.UseVisualStyleBackColor = false;
+            this.btnDangXuat.Click += new System.EventHandler(this.btnDangXuat_Click);
             // 
             // btnBaoCao
             // 
@@ -194,5 +214,6 @@
         private System.Windows.Forms.Button btnKho;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Label lblSubTitle;
+        private System.Windows.Forms.Button btnDangXuat;
     }
 }

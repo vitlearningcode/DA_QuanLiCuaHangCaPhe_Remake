@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,104 +9,120 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     public partial class UC_SoQuy : UserControl
     {
+        #region Khai báo service & biến
+
+        // Service sổ quỹ: lấy danh sách giao dịch thu/chi theo khoảng thời gian
         private readonly SoQuyService _service = new SoQuyService();
+
+        // Cache dữ liệu gốc để lọc phía client (tránh query DB nhiều lần)
         private List<GiaoDichThuChi> _dataGoc = new List<GiaoDichThuChi>();
 
-        public UC_SoQuy()
+        // Mã NV đang mở sổ quỹ — ghi vào phiếu chi khi Admin thêm mới
+        private readonly string _maNVAdmin;
+
+        #endregion
+
+        #region Khởi tạo & Load
+
+        public UC_SoQuy(string maNV = "")
         {
             InitializeComponent();
+            _maNVAdmin = maNV;
         }
 
+        // Load: mặc định xem từ đầu tháng đến hôm nay, lọc "Tất cả"
         private void UC_SoQuy_Load(object sender, EventArgs e)
         {
-            // Mặc định xem sổ quỹ từ đầu tháng
-            DateTime today = DateTime.Today;
-            dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
+            DateTime today   = DateTime.Today;
+            dtpTuNgay.Value  = new DateTime(today.Year, today.Month, 1);
             dtpDenNgay.Value = today;
-            cboLocThuChi.SelectedIndex = 0;
+            cboLocThuChi.SelectedIndex = 0; // Mặc định: Tất cả
 
             LoadData();
         }
 
-        private void btnLoc_Click(object sender, EventArgs e) => LoadData();
+        #endregion
 
-        private void cboLocThuChi_SelectedIndexChanged(object sender, EventArgs e) => HienThiDuLieu();
+        #region Hàm nội bộ — Tải & hiển thị dữ liệu
 
+        // Tải dữ liệu từ DB theo khoảng ngày, rồi hiển thị (validate ngày trước)
         private void LoadData()
         {
-            if (dtpTuNgay.Value > dtpDenNgay.Value) return;
+            if (dtpTuNgay.Value > dtpDenNgay.Value) return; // Ngày không hợp lệ
 
-            // Lấy data từ Service
             _dataGoc = _service.LayDanhSachSoQuy(dtpTuNgay.Value, dtpDenNgay.Value);
             HienThiDuLieu();
         }
 
+        // Lọc _dataGoc theo ComboBox → đổ vào lưới → cập nhật tổng kết
         private void HienThiDuLieu()
         {
             if (_dataGoc == null) return;
 
-            // 1. Lọc dữ liệu theo ComboBox
-            var listLoc = _dataGoc;
-            if (cboLocThuChi.SelectedIndex == 1) // Chỉ phiếu Thu
-                listLoc = _dataGoc.Where(x => x.LoaiGiaoDich == "THU").ToList();
-            else if (cboLocThuChi.SelectedIndex == 2) // Chỉ phiếu Chi
-                listLoc = _dataGoc.Where(x => x.LoaiGiaoDich == "CHI").ToList();
+            // Lọc phía client theo loại giao dịch
+            var listLoc = cboLocThuChi.SelectedIndex switch
+            {
+                1 => _dataGoc.Where(x => x.LoaiGiaoDich == "THU").ToList(), // Chỉ Thu
+                2 => _dataGoc.Where(x => x.LoaiGiaoDich == "CHI").ToList(), // Chỉ Chi
+                _ => _dataGoc                                                // Tất cả
+            };
 
             dgvSoQuy.DataSource = listLoc.ToList();
 
-
-
-            // 2. Định dạng cột
+            // Việt hóa tiêu đề cột và format thời gian
             if (dgvSoQuy.Columns.Count > 0)
             {
-                dgvSoQuy.Columns["ThoiGian"].HeaderText = "Thời gian";
-                dgvSoQuy.Columns["ThoiGian"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
-                dgvSoQuy.Columns["LoaiGiaoDich"].HeaderText = "Loại";
-                dgvSoQuy.Columns["SoTien"].HeaderText = "Số tiền";
-                dgvSoQuy.Columns["NoiDung"].HeaderText = "Nội dung";
-                dgvSoQuy.Columns["NguoiLap"].HeaderText = "Người lập";
+                dgvSoQuy.Columns["ThoiGian"].HeaderText                          = "Thời gian";
+                dgvSoQuy.Columns["ThoiGian"].DefaultCellStyle.Format             = "dd/MM/yyyy HH:mm";
+                dgvSoQuy.Columns["LoaiGiaoDich"].HeaderText                      = "Loại";
+                dgvSoQuy.Columns["SoTien"].HeaderText                            = "Số tiền";
+                dgvSoQuy.Columns["NoiDung"].HeaderText                           = "Nội dung";
+                dgvSoQuy.Columns["NguoiLap"].HeaderText                          = "Người lập";
             }
 
-            // 3. Tính toán tổng kết cho các Panel
+            // Tổng kết từ _dataGoc (không bị ảnh hưởng bởi bộ lọc)
             decimal tongThu = _dataGoc.Where(x => x.SoTien > 0).Sum(x => x.SoTien);
             decimal tongChi = _dataGoc.Where(x => x.SoTien < 0).Sum(x => Math.Abs(x.SoTien));
 
-            //lblTongThu.Text = string.Format("{0:N0} đ", tongThu);
-            lblTongThu.Text = tongThu.ToString("N0")+ " đ";
-            lblTongChi.Text = string.Format("{0:N0} đ", tongChi);
-            lblTonQuy.Text = string.Format("{0:N0} đ", tongThu - tongChi);
+            lblTongThu.Text = $"{tongThu:N0} đ";
+            lblTongChi.Text = $"{tongChi:N0} đ";
+            lblTonQuy.Text  = $"{tongThu - tongChi:N0} đ";
         }
+
+        #endregion
+
+        #region Sự kiện lưới — Tô màu số tiền (Xanh = THU, Đỏ = CHI)
 
         private void dgvSoQuy_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (dgvSoQuy.Columns[e.ColumnIndex].Name == "SoTien" && e.Value != null)
             {
                 decimal val = Convert.ToDecimal(e.Value);
-                if (val > 0)
-                {                    
-                    e.CellStyle.ForeColor = Color.DarkGreen;
-                    e.CellStyle.Font = new Font(dgvSoQuy.Font, FontStyle.Bold);
-                    e.Value = Math.Abs(val).ToString("N0");
-                }
-                else
-                {
-                    e.CellStyle.ForeColor = Color.Red;
-                    e.CellStyle.Font = new Font(dgvSoQuy.Font, FontStyle.Bold);
-                    e.Value = Math.Abs(val).ToString("N0"); // Hiển thị số dương cho dễ nhìn
-                }
+                e.CellStyle.ForeColor = val > 0 ? Color.DarkGreen : Color.Red;
+                e.CellStyle.Font      = new Font(dgvSoQuy.Font, FontStyle.Bold);
+                e.Value               = Math.Abs(val).ToString("N0"); // Luôn hiện số dương
+                e.FormattingApplied   = true;
             }
         }
 
+        #endregion
+
+        #region Sự kiện — Lọc, tạo phiếu chi
+
+        // Nút Lọc → tải lại dữ liệu theo khoảng ngày mới
+        private void btnLoc_Click(object sender, EventArgs e) => LoadData();
+
+        // Đổi loại lọc (Tất cả / Thu / Chi) → hiển thị lại không cần query DB
+        private void cboLocThuChi_SelectedIndexChanged(object sender, EventArgs e) => HienThiDuLieu();
+
+        // Mở form thêm phiếu chi → nếu lưu thành công thì reload lưới
         private void btnTaoPhieuChi_Click(object sender, EventArgs e)
         {
-            frm_ThemPhieuChi frm = new frm_ThemPhieuChi();
+            frm_ThemPhieuChi frm = new frm_ThemPhieuChi(_maNVAdmin);
             frm.ShowDialog();
-
-            // Nếu lưu thành công thì load lại lưới
-            if (frm.IsSuccess)
-            {
-                LoadData();
-            }
+            if (frm.IsSuccess) LoadData(); // Refresh sau khi thêm phiếu mới
         }
+
+        #endregion
     }
 }

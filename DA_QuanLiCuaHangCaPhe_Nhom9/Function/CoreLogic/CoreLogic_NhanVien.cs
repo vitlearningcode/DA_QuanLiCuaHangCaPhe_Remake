@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -7,28 +7,34 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic
 {
     public class CoreLogic_NhanVien
     {
-        // 1. Sinh mã tự động (NV26001)
+        // 1. Sinh mã tự động theo format NV001, NV002...
         public string SinhMaNhanVienTuDong()
         {
             using (var db = new DataSqlContext())
             {
-                string namHienTai = DateTime.Now.ToString("yy");
-                string tienTo = "NV" + namHienTai;
+                const string tienTo = "NV";
+                // Độ dài chuẩn: "NV" (2) + "001" (3) = 5 ký tự
+                // → Lọc chặt để bỏ qua dữ liệu cũ dạng NV26001 (7 ký tự)
+                const int doDaiChuan = 5;
 
                 var nhanVienCuoiCung = db.NhanViens
-                                         .Where(nv => nv.MaNv.StartsWith(tienTo))
+                                         .Where(nv => nv.MaNv.StartsWith(tienTo)
+                                                   && nv.MaNv.Length == doDaiChuan)
                                          .OrderByDescending(nv => nv.MaNv)
                                          .Select(nv => nv.MaNv)
                                          .FirstOrDefault();
 
                 if (string.IsNullOrEmpty(nhanVienCuoiCung)) return tienTo + "001";
 
-                string baSoCuoi = nhanVienCuoiCung.Substring(4);
-                if (int.TryParse(baSoCuoi, out int soThuTu))
+                // Cắt phần số sau "NV" (NV001 → "001")
+                string phanSo = nhanVienCuoiCung.Substring(tienTo.Length);
+                if (int.TryParse(phanSo, out int soThuTu))
                 {
                     soThuTu++;
                     return tienTo + soThuTu.ToString("D3");
                 }
+
+                // Fallback an toàn
                 return tienTo + "999";
             }
         }

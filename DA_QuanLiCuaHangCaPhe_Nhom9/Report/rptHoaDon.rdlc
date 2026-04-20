@@ -1047,7 +1047,7 @@
           </Style>
         </PageHeader>
         <PageFooter>
-          <Height>2.66095cm</Height>
+          <Height>6cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -1069,14 +1069,16 @@
                       </Style>
                     </TextRun>
                   </TextRuns>
-                  <Style />
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox37</rd:DefaultName>
-              <Top>1.71167cm</Top>
-              <Left>4.25717cm</Left>
+              <Top>5.1cm</Top>
+              <Left>3.34cm</Left>
               <Height>0.6cm</Height>
-              <Width>4.43247cm</Width>
+              <Width>6.0cm</Width>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -1087,14 +1089,51 @@
                 <PaddingBottom>2pt</PaddingBottom>
               </Style>
             </Textbox>
+            <Textbox Name="lblQuetMa">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Visibility>
+                <Hidden>=Parameters!p_HinhThucThanhToan.Value &lt;&gt; "Chuyển khoản QR"</Hidden>
+              </Visibility>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>Quét mã để thanh toán chuyển khoản</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                        <FontStyle>Italic</FontStyle>
+                        <Color>#555555</Color>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>0.1cm</Top>
+              <Left>2.84cm</Left>
+              <Height>0.5cm</Height>
+              <Width>7.0cm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Textbox>
             <Image Name="Image1">
               <Source>External</Source>
               <Value>=Parameters!p_QR.Value</Value>
               <Sizing>Fit</Sizing>
-              <Top>0.03528cm</Top>
-              <Left>5.61622cm</Left>
-              <Height>1.5cm</Height>
-              <Width>1.5cm</Width>
+              <Visibility>
+                <Hidden>=Parameters!p_HinhThucThanhToan.Value &lt;&gt; "Chuyển khoản QR"</Hidden>
+              </Visibility>
+              <Top>0.7cm</Top>
+              <Left>4.34cm</Left>
+              <Height>4cm</Height>
+              <Width>4cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <Border>
@@ -1151,6 +1190,12 @@
     </ReportParameter>
     <ReportParameter Name="p_QR">
       <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <DefaultValue>
+        <Values>
+          <Value></Value>
+        </Values>
+      </DefaultValue>
       <Prompt>ReportParameter1</Prompt>
     </ReportParameter>
     <ReportParameter Name="p_HinhThucThanhToan">

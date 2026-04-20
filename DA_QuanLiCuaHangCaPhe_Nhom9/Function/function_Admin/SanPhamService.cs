@@ -1,4 +1,5 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Function.CoreLogic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
 {
     public class SanPhamService
     {
+        private readonly CoreLogic_Kho _coreKho = new CoreLogic_Kho();
         // 1. Lấy tất cả món (Cho sếp xem cả món Đang bán lẫn Ngừng kinh doanh)
         public List<SanPham> LayDanhSachMonAn()
         {
@@ -16,13 +18,10 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // 2. Lấy danh sách nguyên liệu để chọn
+        // 2. Lấy danh sách nguyên liệu để chọn (delegate sang CoreLogic_Kho — tránh duplicate với KhoService)
         public List<NguyenLieu> LayDanhSachNguyenLieu()
         {
-            using (var db = new DataSqlContext())
-            {
-                return db.NguyenLieus.Where(nl => nl.TrangThai == "Đang kinh doanh").ToList();
-            }
+            return _coreKho.LayNguyenLieuDangKinhDoanh();
         }
 
         // 3. Lấy danh sách loại món

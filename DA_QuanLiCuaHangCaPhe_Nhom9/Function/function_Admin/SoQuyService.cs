@@ -1,4 +1,4 @@
-﻿using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
+using DA_QuanLiCuaHangCaPhe_Nhom9.Models;
 using Microsoft.EntityFrameworkCore; // Nhớ có dòng này để dùng .Include()
 using System;
 using System.Collections.Generic;
@@ -55,19 +55,19 @@ namespace DA_QuanLiCuaHangCaPhe_Nhom9.Function.function_Admin
             }
         }
 
-        // HÀM TẠO PHIẾU CHI MỚI (Giữ nguyên)
-        public bool TaoPhieuChiThuCong(string loaiChi, decimal soTien, string hinhThuc, string ghiChu, int maNVLap)
+        // Tạo phiếu chi thủ công: mã NV dưới dạng string đồng bộ với kiểu NVARCHAR của DB
+        public bool TaoPhieuChiThuCong(string loaiChi, decimal soTien, string hinhThuc, string ghiChu, string maNVLap)
         {
             using (var db = new DataSqlContext())
             {
                 var pc = new PhieuChi
                 {
-                    NgayChi = DateTime.Now,
-                    LoaiChi = loaiChi,
-                    SoTien = soTien,
+                    NgayChi  = DateTime.Now,
+                    LoaiChi  = loaiChi,
+                    SoTien   = soTien,
                     HinhThuc = hinhThuc,
-                    GhiChu = ghiChu,
-                    MaNv = maNVLap.ToString(),
+                    GhiChu   = ghiChu,
+                    MaNv     = string.IsNullOrEmpty(maNVLap) ? null : maNVLap, // null-safe
                 };
                 db.PhieuChis.Add(pc);
                 db.SaveChanges();

@@ -1,4 +1,4 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
+namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.ChuCuaHang
 {
     partial class UC_KhuyenMai
     {
@@ -122,7 +122,7 @@
             lblDoiTuong.Location = new Point(20, 190);
             lblDoiTuong.Text = "Khách hàng:";
             cboDoiTuong.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboDoiTuong.Items.AddRange(new object[] { "Tất cả", "Thuong", "VIP" });
+            cboDoiTuong.Items.AddRange(new object[] { "Tất cả", "Thường", "VIP" });
             cboDoiTuong.Location = new Point(20, 210);
             cboDoiTuong.Size = new Size(160, 23);
             label5.AutoSize = true;

@@ -1,4 +1,4 @@
-﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9
+﻿namespace DA_QuanLiCuaHangCaPhe_Nhom9.UI.POS
 {
     partial class ThanhToan
     {
